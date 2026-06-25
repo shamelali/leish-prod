@@ -200,6 +200,14 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Studio Dashboard</Text>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.push('/screens/DashboardAdminScreen')}
+          >
+            <Ionicons name="shield" size={20} color="#f43f5e" style={styles.menuIcon} />
+            <Text style={styles.menuText}>Admin Dashboard</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.menuItem}>
             <Ionicons name="card" size={20} color="#6366f1" style={styles.menuIcon} />
             <Text style={styles.menuText}>Payment Methods</Text>

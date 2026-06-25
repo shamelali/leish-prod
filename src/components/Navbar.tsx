@@ -143,6 +143,9 @@ export default function Navbar({
                       <Link to="/dashboard/studio" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
                         <LayoutDashboard className="w-4 h-4" /> {t.nav.studioDashboard}
                       </Link>
+                      <Link to="/dashboard/admin" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
+                        <LayoutDashboard className="w-4 h-4" /> Admin Dashboard
+                      </Link>
                       <div className="border-t border-gray-100 dark:border-neutral-800 mt-1 pt-1">
                         <button onClick={() => { logout(); setProfileOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors w-full text-left">
                           <LogOut className="w-4 h-4" /> {t.common.logout}
@@ -215,6 +218,7 @@ export default function Navbar({
                   <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><Calendar className="w-4 h-4" /> {t.nav.myBookings}</Link>
                   <Link to="/dashboard/artist" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><LayoutDashboard className="w-4 h-4" /> {t.nav.artistDashboard}</Link>
                   <Link to="/dashboard/studio" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><LayoutDashboard className="w-4 h-4" /> {t.nav.studioDashboard}</Link>
+                  <Link to="/dashboard/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><LayoutDashboard className="w-4 h-4" /> Admin Dashboard</Link>
                   <button onClick={() => { logout(); setOpen(false); }} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl w-full text-left"><LogOut className="w-4 h-4" /> {t.common.logout}</button>
                 </>
               ) : (
