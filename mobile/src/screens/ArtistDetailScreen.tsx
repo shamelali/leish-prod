@@ -18,6 +18,7 @@ import { paymentsApi } from '../services/user';
 import { Artist, Service } from '../types/api';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../context/FavoritesContext';
+import ReviewForm from '../components/ReviewForm';
 
 const { width } = Dimensions.get('window');
 

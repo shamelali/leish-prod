@@ -78,23 +78,38 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     [favorites]
   );
 
+  const syncFavorite = useCallback(async (artistId: string, add: boolean) => {
+    if (!user?.id) return;
+    try {
+      await fetch(`/api/user?action=favorites&userId=${user.id}`, {
+        method: add ? "POST" : "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ artistId }),
+      });
+    } catch {}
+  }, [user?.id]);
+
   const toggleFavorite = useCallback((artistId: string) => {
-    setFavorites((prev) =>
-      prev.includes(artistId)
+    setFavorites((prev) => {
+      const wasFav = prev.includes(artistId);
+      return wasFav
         ? prev.filter((id) => id !== artistId)
-        : [...prev, artistId]
-    );
-  }, []);
+        : [...prev, artistId];
+    });
+    syncFavorite(artistId, !favorites.includes(artistId));
+  }, [syncFavorite, favorites]);
 
   const addFavorite = useCallback((artistId: string) => {
     setFavorites((prev) =>
       prev.includes(artistId) ? prev : [...prev, artistId]
     );
-  }, []);
+    syncFavorite(artistId, true);
+  }, [syncFavorite]);
 
   const removeFavorite = useCallback((artistId: string) => {
     setFavorites((prev) => prev.filter((id) => id !== artistId));
-  }, []);
+    syncFavorite(artistId, false);
+  }, [syncFavorite]);
 
   return (
     <FavoritesContext.Provider

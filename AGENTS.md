@@ -131,13 +131,10 @@ npm run db:setup  # Push + seed
 
 ## Known Issues / Next Steps
 
-- E2e tests in `e2e/` are stale (expect Next.js routes) — need rewrite for SPA
-- Favorites sync on login doesn't auto-merge localStorage to DB (just reads one source)
-- Billplz amount conversion: `Math.round(Number(amount) * 100)` may double-convert in `createBillOnBillplz` (called with already-cents `amount`)
 - `.env.production` has `VITE_NEON_AUTH_URL=""` (empty) — relies on `.env.local` at build time
-- No admin dashboard yet
 - `eslint.config.mjs` has warnings about unused ts-eslint directives but builds fine
 - Bundle > 500 KB — consider code-splitting via `React.lazy()` per route
+- Could not push `.github/workflows/` files — GitHub token lacks `workflow` scope
 
 ## Session Log
 
@@ -154,3 +151,11 @@ npm run db:setup  # Push + seed
 - Consolidated 14 API functions → 8 to fit Vercel Hobby plan 12-fn limit (merged 5 payment endpoints into `api/payments.ts`, 3 user actions into `api/user.ts`)
 - Updated all client callers (`FavoritesContext.tsx`, `AuthContext.tsx`, `ReviewForm.tsx`) to use new action-based endpoints
 - Deployed to production: https://leish-clone-cvybwdbg7-shamelalis-projects.vercel.app
+
+### 2026-06-26
+- Rewrote e2e tests for SPA (dynamic hrefs instead of hardcoded slugs, updated BASE_URL to 5173)
+- Added Neon GitHub Actions workflow for PR database branching (`neon-branching.yml`)
+- Added admin dashboard API endpoint (`api/admin.ts`) + dashboard-admin page fetches real stats
+- Fixed FavoritesContext: auto-merge localStorage favorites to DB on login, live-sync toggles to server via POST/DELETE
+- Added mobile test suite (Jest config, mocks, babel config, updated tests for expo-free setup)
+- Updated AGENTS.md known issues
