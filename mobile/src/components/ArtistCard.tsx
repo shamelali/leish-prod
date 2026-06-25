@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Artist } from '../../types/api';
-import { useFavorites } from '../../context/FavoritesContext';
+import { Artist } from '../types/api';
+import { useFavorites } from '../context/FavoritesContext';
 
 interface ArtistCardProps {
   artist: Artist;

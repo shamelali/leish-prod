@@ -1,31 +1,25 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
-import { useAuth } from '../context/AuthContext';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, FlatList } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
 import { useFavorites } from '../context/FavoritesContext';
 import { artistsApi } from '../services/api';
-import { Artist } from '../types/api';
 import { ArtistCard } from '../components/ArtistCard';
 
 export default function FavoritesScreen() {
-  const { favorites, isLoading } = useFavorites();
-  const [artists, setArtists] = useState<Artist[]>([]);
+  const { favorites, isLoading: favsLoading } = useFavorites();
 
-  useEffect(() => {
-    loadFavoriteArtists();
-  }, [favorites]);
+  const { data: allArtists = [] } = useQuery({
+    queryKey: ['artists'],
+    queryFn: () => artistsApi.getAll(),
+    enabled: favorites.length > 0,
+  });
 
-  const loadFavoriteArtists = async () => {
-    if (favorites.length === 0) return;
-    try {
-      const allArtists = await artistsApi.getAll();
-      const favoriteArtists = allArtists.filter(artist => favorites.includes(artist.id));
-      setArtists(favoriteArtists);
-    } catch (error) {
-      console.error('Failed to load favorite artists:', error);
-    }
-  };
+  const artists = useMemo(
+    () => allArtists.filter((a) => favorites.includes(a.id)),
+    [allArtists, favorites]
+  );
 
-  const renderArtist = ({ item }: { item: Artist }) => (
+  const renderArtist = ({ item }: { item: import('../types/api').Artist }) => (
     <ArtistCard artist={item} />
   );
 
@@ -34,7 +28,7 @@ export default function FavoritesScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>My Favorites</Text>
       </View>
-      
+
       <FlatList
         data={artists}
         renderItem={renderArtist}
@@ -44,7 +38,7 @@ export default function FavoritesScreen() {
           <View style={styles.empty}>
             <Text style={styles.emptyIcon}>🤍</Text>
             <Text style={styles.emptyText}>
-              {isLoading ? 'Loading...' : 'No favorite artists yet'}
+              {favsLoading ? 'Loading...' : 'No favorite artists yet'}
             </Text>
             <Text style={styles.emptySubtext}>
               Tap the heart on artists you love!

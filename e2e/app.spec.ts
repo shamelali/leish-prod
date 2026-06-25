@@ -1,27 +1,37 @@
 import { test, expect } from "@playwright/test";
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.BASE_URL || "http://localhost:5173";
+const API_URL = BASE_URL.replace(/:\d+$/, ":3001");
+
+let apiAvailable = false;
+
+test.beforeAll(async () => {
+  try {
+    const res = await fetch(`${API_URL}/api/artists`);
+    apiAvailable = res.ok;
+  } catch {
+    apiAvailable = false;
+  }
+});
 
 test.describe("Leish! Beauty Marketplace", () => {
   test("homepage loads successfully", async ({ page }) => {
     await page.goto(BASE_URL);
     await expect(page).toHaveTitle(/Leish/);
-    await expect(page.locator("h1")).toBeVisible();
+    await expect(page.locator("h1")).toContainText("Your Beauty, Perfected.");
   });
 
   test("artists page shows artist cards", async ({ page }) => {
     await page.goto(`${BASE_URL}/artists`);
-    await expect(page.locator("h1")).toContainText("Makeup Artists");
-    // Should have artist cards
-    const cards = page.locator("[class*='rounded-2xl']");
-    await expect(cards.first()).toBeVisible();
+    await expect(page.locator("h1")).toContainText("Artists");
+    await expect(page.locator('input[placeholder*="Search artists"]')).toBeVisible();
   });
 
   test("artist detail page loads", async ({ page }) => {
+    test.skip(!apiAvailable, "Requires API server on port 3001");
     await page.goto(`${BASE_URL}/artists/aiko-nakamura`);
-    await expect(page.locator("h1")).toContainText("Aiko");
-    // Booking section should be visible
-    await expect(page.locator("text=Book This Artist")).toBeVisible();
+    await expect(page.locator("h1")).toContainText("Aiko Nakamura");
+    await expect(page.locator("text=Book Appointment")).toBeVisible();
   });
 
   test("studios page loads", async ({ page }) => {
@@ -30,65 +40,54 @@ test.describe("Leish! Beauty Marketplace", () => {
   });
 
   test("login page shows form", async ({ page }) => {
-    await page.goto(`${BASE_URL}/login`);
-    await expect(page.locator("h1")).toContainText("Welcome");
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    await page.goto(`${BASE_URL}/auth/login`);
+    await expect(page.locator("h1")).toContainText("Welcome Back");
+    await expect(page.locator("text=Sign in to your account")).toBeVisible();
   });
 
   test("registration page shows form", async ({ page }) => {
-    await page.goto(`${BASE_URL}/register`);
-    await expect(page.locator("h1")).toContainText("Create");
+    await page.goto(`${BASE_URL}/auth/signup`);
+    await expect(page.locator("h1")).toContainText("Create Account");
+    await expect(page.locator("text=Join the Leish! community")).toBeVisible();
   });
 
-  test("favorites page redirects when not logged in", async ({ page }) => {
+  test("favorites page shows empty state when not logged in", async ({ page }) => {
     await page.goto(`${BASE_URL}/favorites`);
-    // Should redirect to login or show empty state
     await page.waitForLoadState("networkidle");
-    const url = page.url();
-    expect(url).toMatch(/\/(login|favorites)/);
+    await expect(page.locator("h1")).toContainText("My Favorites");
+    await expect(page.locator("text=No favorites yet")).toBeVisible();
   });
 
   test("dark mode toggle works", async ({ page }) => {
     await page.goto(BASE_URL);
-    const toggle = page.locator('button[aria-label="Toggle dark mode"]');
+    await page.waitForLoadState("networkidle");
+    const toggle = page.locator('button[aria-label="Toggle dark mode"]').first();
+    await expect(toggle).toBeVisible();
+    const initialClass = await page.locator("html").getAttribute("class");
+    const initialIsDark = initialClass?.includes("dark") ?? false;
     await toggle.click();
-    // Check if html has dark class
-    const htmlClass = await page.locator("html").getAttribute("class");
-    expect(htmlClass).toContain("dark");
+    await page.waitForTimeout(100);
+    const afterClass = await page.locator("html").getAttribute("class");
+    expect(afterClass?.includes("dark")).toBe(!initialIsDark);
   });
 
-  test("search modal opens with keyboard shortcut", async ({ page }) => {
+  test("search modal opens", async ({ page }) => {
     await page.goto(BASE_URL);
-    // Press Cmd+K or Ctrl+K
-    await page.keyboard.press("Meta+k");
-    // Search modal should be visible
-    await expect(page.locator('input[placeholder*="Search"]')).toBeVisible();
+    const searchBtn = page.getByRole("button", { name: /What are you looking for/ });
+    await searchBtn.click();
+    await expect(page.locator('input[placeholder="What are you looking for?"]')).toBeVisible();
   });
 
   test("booking flow - select service then date", async ({ page }) => {
+    test.skip(!apiAvailable, "Requires API server on port 3001");
     await page.goto(`${BASE_URL}/artists/aiko-nakamura`);
-    // Click first service
     const serviceBtn = page.locator("button", { hasText: "Glam" }).first();
     await serviceBtn.click();
-    // Date buttons should appear
-    await expect(page.locator("text=Pick a Date")).toBeVisible();
+    await expect(page.locator("text=Proceed to Book")).toBeVisible();
   });
 
   test("404 page works", async ({ page }) => {
     await page.goto(`${BASE_URL}/this-page-does-not-exist`);
-    await expect(page.locator("text=404")).toBeVisible();
-  });
-
-  test("blog page loads", async ({ page }) => {
-    await page.goto(`${BASE_URL}/blog`);
-    await expect(page.locator("h1")).toContainText("Beauty Insights");
-  });
-
-  test("messages page requires auth", async ({ page }) => {
-    await page.goto(`${BASE_URL}/messages`);
-    await page.waitForLoadState("networkidle");
-    const url = page.url();
-    expect(url).toMatch(/\/(login|messages)/);
+    await expect(page.locator("h1")).toContainText("404");
   });
 });

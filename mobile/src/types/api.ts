@@ -1,6 +1,7 @@
 export interface Artist {
   id: string;
   name: string;
+  slug: string;
   image: string;
   location: string;
   area: string;
@@ -10,13 +11,14 @@ export interface Artist {
   price: number;
   bio: string;
   portfolio: string[];
-  services: Service[];
-  reviews: Review[];
-  available: boolean;
   verified: boolean;
-  experience: number;
   languages: string[];
   responseTime: string;
+  yearsExperience: number;
+  featured: boolean;
+  available: boolean;
+  services?: Service[];
+  reviews?: Review[];
 }
 
 export interface Service {
@@ -49,25 +51,52 @@ export interface Category {
 export interface Studio {
   id: string;
   name: string;
+  slug: string;
   image: string;
   location: string;
   area: string;
   rating: number;
   reviewCount: number;
-  artists: number;
+  artistsCount: number;
   price: number;
   categories: string[];
-  description: string;
+  bio: string;
+  featured: boolean;
+  available: boolean;
+  createdAt: string;
+}
+
+export interface StudioDetail extends Studio {
+  artists?: Artist[];
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  avatar?: string;
+  createdAt: string;
+  bookings: Booking[];
 }
 
 export interface Booking {
   id: string;
   artistId: string;
   artistName: string;
-  serviceId: string;
-  serviceName: string;
+  artistImage?: string;
+  service: string;
   date: string;
   time: string;
   price: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  createdAt: string;
+}
+
+export interface RegisterData {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
 }

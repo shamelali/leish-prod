@@ -1,26 +1,32 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { Studio } from '../../types/api';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Studio } from '../types/api';
 
 interface StudioCardProps {
   studio: Studio;
 }
 
 export const StudioCard: React.FC<StudioCardProps> = ({ studio }) => {
+  const router = useRouter();
+
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => router.push(`/screens/StudioDetailScreen?id=${encodeURIComponent(studio.id)}`)}
+    >
       <Image source={{ uri: studio.image }} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.name}>{studio.name}</Text>
-        <Text style={styles.location}>{studio.location}</Text>
+        <Text style={styles.location}>{studio.location}, {studio.area}</Text>
         <View style={styles.rating}>
           <Text style={styles.ratingText}>★ {studio.rating}</Text>
           <Text style={styles.reviewCount}>({studio.reviewCount} reviews)</Text>
         </View>
-        <Text style={styles.artists}>{studio.artists} artists</Text>
-        <Text style={styles.price}>From RM {studio.price}</Text>
+        <Text style={styles.artists}>{studio.artistsCount} artists</Text>
+        <Text style={styles.price}>From RM {studio.price}/hr</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
