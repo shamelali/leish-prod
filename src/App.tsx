@@ -19,6 +19,7 @@ const Favorites = lazy(() => import('./pages/favorites'));
 const DashboardArtist = lazy(() => import('./pages/dashboard-artist'));
 const DashboardStudio = lazy(() => import('./pages/dashboard-studio'));
 const DashboardAdmin = lazy(() => import('./pages/dashboard-admin'));
+const Register = lazy(() => import('./pages/register'));
 const Auth = lazy(() => import('./pages/auth'));
 const Account = lazy(() => import('./pages/account'));
 const NotFound = lazy(() => import('./pages/not-found'));
@@ -50,6 +51,8 @@ export default function App() {
                       <Route path="/dashboard/artist" element={<DashboardArtist />} />
                       <Route path="/dashboard/studio" element={<DashboardStudio />} />
                       <Route path="/dashboard/admin" element={<DashboardAdmin />} />
+                      <Route path="/register" element={<Register />} />
+                      <Route path="/register/:role" element={<Register />} />
                       <Route path="/auth/:pathname" element={<Auth />} />
                       <Route path="/account/:pathname" element={<Account />} />
                       <Route path="*" element={<NotFound />} />

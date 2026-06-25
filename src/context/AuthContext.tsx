@@ -6,6 +6,12 @@ export interface User {
   email: string;
   phone: string;
   avatar?: string;
+  role: 'client' | 'artist' | 'studio';
+  location: string;
+  area: string;
+  specialties: string[];
+  languages: string[];
+  portfolio: string[];
   createdAt: string;
   bookings: Booking[];
 }
@@ -40,6 +46,12 @@ export interface RegisterData {
   phone: string;
   password: string;
   confirmPassword: string;
+  role: 'client' | 'artist' | 'studio';
+  location: string;
+  area: string;
+  specialties: string[];
+  languages: string[];
+  portfolio: string[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -103,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem("leish_users");
       if (stored) {
-        const users: Array<{ email: string; name: string; phone: string; password: string }> = JSON.parse(stored);
+        const users: Array<RegisterData> = JSON.parse(stored);
         const found = users.find((u) => u.email === email && u.password === password);
         if (found) {
           const existingUser = localStorage.getItem(STORAGE_KEY);
@@ -113,7 +125,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             name: found.name,
             email: found.email,
             phone: found.phone,
-            avatar: undefined,
+            avatar: found.portfolio?.[0] || undefined,
+            role: found.role || 'client',
+            location: found.location || '',
+            area: found.area || '',
+            specialties: found.specialties || [],
+            languages: found.languages || [],
+            portfolio: found.portfolio || [],
             createdAt: new Date().toISOString(),
             bookings: existingData?.bookings || sampleBookings,
           });
@@ -130,6 +148,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       phone: "+60 12-345 6789",
       avatar: undefined,
+      role: 'client',
+      location: 'Kuala Lumpur',
+      area: 'Bukit Bintang',
+      specialties: [],
+      languages: ['English', 'Malay (Bahasa Melayu)'],
+      portfolio: [],
       createdAt: "2025-06-15T00:00:00Z",
       bookings: sampleBookings,
     });
@@ -155,12 +179,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Save to users list
     try {
       const stored = localStorage.getItem("leish_users");
-      const users: Array<{ email: string; name: string; phone: string; password: string }> = stored ? JSON.parse(stored) : [];
+      const users: Array<RegisterData> = stored ? JSON.parse(stored) : [];
       if (users.find((u) => u.email === data.email)) {
         return { success: false, error: "An account with this email already exists." };
       }
-      users.push({ email: data.email, name: data.name, phone: data.phone, password: data.password });
+      users.push(data);
       localStorage.setItem("leish_users", JSON.stringify(users));
+    } catch {}
+
+    // Simulate email sending based on role
+    try {
+      const emailSubject = data.role === 'artist'
+        ? 'Welcome to Leish! Artist Community'
+        : data.role === 'studio'
+        ? 'Your Studio Registration on Leish!'
+        : 'Welcome to Leish!';
+
+      const emailBody = data.role === 'artist'
+        ? `Hi ${data.name},\n\nThank you for joining Leish! as an artist. Your profile is now live in ${data.location}, ${data.area}. Start receiving bookings!\n\nLeish! Team`
+        : data.role === 'studio'
+        ? `Hi ${data.name},\n\nThank you for registering your studio on Leish!. Your studio listing in ${data.location}, ${data.area} is being reviewed.\n\nLeish! Team`
+        : `Hi ${data.name},\n\nWelcome to Leish! Start booking Malaysia's finest makeup artists today.\n\nLeish! Team`;
+
+      console.log(`[EMAIL] To: ${data.email} | Subject: ${emailSubject} | Body: ${emailBody}`);
+      localStorage.setItem(`leish_email_${data.email}`, JSON.stringify({ subject: emailSubject, body: emailBody, sentAt: new Date().toISOString() }));
     } catch {}
 
     setUser({
@@ -168,7 +210,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name: data.name,
       email: data.email,
       phone: data.phone,
-      avatar: undefined,
+      avatar: data.portfolio[0] || undefined,
+      role: data.role,
+      location: data.location,
+      area: data.area,
+      specialties: data.specialties,
+      languages: data.languages,
+      portfolio: data.portfolio,
       createdAt: new Date().toISOString(),
       bookings: [],
     });
