@@ -8,6 +8,7 @@ import { NotificationsProvider } from './context/NotificationsContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const Home = lazy(() => import('./pages/home'));
 const Artists = lazy(() => import('./pages/artists'));
@@ -48,9 +49,9 @@ export default function App() {
                       <Route path="/studios/:id" element={<StudioDetail />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/favorites" element={<Favorites />} />
-                      <Route path="/dashboard/artist" element={<DashboardArtist />} />
-                      <Route path="/dashboard/studio" element={<DashboardStudio />} />
-                      <Route path="/dashboard/admin" element={<DashboardAdmin />} />
+                      <Route path="/dashboard/artist" element={<ProtectedRoute allowedRoles={['artist']}><DashboardArtist /></ProtectedRoute>} />
+                      <Route path="/dashboard/studio" element={<ProtectedRoute allowedRoles={['studio']}><DashboardStudio /></ProtectedRoute>} />
+                      <Route path="/dashboard/admin" element={<ProtectedRoute><DashboardAdmin /></ProtectedRoute>} />
                       <Route path="/register" element={<Register />} />
                       <Route path="/register/:role" element={<Register />} />
                       <Route path="/auth/:pathname" element={<Auth />} />

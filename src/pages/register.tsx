@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, Lock, MapPin, Building2, Sparkles, Globe, Image, Check, ChevronDown, X } from 'lucide-react';
+import { User, Mail, Phone, Lock, MapPin, Building2, Sparkles, Globe, Image, Check, ChevronDown, X, Upload } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import SocialLoginButtons from '../components/SocialLoginButtons';
 import {
@@ -31,6 +31,25 @@ export default function Register() {
   });
   const [customSpecialty, setCustomSpecialty] = useState('');
   const [portfolioUrl, setPortfolioUrl] = useState('');
+  const [langSearch, setLangSearch] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach((file) => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const dataUrl = ev.target?.result as string;
+          if (dataUrl && !form.portfolio.includes(dataUrl)) {
+            setForm((prev) => ({ ...prev, portfolio: [...prev.portfolio, dataUrl] }));
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    if (e.target) e.target.value = '';
+  };
 
   const selectRole = (r: 'client' | 'artist' | 'studio') => {
     setRole(r);
@@ -336,27 +355,42 @@ export default function Register() {
             {role !== 'client' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Languages</label>
-                <div className="relative">
-                  <Globe className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-                  <select
-                    multiple
-                    value={form.languages}
-                    onChange={(e) => {
-                      const selected = Array.from(e.target.selectedOptions, (o) => o.value);
-                      setForm({ ...form, languages: selected });
-                    }}
-                    className="w-full pl-9 pr-4 py-2.5 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all min-h-[120px]"
-                  >
-                    {southeastAsianLanguages.map((l) => (
-                      <option key={l} value={l} className="py-1">{l}</option>
+                <div className="relative mb-2">
+                  <Globe className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search languages..."
+                    value={langSearch}
+                    onChange={(e) => setLangSearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2.5 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 bg-gray-50 dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700">
+                  {southeastAsianLanguages
+                    .filter((l) => l.toLowerCase().includes(langSearch.toLowerCase()))
+                    .map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => setForm({ ...form, languages: toggleArrayItem(form.languages, l) })}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${
+                          form.languages.includes(l)
+                            ? 'bg-blue-500 text-white border-blue-500'
+                            : 'bg-white dark:bg-neutral-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-neutral-600 hover:border-blue-300'
+                        }`}
+                      >
+                        {l}
+                      </button>
                     ))}
-                  </select>
                 </div>
                 {form.languages.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {form.languages.map((l) => (
                       <span key={l} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 text-xs rounded-full">
-                        <Check className="w-3 h-3" /> {l}
+                        {l}
+                        <button type="button" onClick={() => setForm({ ...form, languages: form.languages.filter((x) => x !== l) })}>
+                          <X className="w-3 h-3" />
+                        </button>
                       </span>
                     ))}
                   </div>
@@ -368,6 +402,28 @@ export default function Register() {
             {(role === 'artist' || role === 'studio') && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Portfolio Images</label>
+
+                {/* File upload */}
+                <div className="mb-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-200 dark:border-neutral-700 rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:border-rose-300 dark:hover:border-rose-700 hover:text-rose-500 transition-all"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload photos from device
+                  </button>
+                </div>
+
+                {/* URL input */}
                 <div className="flex gap-2 mb-2">
                   <div className="relative flex-1">
                     <Image className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -376,7 +432,7 @@ export default function Register() {
                       value={portfolioUrl}
                       onChange={(e) => setPortfolioUrl(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addPortfolioUrl(); } }}
-                      placeholder="https://example.com/image.jpg"
+                      placeholder="Or paste an image URL..."
                       className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                     />
                   </div>
