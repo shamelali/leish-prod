@@ -21,7 +21,7 @@ export default function Footer({
               <span className="text-xl font-bold text-white">Leish!</span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">{t.footer.tagline}</p>
-            <a to="https://wa.me/601137633788" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm">
+            <a href="https://wa.me/601137633788" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm">
               <MessageCircle className="w-4 h-4" /> {t.cta.chatWhatsApp}
             </a>
           </div>
@@ -54,16 +54,16 @@ export default function Footer({
           <div>
             <h3 className="text-white font-semibold mb-5 text-sm uppercase tracking-wider">Portfolio</h3>
             <ul className="space-y-2.5">
-              <li><a to="https://dutaintegra.my" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-rose-400 transition-colors">Duta Integra</a></li>
+              <li><a href="https://dutaintegra.my" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-rose-400 transition-colors">Duta Integra</a></li>
             </ul>
           </div>
         </div>
         <div className="mt-14 pt-8 border-t border-gray-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Leish! {t.footer.rights}</p>
           <div className="flex items-center gap-6">
-            <a to="#" className="text-gray-500 hover:text-rose-400 transition-colors" aria-label="Instagram"><Camera className="w-5 h-5" /></a>
-            <a to="mailto:hello@leish.my" className="text-gray-500 hover:text-rose-400 transition-colors" aria-label="Email"><Mail className="w-5 h-5" /></a>
-            <a to="https://wa.me/601137633788" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-rose-400 transition-colors" aria-label="WhatsApp"><MessageCircle className="w-5 h-5" /></a>
+            <a href="#" className="text-gray-500 hover:text-rose-400 transition-colors" aria-label="Instagram"><Camera className="w-5 h-5" /></a>
+            <a href="mailto:hello@leish.my" className="text-gray-500 hover:text-rose-400 transition-colors" aria-label="Email"><Mail className="w-5 h-5" /></a>
+            <a href="https://wa.me/601137633788" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-rose-400 transition-colors" aria-label="WhatsApp"><MessageCircle className="w-5 h-5" /></a>
             <p className="text-sm text-gray-500 flex items-center gap-1"><Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> {t.footer.madeWith}</p>
           </div>
         </div>

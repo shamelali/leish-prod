@@ -28,7 +28,7 @@ export default function CTASection({
           <Link to="/artists" className="inline-flex items-center gap-2.5 px-8 py-4 bg-white text-rose-600 font-bold rounded-2xl hover:bg-rose-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105 active:scale-100 text-base">
             {t.cta.browseArtists} <ArrowRight className="w-4 h-4" />
           </Link>
-          <a to="https://wa.me/601137633788" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2.5 px-8 py-4 bg-white/10 text-white font-bold rounded-2xl border border-white/25 hover:bg-white/20 transition-all backdrop-blur-sm text-base">
+          <a href="https://wa.me/601137633788" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2.5 px-8 py-4 bg-white/10 text-white font-bold rounded-2xl border border-white/25 hover:bg-white/20 transition-all backdrop-blur-sm text-base">
             <MessageCircle className="w-4 h-4" /> {t.cta.chatWhatsApp}
           </a>
         </div>

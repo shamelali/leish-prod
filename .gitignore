@@ -1,36 +1,34 @@
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-.yarn/install-state.gz
+# Dependencies
+node_modules/
 
-# testing
-/coverage
+# Build outputs
+dist/
+.next/
 
-# next.js
-/.next/
-/out/
+# Environment
+.env
+.env.local
+.env.production.local
+.env.development.local
 
-# production
-/build
+# IDE
+.vscode/
+.idea/
 
-# misc
+# OS
 .DS_Store
-*.pem
 Thumbs.db
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# Database
+drizzle/
 
-# env files
-.env*.local
+# Logs
+*.log
 
-# vercel
-.vercel
+# Testing
+coverage/
+test-results/
+playwright-report/
 
-# typescript
+# Misc
 *.tsbuildinfo
-next-env.d.ts

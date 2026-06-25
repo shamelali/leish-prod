@@ -177,7 +177,7 @@ export default function ArtistDetail() {
             </div>
           </div>
 
-          {user && <ReviewForm artistId={id!} />}
+          {user && <ReviewForm artistId={id!} artistName={artist?.name || ''} services={services.map((s: any) => ({ id: String(s.id), name: s.name }))} />}
         </div>
 
         <div className="space-y-6">
