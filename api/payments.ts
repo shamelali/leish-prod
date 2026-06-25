@@ -21,7 +21,7 @@ export default async function handler(req: Request) {
         const billplzBody = new URLSearchParams({
           collection_id: process.env.BILLPLZ_COLLECTION_ID!,
           description: description || 'Beauty booking payment',
-          amount: String(Math.round(Number(amount))),
+          amount: String(Math.round(Number(amount) * 100)),
           name: name || 'Customer',
           email: email || '',
           phone: phone || '',

@@ -22,6 +22,7 @@ export default function RootLayout() {
           <Stack.Screen name="screens/PaymentScreen" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="screens/DashboardArtistScreen" options={{ presentation: 'card' }} />
           <Stack.Screen name="screens/DashboardStudioScreen" options={{ presentation: 'card' }} />
+          <Stack.Screen name="screens/DashboardAdminScreen" options={{ presentation: 'card' }} />
           </Stack>
         </FavoritesProvider>
       </AuthProvider>
