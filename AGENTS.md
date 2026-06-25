@@ -3,7 +3,7 @@
 ## Stack
 
 | Layer | Technology |
-|---|---|
+|---|---|---|
 | Framework | Vite + React 19 (SPA) |
 | Routing | react-router-dom v7 (BrowserRouter) |
 | Database | Neon (serverless Postgres) |
@@ -12,6 +12,7 @@
 | Styling | Tailwind CSS v4 + tw-animate-css |
 | Icons | Lucide React |
 | Payments | Billplz (sandbox, escrow flow) |
+| Images | Cloudinary (upload + delivery via `api/upload.ts`) |
 | Testing | Playwright 1.61.0 |
 | Deployment | Vercel (static build `dist/` + serverless `api/`) |
 
@@ -29,7 +30,7 @@ Seeded via `scripts/seed.ts` (8 categories, 8 artists, 32 services, 26 reviews, 
 - Config: `src/lib/auth.ts`
 - UI: Neon Auth `<AuthView>` component at `/auth/:pathname`
 
-## API Routes — 8 endpoints (consolidated to fit Vercel Hobby 12-fn limit)
+## API Routes — 9 endpoints (consolidated to fit Vercel Hobby 12-fn limit)
 
 | File | Action | Purpose |
 |---|---|---|
@@ -39,10 +40,11 @@ Seeded via `scripts/seed.ts` (8 categories, 8 artists, 32 services, 26 reviews, 
 | `api/studios/[id].ts` | GET | Studio detail + artists + services + reviews |
 | `api/user.ts` | GET/POST/DELETE `?action=favorites\|review\|cancel-booking` | User actions (favorites sync, review submit, booking cancel) |
 | `api/payments.ts` | GET/POST `?action=create-bill\|status\|release\|register-bank\|webhook` | Billplz payment lifecycle (5 actions in 1 fn) |
+| `api/upload.ts` | POST | Cloudinary image upload (accepts base64, returns URL + publicId) |
 | `api/cron/release-escrow.ts` | GET/POST | Batch escrow release for held payments |
 | `api/webhook.ts` | POST | Generic webhook receiver (validates via CRON_SECRET) |
 
-All API functions are self-contained — they use `neon()` directly with raw SQL. Cannot import from `src/`.
+All API functions are self-contained — they use `neon()` directly with raw SQL. Cannot import from `src/`. Exception: `api/upload.ts` imports `cloudinary` from `src/lib/cloudinary.ts`.
 
 ## Routing
 
@@ -75,6 +77,7 @@ All API functions are self-contained — they use `neon()` directly with raw SQL
 - **Favorites** — sync to DB (`favorites` table) when user is logged in; fall back to `localStorage` when not
 - **API consolidation** — Vercel Hobby plan limits to 12 serverless functions; consolidated payments (5 → 1) and user actions (3 → 1 mapped via `?action=` query param)
 - **Billplz in sandbox** mode with full escrow flow (pending → held → released/refunded)
+- **Cloudinary** for image upload (`api/upload.ts`) and delivery — `ImageWithFallback` auto-appends `f_auto,q_auto` transformations for Cloudinary URLs; registration page uploads portfolio images via the API instead of storing data URLs
 
 ## Commands
 
@@ -102,7 +105,7 @@ npm run db:setup  # Push + seed
 | `ArtistCard` | Reusable artist card with favorite |
 | `SearchModal` | Cmd+K search (fetches from API) |
 | `ScrollToTop` / `BackToTop` | Scroll position helpers |
-| `ImageWithFallback` | Image with error fallback |
+| `ImageWithFallback` | Image with error fallback + Cloudinary auto-transforms |
 | `Skeleton` | Loading skeleton |
 | `PaymentStatusBadge` | Payment status UI |
 | `ReviewForm` | Review submission (→ `/api/user?action=review`) |
@@ -126,7 +129,7 @@ npm run db:setup  # Push + seed
 - **Region:** iad1 (Vercel default)
 - **Build command:** `vite build`
 - **Output directory:** `dist/`
-- **API:** 8 serverless functions via `/api/*`
+- **API:** 9 serverless functions via `/api/*`
 - Deploy: `npx vercel deploy --prod --force --scope shamelalis-projects`
 
 ## Known Issues / Next Steps
@@ -160,3 +163,10 @@ npm run db:setup  # Push + seed
 - Added mobile test suite (Jest config, mocks, babel config, updated tests for expo-free setup)
 - Fixed CI workflow: bumped Node matrix to [20,22], added `VITE_NEON_AUTH_URL` env to build, added build step before Playwright tests (webServer preview needs `dist/`), removed stale `BASE_URL` override (was pointing to 3000), added concurrency group with cancel-in-progress
 - Updated AGENTS.md known issues
+
+### 2026-06-26 (later)
+- Integrated Cloudinary: installed `cloudinary` SDK, created `src/lib/cloudinary.ts` (server-side config) and `src/lib/cloudinary-client.ts` (client-side URL builder)
+- Added `api/upload.ts` endpoint for signed image uploads (base64 → Cloudinary → secure URL)
+- Updated `ImageWithFallback` to auto-append `f_auto,q_auto` + responsive transformations for Cloudinary URLs
+- Updated registration page to upload portfolio images via `/api/upload` instead of storing data URLs
+- Added Cloudinary env vars to `.env.example`

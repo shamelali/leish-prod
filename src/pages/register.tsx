@@ -34,20 +34,40 @@ export default function Register() {
   const [langSearch, setLangSearch] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadToCloudinary = async (dataUrl: string): Promise<string> => {
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file: dataUrl }),
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      return data.url;
+    } catch {
+      return dataUrl;
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    files.forEach((file) => {
+    const uploads: string[] = [];
+    for (const file of files) {
       if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const dataUrl = ev.target?.result as string;
-          if (dataUrl && !form.portfolio.includes(dataUrl)) {
-            setForm((prev) => ({ ...prev, portfolio: [...prev.portfolio, dataUrl] }));
-          }
-        };
-        reader.readAsDataURL(file);
+        const dataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(ev.target?.result as string);
+          reader.readAsDataURL(file);
+        });
+        const url = await uploadToCloudinary(dataUrl);
+        if (!form.portfolio.includes(url)) {
+          uploads.push(url);
+        }
       }
-    });
+    }
+    if (uploads.length > 0) {
+      setForm((prev) => ({ ...prev, portfolio: [...prev.portfolio, ...uploads] }));
+    }
     if (e.target) e.target.value = '';
   };
 
