@@ -34,17 +34,17 @@ jest.mock('../../src/components/SearchModal', () => () => null);
 import ArtistsScreen from '../../src/screens/ArtistsScreen';
 
 describe('ArtistsScreen', () => {
-  it('renders without crashing', () => {
+  it('renders without crashing', async () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
 
-    const { getByText } = render(
+    const { findByText } = await render(
       <QueryClientProvider client={queryClient}>
         <ArtistsScreen />
       </QueryClientProvider>
     );
 
-    expect(getByText('Artists')).toBeTruthy();
+    expect(await findByText('Artists')).toBeTruthy();
   });
 });

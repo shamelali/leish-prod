@@ -32,8 +32,8 @@ const mockFavoritesContext = {
 };
 
 describe('ArtistCard', () => {
-  it('renders artist name and location', () => {
-    const { getByText } = render(
+  it('renders artist name and location', async () => {
+    const { getByText } = await render(
       <FavoritesContext.Provider value={mockFavoritesContext}>
         <ArtistCard artist={mockArtist} />
       </FavoritesContext.Provider>
@@ -43,8 +43,8 @@ describe('ArtistCard', () => {
     expect(getByText('Kuala Lumpur')).toBeTruthy();
   });
 
-  it('displays rating and review count', () => {
-    const { getByText } = render(
+  it('displays rating and review count', async () => {
+    const { getByText } = await render(
       <FavoritesContext.Provider value={mockFavoritesContext}>
         <ArtistCard artist={mockArtist} />
       </FavoritesContext.Provider>
@@ -54,8 +54,8 @@ describe('ArtistCard', () => {
     expect(getByText('(42)')).toBeTruthy();
   });
 
-  it('shows price in RM', () => {
-    const { getByText } = render(
+  it('shows price in RM', async () => {
+    const { getByText } = await render(
       <FavoritesContext.Provider value={mockFavoritesContext}>
         <ArtistCard artist={mockArtist} />
       </FavoritesContext.Provider>
@@ -64,10 +64,10 @@ describe('ArtistCard', () => {
     expect(getByText('RM 350')).toBeTruthy();
   });
 
-  it('shows filled heart when favorite', () => {
+  it('shows filled heart when favorite', async () => {
     const favContext = { ...mockFavoritesContext, isFavorite: jest.fn().mockReturnValue(true) };
 
-    const { getByText } = render(
+    const { getByText } = await render(
       <FavoritesContext.Provider value={favContext}>
         <ArtistCard artist={mockArtist} />
       </FavoritesContext.Provider>

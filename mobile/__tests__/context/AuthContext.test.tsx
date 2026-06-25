@@ -17,8 +17,8 @@ function RegisterTest({ onReady }: { onReady: (register: Function) => void }) {
 }
 
 describe('AuthContext', () => {
-  it('renders without crashing', () => {
-    const { getByTestId } = render(
+  it('renders without crashing', async () => {
+    const { getByTestId } = await render(
       <AuthProvider>
         <TestDisplay />
       </AuthProvider>
@@ -29,7 +29,7 @@ describe('AuthContext', () => {
   it('registers a new user', async () => {
     let registerFn: any;
 
-    render(
+    await render(
       <AuthProvider>
         <RegisterTest onReady={(fn) => { registerFn = fn; }} />
       </AuthProvider>

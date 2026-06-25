@@ -13,7 +13,16 @@ module.exports = {
   },
   Platform: { OS: 'ios', select: (obj) => obj?.ios ?? obj?.default ?? null, Version: 1 },
   Dimensions: { set: jest.fn(), get: jest.fn(() => ({ width: 390, height: 844, scale: 3 })) },
-  StyleSheet: { create: jest.fn((styles) => styles) },
+  StyleSheet: {
+    create: jest.fn((styles) => styles),
+    flatten: jest.fn((style) => {
+      if (Array.isArray(style)) return Object.assign({}, ...style);
+      return style || {};
+    }),
+    hairlineWidth: jest.fn(() => 1),
+    absoluteFill: {},
+    absoluteFillObject: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  },
   View: mockComponent('View'),
   Text: mockComponent('Text'),
   Image: mockComponent('Image'),

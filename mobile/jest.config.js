@@ -7,6 +7,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^react-native$': '<rootDir>/__mocks__/react-native.js',
 
     '^@expo/vector-icons(.*)$': '<rootDir>/__mocks__/expo-vector-icons.js',
     '^expo-router$': '<rootDir>/__mocks__/expo-router.js',
