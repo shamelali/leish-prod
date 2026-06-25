@@ -10,7 +10,7 @@ interface FavoritesContextType {
   isLoading: boolean;
 }
 
-const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
+export const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'leish_favorites';
 

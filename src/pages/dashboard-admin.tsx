@@ -2,15 +2,20 @@ import { useState, useEffect } from 'react';
 import { Users, Building2, DollarSign, BarChart3, TrendingUp, Calendar, Star, Shield } from 'lucide-react';
 import Skeleton from '../components/Skeleton';
 
-const mockStats = {
-  totalUsers: 2847,
-  totalArtists: 64,
-  totalStudios: 12,
-  totalBookings: 1234,
-  revenue: 185000,
-  avgRating: 4.7,
-  pendingPayouts: 12400,
-  newUsersThisMonth: 312,
+interface AdminStats {
+  totalUsers: number;
+  totalArtists: number;
+  totalStudios: number;
+  totalBookings: number;
+  revenue: number;
+  avgRating: number;
+  pendingPayouts: number;
+  newUsersThisMonth: number;
+}
+
+const typeIcons: Record<string, React.ComponentType<any>> = {
+  artist: Users, payment: DollarSign, booking: Calendar,
+  user: Users, studio: Building2, flag: Shield, dispute: Shield, system: BarChart3,
 };
 
 const recentActivity = [
@@ -24,13 +29,18 @@ const recentActivity = [
   { action: 'System backup', detail: 'Database backup completed', time: '2 days ago', type: 'system' },
 ];
 
-const typeIcons: Record<string, React.ComponentType<any>> = {
-  artist: Users, payment: DollarSign, booking: Calendar,
-  user: Users, studio: Building2, flag: Shield, dispute: Shield, system: BarChart3,
-};
-
 export default function DashboardAdmin() {
+  const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin')
+      .then((res) => res.ok ? res.json() : Promise.reject())
+      .then((data) => setStats(data))
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
@@ -64,13 +74,13 @@ export default function DashboardAdmin() {
       {/* Stats Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { icon: Users, label: 'Total Users', value: mockStats.totalUsers.toLocaleString(), sub: `+${mockStats.newUsersThisMonth} this month`, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-950/30' },
-          { icon: Building2, label: 'Artists / Studios', value: `${mockStats.totalArtists} / ${mockStats.totalStudios}`, sub: `${mockStats.totalArtists + mockStats.totalStudios} total vendors`, color: 'text-violet-500', bg: 'bg-violet-50 dark:bg-violet-950/30' },
-          { icon: Calendar, label: 'Total Bookings', value: mockStats.totalBookings.toLocaleString(), sub: 'Across all services', color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-950/30' },
-          { icon: DollarSign, label: 'Total Revenue', value: `MYR ${mockStats.revenue.toLocaleString()}`, sub: `MYR ${mockStats.pendingPayouts.toLocaleString()} pending`, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/30' },
-          { icon: Star, label: 'Average Rating', value: mockStats.avgRating, sub: 'Platform-wide', color: 'text-rose-500', bg: 'bg-rose-50 dark:bg-rose-950/30' },
+          { icon: Users, label: 'Total Users', value: stats ? stats.totalUsers.toLocaleString() : '—', sub: stats ? `+${stats.newUsersThisMonth} this month` : '', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-950/30' },
+          { icon: Building2, label: 'Artists / Studios', value: stats ? `${stats.totalArtists} / ${stats.totalStudios}` : '—', sub: stats ? `${stats.totalArtists + stats.totalStudios} total vendors` : '', color: 'text-violet-500', bg: 'bg-violet-50 dark:bg-violet-950/30' },
+          { icon: Calendar, label: 'Total Bookings', value: stats ? stats.totalBookings.toLocaleString() : '—', sub: 'Across all services', color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-950/30' },
+          { icon: DollarSign, label: 'Total Revenue', value: stats ? `MYR ${stats.revenue.toLocaleString()}` : '—', sub: stats ? `MYR ${stats.pendingPayouts.toLocaleString()} pending` : '', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/30' },
+          { icon: Star, label: 'Average Rating', value: stats ? stats.avgRating : '—', sub: 'Platform-wide', color: 'text-rose-500', bg: 'bg-rose-50 dark:bg-rose-950/30' },
           { icon: TrendingUp, label: 'Growth Rate', value: '+18%', sub: 'vs last month', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-950/30' },
-          { icon: DollarSign, label: 'Pending Payouts', value: `MYR ${mockStats.pendingPayouts.toLocaleString()}`, sub: `${Math.ceil(mockStats.pendingPayouts / 350)} payouts`, color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-950/30' },
+          { icon: DollarSign, label: 'Pending Payouts', value: stats ? `MYR ${stats.pendingPayouts.toLocaleString()}` : '—', sub: stats ? `${Math.ceil(stats.pendingPayouts / 350)} payouts` : '', color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-950/30' },
           { icon: BarChart3, label: 'Conversion Rate', value: '12.4%', sub: 'Views to bookings', color: 'text-cyan-500', bg: 'bg-cyan-50 dark:bg-cyan-950/30' },
         ].map(({ icon: Icon, label, value, sub, color, bg }) => (
           <div key={label} className={`p-6 ${bg} rounded-2xl border border-gray-100 dark:border-neutral-800`}>

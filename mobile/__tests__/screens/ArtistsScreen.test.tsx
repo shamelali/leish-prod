@@ -1,12 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import ArtistsScreen from '../../src/screens/ArtistsScreen';
-
-jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: jest.fn() }),
-  Stack: { Screen: () => null },
-}));
+import { Text } from 'react-native';
 
 jest.mock('../../src/services/api', () => ({
   artistsApi: {
@@ -29,6 +24,14 @@ jest.mock('../../src/context/FavoritesContext', () => ({
     toggleFavorite: jest.fn(),
   }),
 }));
+
+jest.mock('../../src/components/ArtistCard', () => ({
+  ArtistCard: () => null,
+}));
+
+jest.mock('../../src/components/SearchModal', () => () => null);
+
+import ArtistsScreen from '../../src/screens/ArtistsScreen';
 
 describe('ArtistsScreen', () => {
   it('renders without crashing', () => {

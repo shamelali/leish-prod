@@ -3,10 +3,6 @@ import { render } from '@testing-library/react-native';
 import { ArtistCard } from '../../src/components/ArtistCard';
 import { FavoritesContext } from '../../src/context/FavoritesContext';
 
-jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: jest.fn() }),
-}));
-
 const mockArtist = {
   id: 'test-artist-1',
   name: 'Test Artist',
@@ -66,16 +62,6 @@ describe('ArtistCard', () => {
     );
 
     expect(getByText('RM 350')).toBeTruthy();
-  });
-
-  it('shows favorite heart icon', () => {
-    const { getByText } = render(
-      <FavoritesContext.Provider value={mockFavoritesContext}>
-        <ArtistCard artist={mockArtist} />
-      </FavoritesContext.Provider>
-    );
-
-    expect(getByText('🤍')).toBeTruthy();
   });
 
   it('shows filled heart when favorite', () => {

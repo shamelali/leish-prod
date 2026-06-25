@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { useAuth } from "./AuthContext";
 
 interface FavoritesContextType {
   favorites: string[];
@@ -14,16 +15,16 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 const STORAGE_KEY = "leish_favorites";
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [favorites, setFavorites] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [prevUserId, setPrevUserId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setFavorites(JSON.parse(stored));
-      }
+      if (stored) setFavorites(JSON.parse(stored));
     } catch {}
   }, []);
 
@@ -33,6 +34,44 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
     } catch {}
   }, [favorites, mounted]);
+
+  useEffect(() => {
+    const currentUserId = user?.id ?? null;
+    if (currentUserId === prevUserId) return;
+    setPrevUserId(currentUserId);
+    if (!currentUserId) return;
+
+    (async () => {
+      try {
+        const serverRes = await fetch(`/api/user?action=favorites&userId=${currentUserId}`);
+        const serverData = serverRes.ok ? await serverRes.json() : { favorites: [] };
+        const serverIds: string[] = (serverData.favorites || []).map((f: any) => String(f.artist_id));
+        const localRaw = localStorage.getItem(STORAGE_KEY);
+        const localIds: string[] = localRaw ? JSON.parse(localRaw) : [];
+
+        if (serverIds.length === 0 && localIds.length > 0) {
+          for (const id of localIds) {
+            fetch(`/api/user?action=favorites&userId=${currentUserId}`, {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ artistId: id }),
+            }).catch(() => {});
+          }
+        } else if (serverIds.length > 0) {
+          const merged = [...new Set([...serverIds, ...localIds])];
+          setFavorites(merged);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+          for (const id of merged) {
+            if (!serverIds.includes(id)) {
+              fetch(`/api/user?action=favorites&userId=${currentUserId}`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ artistId: id }),
+              }).catch(() => {});
+            }
+          }
+        }
+      } catch {}
+    })();
+  }, [user, prevUserId]);
 
   const isFavorite = useCallback(
     (artistId: string) => favorites.includes(artistId),
