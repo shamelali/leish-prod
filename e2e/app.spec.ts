@@ -1,18 +1,6 @@
 import { test, expect } from "@playwright/test";
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:5173";
-const API_URL = BASE_URL.replace(/:\d+$/, ":3001");
-
-let apiAvailable = false;
-
-test.beforeAll(async () => {
-  try {
-    const res = await fetch(`${API_URL}/api/artists`);
-    apiAvailable = res.ok;
-  } catch {
-    apiAvailable = false;
-  }
-});
 
 test.describe("Leish! Beauty Marketplace", () => {
   test("homepage loads successfully", async ({ page }) => {
@@ -25,13 +13,6 @@ test.describe("Leish! Beauty Marketplace", () => {
     await page.goto(`${BASE_URL}/artists`);
     await expect(page.locator("h1")).toContainText("Artists");
     await expect(page.locator('input[placeholder*="Search artists"]')).toBeVisible();
-  });
-
-  test("artist detail page loads", async ({ page }) => {
-    test.skip(!apiAvailable, "Requires API server on port 3001");
-    await page.goto(`${BASE_URL}/artists/aiko-nakamura`);
-    await expect(page.locator("h1")).toContainText("Aiko Nakamura");
-    await expect(page.locator("text=Book Appointment")).toBeVisible();
   });
 
   test("studios page loads", async ({ page }) => {
@@ -78,16 +59,32 @@ test.describe("Leish! Beauty Marketplace", () => {
     await expect(page.locator('input[placeholder="What are you looking for?"]')).toBeVisible();
   });
 
-  test("booking flow - select service then date", async ({ page }) => {
-    test.skip(!apiAvailable, "Requires API server on port 3001");
-    await page.goto(`${BASE_URL}/artists/aiko-nakamura`);
-    const serviceBtn = page.locator("button", { hasText: "Glam" }).first();
-    await serviceBtn.click();
-    await expect(page.locator("text=Proceed to Book")).toBeVisible();
-  });
-
   test("404 page works", async ({ page }) => {
     await page.goto(`${BASE_URL}/this-page-does-not-exist`);
     await expect(page.locator("h1")).toContainText("404");
+  });
+
+  test("artist detail page loads for first artist", async ({ page }) => {
+    await page.goto(`${BASE_URL}/artists`);
+    await page.waitForLoadState("networkidle");
+    const firstCard = page.locator('a[href^="/artists/"]').first();
+    await expect(firstCard).toBeVisible();
+    const href = await firstCard.getAttribute("href");
+    await page.goto(`${BASE_URL}${href}`);
+    await expect(page.locator("text=Book Appointment")).toBeVisible();
+  });
+
+  test("booking flow - select service then see proceed button", async ({ page }) => {
+    await page.goto(`${BASE_URL}/artists`);
+    await page.waitForLoadState("networkidle");
+    const firstCard = page.locator('a[href^="/artists/"]').first();
+    const href = await firstCard.getAttribute("href");
+    await page.goto(`${BASE_URL}${href}`);
+    await page.waitForLoadState("networkidle");
+    const serviceBtn = page.locator("h3", { hasText: "Premium Makeup" }).first();
+    await serviceBtn.click();
+    await page.waitForTimeout(100);
+    const proceedBtn = page.locator("button", { hasText: "Proceed to Book" });
+    await expect(proceedBtn).toBeVisible();
   });
 });
