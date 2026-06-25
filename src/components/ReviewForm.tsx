@@ -1,8 +1,6 @@
-"use client";
-
 import { useState } from "react";
 import { Star, Send, MessageSquare } from "lucide-react";
-import { useToast } from "@/context/ToastContext";
+import { useToast } from "../context/ToastContext";
 
 interface ReviewFormProps {
   artistId: string;

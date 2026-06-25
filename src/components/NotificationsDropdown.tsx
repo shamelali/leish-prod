@@ -1,9 +1,7 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { Bell, Check, Trash2, Calendar, Star, UserPlus, Info, X } from "lucide-react";
-import { useNotifications } from "@/context/NotificationsContext";
+import { useNotifications } from "../context/NotificationsContext";
 
 const iconMap: Record<string, typeof Bell> = {
   booking_confirmed: Calendar,
@@ -106,7 +104,7 @@ export default function NotificationsDropdown() {
                     </div>
                     <div className="flex-1 min-w-0">
                       {notif.link ? (
-                        <Link href={notif.link} className="block" onClick={() => setOpen(false)}>
+                        <Link to={notif.link} className="block" onClick={() => setOpen(false)}>
                           <p className={`text-sm ${!notif.read ? "font-semibold text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}>{notif.title}</p>
                         </Link>
                       ) : (

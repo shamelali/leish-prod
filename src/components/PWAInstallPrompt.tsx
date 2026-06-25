@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Download, X, Sparkles } from "lucide-react";
 

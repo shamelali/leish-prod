@@ -1,5 +1,3 @@
-"use client";
-
 import { MapPin, Navigation, ExternalLink, Clock, Star } from "lucide-react";
 
 interface LocationMapProps {

@@ -1,6 +1,6 @@
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { MessageCircle, ArrowRight, Sparkles } from "lucide-react";
-import { getDictionary, type Locale } from "@/lib/i18n";
+import { getDictionary, type Locale } from "../lib/i18n";
 
 export default function CTASection({
   locale = "en",
@@ -25,10 +25,10 @@ export default function CTASection({
           {t.cta.subtitle}
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href="/artists" className="inline-flex items-center gap-2.5 px-8 py-4 bg-white text-rose-600 font-bold rounded-2xl hover:bg-rose-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105 active:scale-100 text-base">
+          <Link to="/artists" className="inline-flex items-center gap-2.5 px-8 py-4 bg-white text-rose-600 font-bold rounded-2xl hover:bg-rose-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105 active:scale-100 text-base">
             {t.cta.browseArtists} <ArrowRight className="w-4 h-4" />
           </Link>
-          <a href="https://wa.me/601137633788" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2.5 px-8 py-4 bg-white/10 text-white font-bold rounded-2xl border border-white/25 hover:bg-white/20 transition-all backdrop-blur-sm text-base">
+          <a to="https://wa.me/601137633788" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2.5 px-8 py-4 bg-white/10 text-white font-bold rounded-2xl border border-white/25 hover:bg-white/20 transition-all backdrop-blur-sm text-base">
             <MessageCircle className="w-4 h-4" /> {t.cta.chatWhatsApp}
           </a>
         </div>

@@ -1,8 +1,6 @@
-"use client";
-
 import { useState } from "react";
 import { Tag, Check, X, Percent, Gift } from "lucide-react";
-import { useToast } from "@/context/ToastContext";
+import { useToast } from "../context/ToastContext";
 
 interface PromoCodeProps {
   onApply: (code: string, discount: number) => void;

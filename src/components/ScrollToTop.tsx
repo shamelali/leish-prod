@@ -1,10 +1,8 @@
-"use client";
-
 import { useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 export default function ScrollToTop() {
-  const pathname = usePathname();
+  const pathname = useLocation().pathname;
   const searchParams = useSearchParams();
 
   useEffect(() => {

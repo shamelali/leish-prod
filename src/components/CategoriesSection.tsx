@@ -1,8 +1,8 @@
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { categories } from "@/data/artists";
+import { categories } from "../data/artists";
 import ImageWithFallback from "./ImageWithFallback";
-import { getDictionary, type Locale } from "@/lib/i18n";
+import { getDictionary, type Locale } from "../lib/i18n";
 
 export default function CategoriesSection({
   locale = "en",
@@ -21,7 +21,7 @@ export default function CategoriesSection({
             <p className="text-sm font-semibold text-rose-500 uppercase tracking-wider mb-2">Specialties</p>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">{t.categories.title}</h2>
           </div>
-          <Link href="/artists" className="hidden sm:inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium text-sm transition-colors group">
+          <Link to="/artists" className="hidden sm:inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium text-sm transition-colors group">
             {t.common.viewAll} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -30,7 +30,7 @@ export default function CategoriesSection({
           {categories.map((cat, i) => (
             <Link
               key={cat.id}
-              href={`/artists?category=${cat.id}`}
+              to={`/artists?category=${cat.id}`}
               className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 dark:from-neutral-800 dark:to-neutral-900 hover:from-rose-900 hover:to-pink-900 dark:hover:from-rose-950 dark:hover:to-pink-950 transition-all duration-500"
               style={{ animationDelay: `${i * 0.05}s` }}
             >
@@ -51,7 +51,7 @@ export default function CategoriesSection({
         </div>
 
         <div className="sm:hidden mt-6 text-center">
-          <Link href="/artists" className="inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-medium text-sm">
+          <Link to="/artists" className="inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-medium text-sm">
             {t.common.viewAll} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

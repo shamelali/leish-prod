@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useRef } from "react";
 import { Eye, Type, Contrast, RotateCcw, X } from "lucide-react";
 

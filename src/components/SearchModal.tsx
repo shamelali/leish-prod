@@ -1,12 +1,10 @@
-"use client";
-
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Search, X, ArrowRight, Star, MapPin, Clock } from "lucide-react";
-import { artists, categories } from "@/data/artists";
+import { artists, categories } from "../data/artists";
 import ImageWithFallback from "./ImageWithFallback";
-import { getDictionary, type Locale } from "@/lib/i18n";
+import { getDictionary, type Locale } from "../lib/i18n";
 
 export default function SearchModal({
   locale = "en",
@@ -19,7 +17,7 @@ export default function SearchModal({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -112,7 +110,7 @@ export default function SearchModal({
                     {categories.slice(0, 5).map((cat) => (
                       <button
                         key={cat.id}
-                        onClick={() => { setOpen(false); router.push(`/artists?category=${cat.id}`); }}
+                        onClick={() => { setOpen(false); navigate(`/artists?category=${cat.id}`); }}
                         className="px-3 py-1.5 text-xs font-medium bg-gray-50 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                       >
                         {cat.icon} {cat.name}
@@ -132,7 +130,7 @@ export default function SearchModal({
                       {categoryResults.map((cat) => (
                         <button
                           key={cat.id}
-                          onClick={() => { setOpen(false); router.push(`/artists?category=${cat.id}`); }}
+                          onClick={() => { setOpen(false); navigate(`/artists?category=${cat.id}`); }}
                           className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left"
                         >
                           <span className="text-lg">{cat.icon}</span>
@@ -151,7 +149,7 @@ export default function SearchModal({
                       {results.map((artist) => (
                         <button
                           key={artist.id}
-                          onClick={() => { setOpen(false); router.push(`/artists/${artist.id}`); }}
+                          onClick={() => { setOpen(false); navigate(`/artists/${artist.id}`); }}
                           className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left"
                         >
                           <ImageWithFallback src={artist.image} alt={artist.name} className="w-10 h-10 rounded-xl object-cover" />
@@ -171,7 +169,7 @@ export default function SearchModal({
                   )}
                   <div className="px-5 py-3 border-t border-gray-50 dark:border-neutral-800">
                     <button
-                      onClick={() => { setOpen(false); router.push(`/artists?category=&search=${encodeURIComponent(query)}`); }}
+                      onClick={() => { setOpen(false); navigate(`/artists?category=&search=${encodeURIComponent(query)}`); }}
                       className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium flex items-center gap-1"
                     >
                       {t.common.viewAll} <ArrowRight className="w-3 h-3" />

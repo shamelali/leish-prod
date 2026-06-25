@@ -1,11 +1,9 @@
-"use client";
-
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { Star, MapPin, ArrowRight, BadgeCheck, Clock, Heart } from "lucide-react";
-import { artists } from "@/data/artists";
+import { artists } from "../data/artists";
 import ImageWithFallback from "./ImageWithFallback";
-import { useFavorites } from "@/context/FavoritesContext";
-import { getDictionary, type Locale } from "@/lib/i18n";
+import { useFavorites } from "../context/FavoritesContext";
+import { getDictionary, type Locale } from "../lib/i18n";
 
 export default function ArtistCard({
   artist,
@@ -22,7 +20,7 @@ export default function ArtistCard({
 
   return (
     <div className="group bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-neutral-800 hover:border-rose-200 dark:hover:border-rose-800 shadow-sm hover:shadow-xl hover:shadow-rose-100/50 dark:hover:shadow-rose-900/10 transition-all duration-300 relative">
-      <Link href={`/artists/${artist.id}`} className="block">
+      <Link to={`/artists/${artist.id}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden">
           <ImageWithFallback
             src={artist.image}
@@ -68,7 +66,7 @@ export default function ArtistCard({
         <Heart className={`w-4 h-4 ${liked ? "fill-white" : ""}`} />
       </button>
 
-      <Link href={`/artists/${artist.id}`} className="block">
+      <Link to={`/artists/${artist.id}`} className="block">
         <div className="p-5">
           <div className="flex flex-wrap gap-1.5 mb-3">
             {[...new Set(artist.categories)].slice(0, 3).map((cat, ci) => (

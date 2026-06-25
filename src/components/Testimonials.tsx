@@ -1,6 +1,6 @@
 import { Star, Quote } from "lucide-react";
-import { testimonials } from "@/data/artists";
-import { getDictionary, type Locale } from "@/lib/i18n";
+import { testimonials } from "../data/artists";
+import { getDictionary, type Locale } from "../lib/i18n";
 
 export default function Testimonials({
   locale = "en",

@@ -1,10 +1,8 @@
-"use client";
-
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { ArrowRight, Star, Users, Award, Clock } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import ImageWithFallback from "./ImageWithFallback";
-import { getDictionary, type Locale } from "@/lib/i18n";
+import { getDictionary, type Locale } from "../lib/i18n";
 
 const stats = [
   { icon: Users, value: "500+", label: "Happy Brides", color: "text-rose-600 dark:text-rose-400" },
@@ -48,15 +46,15 @@ export default function HeroSection({
               {t.hero.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/artists" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-2xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-xl shadow-rose-200/50 dark:shadow-rose-900/30 hover:scale-105 active:scale-100 text-base">
+              <Link to="/artists" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-2xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-xl shadow-rose-200/50 dark:shadow-rose-900/30 hover:scale-105 active:scale-100 text-base">
                 {t.hero.browseArtists} <ArrowRight className="w-4 h-4" />
               </Link>
               {user ? (
-                <Link href="/profile" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base">
+                <Link to="/profile" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base">
                   {t.hero.myBookings}
                 </Link>
               ) : (
-                <Link href="/register" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base">
+                <Link to="/register" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base">
                   {t.hero.signupFree}
                 </Link>
               )}

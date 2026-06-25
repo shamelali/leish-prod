@@ -1,6 +1,6 @@
 import { Search, CalendarCheck, Sparkles, ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { getDictionary, type Locale } from "@/lib/i18n";
+import { Link } from "react-router-dom";
+import { getDictionary, type Locale } from "../lib/i18n";
 
 export default function HowItWorks({
   locale = "en",
@@ -48,7 +48,7 @@ export default function HowItWorks({
         </div>
 
         <div className="text-center mt-14">
-          <Link href="/artists" className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-2xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-lg shadow-rose-200/50 dark:shadow-rose-900/30 hover:scale-105">
+          <Link to="/artists" className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-2xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-lg shadow-rose-200/50 dark:shadow-rose-900/30 hover:scale-105">
             {t.common.learnMore} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

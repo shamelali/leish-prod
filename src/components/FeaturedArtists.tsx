@@ -1,11 +1,9 @@
-"use client";
-
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { Star, MapPin, ArrowRight, BadgeCheck, Clock, Heart } from "lucide-react";
-import { artists } from "@/data/artists";
+import { artists } from "../data/artists";
 import ImageWithFallback from "./ImageWithFallback";
-import { useFavorites } from "@/context/FavoritesContext";
-import { getDictionary, type Locale } from "@/lib/i18n";
+import { useFavorites } from "../context/FavoritesContext";
+import { getDictionary, type Locale } from "../lib/i18n";
 
 export default function FeaturedArtists({
   locale = "en",
@@ -32,7 +30,7 @@ export default function FeaturedArtists({
             const liked = isFavorite(artist.id);
             return (
               <div key={artist.id} className="group bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-neutral-800 hover:border-rose-200 dark:hover:border-rose-800 shadow-sm hover:shadow-xl hover:shadow-rose-100/50 dark:hover:shadow-rose-900/10 transition-all duration-300 relative" style={{ animationDelay: `${i * 100}ms` }}>
-                <Link href={`/artists/${artist.id}`}>
+                <Link to={`/artists/${artist.id}`}>
                   <div className="relative aspect-[4/5] overflow-hidden">
                     <ImageWithFallback
                       src={artist.image}
@@ -74,7 +72,7 @@ export default function FeaturedArtists({
                   <Heart className={`w-4 h-4 ${liked ? "fill-white" : ""}`} />
                 </button>
 
-                <Link href={`/artists/${artist.id}`}>
+                <Link to={`/artists/${artist.id}`}>
                   <div className="p-5">
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       {[...new Set(artist.categories)].slice(0, 3).map((cat, ci) => (
@@ -99,7 +97,7 @@ export default function FeaturedArtists({
         </div>
 
         <div className="text-center mt-12">
-          <Link href="/artists" className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-100">
+          <Link to="/artists" className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-100">
             {t.common.viewAll} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

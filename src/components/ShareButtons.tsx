@@ -1,8 +1,6 @@
-"use client";
-
 import { useState } from "react";
 import { Share2, Link2, MessageCircle, Check } from "lucide-react";
-import { useToast } from "@/context/ToastContext";
+import { useToast } from "../context/ToastContext";
 
 interface ShareButtonsProps {
   url?: string;

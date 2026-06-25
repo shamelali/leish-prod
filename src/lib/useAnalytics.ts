@@ -1,7 +1,5 @@
-"use client";
-
 import { useCallback, useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 interface AnalyticsEvent {
   name: string;
@@ -38,7 +36,7 @@ function track(name: string, properties?: Record<string, string | number | boole
 
 // Page view tracking
 export function usePageViews() {
-  const pathname = usePathname();
+  const pathname = useLocation().pathname;
   const searchParams = useSearchParams();
 
   useEffect(() => {
