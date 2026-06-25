@@ -158,4 +158,5 @@ npm run db:setup  # Push + seed
 - Added admin dashboard API endpoint (`api/admin.ts`) + dashboard-admin page fetches real stats
 - Fixed FavoritesContext: auto-merge localStorage favorites to DB on login, live-sync toggles to server via POST/DELETE
 - Added mobile test suite (Jest config, mocks, babel config, updated tests for expo-free setup)
+- Fixed CI workflow: bumped Node matrix to [20,22], added `VITE_NEON_AUTH_URL` env to build, added build step before Playwright tests (webServer preview needs `dist/`), removed stale `BASE_URL` override (was pointing to 3000), added concurrency group with cancel-in-progress
 - Updated AGENTS.md known issues
