@@ -16,16 +16,15 @@ export default async function handler(req: Request) {
     const body = await req.json();
     const event = req.headers.get('x-event') || 'unknown';
 
-    await sql(
+    await sql.query(
       `INSERT INTO webhook_events (event, payload, status) VALUES ($1, $2, 'received')`,
-      event,
-      JSON.stringify(body)
+      [event, JSON.stringify(body)]
     );
 
     if (body.id && body.paid_at) {
-      await sql(
-        `UPDATE payments SET status = 'paid', updated_at = NOW() WHERE billplz_id = $1`,
-        body.id
+      await sql.query(
+        `UPDATE payments SET status = 'paid', "updatedAt" = NOW() WHERE "billplzBillId" = $1`,
+        [body.id]
       );
     }
 

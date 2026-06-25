@@ -1,11 +1,17 @@
-import 'dotenv/config';
-import { createServer, IncomingMessage, ServerResponse } from 'http';
-import { readdirSync, statSync } from 'fs';
-import { join, dirname, extname } from 'path';
+import { config } from 'dotenv';
+import { existsSync, readdirSync } from 'fs';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const API_DIR = join(__dirname, '..', 'api');
+const _dirname = dirname(fileURLToPath(import.meta.url));
+
+config({ path: join(_dirname, '..', '.env') });
+if (existsSync(join(_dirname, '..', '.env.local'))) {
+  config({ path: join(_dirname, '..', '.env.local') });
+}
+
+const API_DIR = join(_dirname, '..', 'api');
 const PORT = parseInt(process.env.API_PORT || '3001');
 
 interface Route {

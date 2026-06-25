@@ -47,13 +47,11 @@ export default async function handler(req: Request) {
           });
         }
 
-        const [payment] = await sql(
-          `INSERT INTO payments (booking_id, amount, status, billplz_id, method)
+        const [payment] = await sql.query(
+          `INSERT INTO payments ("bookingId", amount, status, "billplzBillId", "paymentMethod")
           VALUES ($1, $2, 'pending', $3, 'billplz')
           RETURNING *`,
-          bookingId,
-          Math.round(Number(amount)),
-          billplzData.id
+          [bookingId, Math.round(Number(amount)), billplzData.id]
         );
 
         return new Response(JSON.stringify({ bill: billplzData, payment }), {
@@ -71,18 +69,18 @@ export default async function handler(req: Request) {
           return new Response(JSON.stringify({ error: 'paymentId required' }), { status: 400 });
         }
 
-        const [payment] = await sql(
+        const [payment] = await sql.query(
           `SELECT * FROM payments WHERE id = $1`,
-          paymentId
+          [paymentId]
         );
 
         if (!payment) {
           return new Response(JSON.stringify({ error: 'Payment not found' }), { status: 404 });
         }
 
-        if (payment.billplz_id) {
+        if (payment.billplzbillid) {
           const billplzResponse = await fetch(
-            `https://www.billplz-sandbox.com/api/v3/bills/${payment.billplz_id}`,
+            `https://www.billplz-sandbox.com/api/v3/bills/${payment.billplzbillid}`,
             {
               headers: {
                 Authorization: `Basic ${btoa(process.env.BILLPLZ_API_KEY! + ':')}`,
@@ -92,9 +90,9 @@ export default async function handler(req: Request) {
           const billplzData = await billplzResponse.json();
 
           if (billplzData.paid_at) {
-            await sql(
-              `UPDATE payments SET status = 'paid', updated_at = NOW() WHERE id = $1`,
-              paymentId
+            await sql.query(
+              `UPDATE payments SET status = 'paid', "updatedAt" = NOW() WHERE id = $1`,
+              [paymentId]
             );
           }
 
@@ -121,18 +119,18 @@ export default async function handler(req: Request) {
           return new Response(JSON.stringify({ error: 'paymentId required' }), { status: 400 });
         }
 
-        const [payment] = await sql(
+        const [payment] = await sql.query(
           `SELECT * FROM payments WHERE id = $1 AND status = 'held'`,
-          paymentId
+          [paymentId]
         );
 
         if (!payment) {
           return new Response(JSON.stringify({ error: 'Payment not found or not in held status' }), { status: 400 });
         }
 
-        await sql(
-          `UPDATE payments SET status = 'released', updated_at = NOW() WHERE id = $1`,
-          paymentId
+        await sql.query(
+          `UPDATE payments SET status = 'released', "updatedAt" = NOW() WHERE id = $1`,
+          [paymentId]
         );
 
         return new Response(JSON.stringify({ success: true }), {
@@ -152,14 +150,11 @@ export default async function handler(req: Request) {
           return new Response(JSON.stringify({ error: 'All fields required' }), { status: 400 });
         }
 
-        const [account] = await sql(
-          `INSERT INTO mua_bank_accounts (user_id, bank_name, account_number, account_holder)
+        const [account] = await sql.query(
+          `INSERT INTO mua_bank_accounts ("userId", "bankCode", "bankAccountNumber", "bankAccountName")
           VALUES ($1, $2, $3, $4)
           RETURNING *`,
-          userId,
-          bankName,
-          accountNumber,
-          accountHolder
+          [userId, bankName, accountNumber, accountHolder]
         );
 
         return new Response(JSON.stringify({ account }), {
@@ -174,16 +169,15 @@ export default async function handler(req: Request) {
         }
         const webhookBody = await req.json();
 
-        await sql(
+        await sql.query(
           `INSERT INTO webhook_events (event, payload) VALUES ($1, $2)`,
-          'billplz.payment',
-          JSON.stringify(webhookBody)
+          ['billplz.payment', JSON.stringify(webhookBody)]
         );
 
         if (webhookBody.id && webhookBody.paid_at) {
-          await sql(
-            `UPDATE payments SET status = 'paid', updated_at = NOW() WHERE billplz_id = $1`,
-            webhookBody.id
+          await sql.query(
+            `UPDATE payments SET status = 'paid', "updatedAt" = NOW() WHERE "billplzBillId" = $1`,
+            [webhookBody.id]
           );
         }
 

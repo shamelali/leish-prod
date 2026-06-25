@@ -18,7 +18,7 @@ export default async function handler(req: Request) {
   let paramIndex = 1;
 
   if (category && category !== 'all') {
-    conditions.push(`EXISTS (SELECT 1 FROM artist_categories ac JOIN categories c ON c.id = ac.category_id WHERE ac.artist_id = a.id AND c.slug = $${paramIndex})`);
+    conditions.push(`EXISTS (SELECT 1 FROM artist_categories ac JOIN categories c ON c.id = ac."categoryId" WHERE ac."artistId" = a.id AND c.slug = $${paramIndex})`);
     params.push(category);
     paramIndex++;
   }
@@ -38,16 +38,16 @@ export default async function handler(req: Request) {
   };
   const orderBy = orderMap[sort] || 'a.rating DESC';
 
-  const countResult = await sql(
+  const countResult = await sql.query(
     `SELECT COUNT(*) as total FROM artists a ${where}`,
-    ...params
+    params
   );
   const total = parseInt(countResult[0].total);
   const totalPages = Math.ceil(total / limit);
   const offset = (page - 1) * limit;
 
   params.push(limit, offset);
-  const artists = await sql(
+  const artists = await sql.query(
     `SELECT a.*,
       COALESCE(
         json_agg(DISTINCT jsonb_build_object('id', c.id, 'name', c.name, 'slug', c.slug))
@@ -55,13 +55,13 @@ export default async function handler(req: Request) {
         '[]'::json
       ) AS categories
     FROM artists a
-    LEFT JOIN artist_categories ac ON ac.artist_id = a.id
-    LEFT JOIN categories c ON c.id = ac.category_id
+    LEFT JOIN artist_categories ac ON ac."artistId" = a.id
+    LEFT JOIN categories c ON c.id = ac."categoryId"
     ${where}
     GROUP BY a.id
     ORDER BY ${orderBy}
     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-    ...params
+    params
   );
 
   const allCats = await sql`SELECT * FROM categories ORDER BY name`;

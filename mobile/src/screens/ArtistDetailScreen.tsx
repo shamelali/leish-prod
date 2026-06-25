@@ -251,6 +251,14 @@ export default function ArtistDetailScreen() {
               ))}
             </View>
           )}
+
+          {user && (
+            <ReviewForm
+              artistId={artistId}
+              artistName={artist.name}
+              onSubmitted={loadArtist}
+            />
+          )}
         </View>
       </ScrollView>
 

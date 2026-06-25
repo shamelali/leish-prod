@@ -1,10 +1,15 @@
-import 'dotenv/config';
-import { createServer, IncomingMessage, ServerResponse } from 'http';
-import { readFileSync, readdirSync, statSync } from 'fs';
+import { config } from 'dotenv';
+import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join, dirname, extname } from 'path';
 import { fileURLToPath } from 'url';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+config({ path: join(__dirname, '..', '.env') });
+if (existsSync(join(__dirname, '..', '.env.local'))) {
+  config({ path: join(__dirname, '..', '.env.local') });
+}
 const API_DIR = join(__dirname, '..', 'api');
 const DIST_DIR = join(__dirname, '..', 'dist');
 const PORT = parseInt(process.env.PORT || '4173');

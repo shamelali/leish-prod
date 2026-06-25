@@ -17,7 +17,7 @@ export default async function handler(req: Request) {
     const [payoutResult] = await sql`SELECT COALESCE(SUM(amount), 0)::int as total FROM payments WHERE status = 'held'`;
     const usersThisMonth = await sql`
       SELECT COUNT(*)::int as count FROM "user"
-      WHERE created_at >= date_trunc('month', CURRENT_DATE)
+      WHERE "createdAt" >= date_trunc('month', CURRENT_DATE)
     `;
 
     return new Response(JSON.stringify({

@@ -14,13 +14,13 @@ export default async function handler(req: Request) {
         }
 
         if (req.method === 'GET') {
-          const favorites = await sql(
-            `SELECT f.*, a.name, a.image, a.location, a.rating, a.price
+          const favorites = await sql.query(
+            `            SELECT f.*, a.name, a.image, a.location, a.rating, a.price
             FROM favorites f
-            JOIN artists a ON a.id = f.artist_id
-            WHERE f.user_id = $1
-            ORDER BY f.created_at DESC`,
-            userId
+            JOIN artists a ON a.id = f."artistId"
+            WHERE f."userId" = $1
+            ORDER BY f."createdAt" DESC`,
+            [userId]
           );
           return new Response(JSON.stringify({ favorites }), {
             status: 200,
@@ -31,10 +31,9 @@ export default async function handler(req: Request) {
         if (req.method === 'POST') {
           const body = await req.json();
           const { artistId } = body;
-          await sql(
-            `INSERT INTO favorites (user_id, artist_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-            userId,
-            artistId
+          await sql.query(
+            `INSERT INTO favorites ("userId", "artistId") VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+            [userId, artistId]
           );
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
@@ -45,10 +44,9 @@ export default async function handler(req: Request) {
         if (req.method === 'DELETE') {
           const body = await req.json();
           const { artistId } = body;
-          await sql(
-            `DELETE FROM favorites WHERE user_id = $1 AND artist_id = $2`,
-            userId,
-            artistId
+          await sql.query(
+            `DELETE FROM favorites WHERE "userId" = $1 AND "artistId" = $2`,
+            [userId, artistId]
           );
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
@@ -69,24 +67,19 @@ export default async function handler(req: Request) {
           return new Response(JSON.stringify({ error: 'userId, artistId, rating, and author required' }), { status: 400 });
         }
 
-        const [review] = await sql(
-          `INSERT INTO reviews (user_id, artist_id, rating, text, author, service)
+        const [review] = await sql.query(
+          `INSERT INTO reviews ("userId", "artistId", rating, text, author, service)
           VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING *`,
-          userId,
-          artistId,
-          rating,
-          text,
-          author,
-          service
+          [userId, artistId, rating, text, author, service]
         );
 
-        await sql(
+        await sql.query(
           `UPDATE artists SET
-            review_count = (SELECT COUNT(*) FROM reviews WHERE artist_id = $1),
-            rating = (SELECT ROUND(AVG(rating)::numeric, 2) FROM reviews WHERE artist_id = $1)
+            "reviewCount" = (SELECT COUNT(*) FROM reviews WHERE "artistId" = $1),
+            rating = (SELECT ROUND(AVG(rating)::numeric, 2) FROM reviews WHERE "artistId" = $1)
           WHERE id = $1`,
-          artistId
+          [artistId]
         );
 
         return new Response(JSON.stringify({ review }), {
@@ -106,11 +99,11 @@ export default async function handler(req: Request) {
           return new Response(JSON.stringify({ error: 'bookingId required' }), { status: 400 });
         }
 
-        const [booking] = await sql(
-          `UPDATE bookings SET status = 'cancelled', updated_at = NOW()
+        const [booking] = await sql.query(
+          `UPDATE bookings SET status = 'cancelled', "updatedAt" = NOW()
           WHERE id = $1
           RETURNING *`,
-          bookingId
+          [bookingId]
         );
 
         if (!booking) {

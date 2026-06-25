@@ -13,29 +13,27 @@ export default async function handler(req: Request) {
   const sql = neon(process.env.DATABASE_URL!) as any;
 
   try {
-    const heldPayments = await sql(
-      `SELECT p.*, b.user_id
+    const heldPayments = await sql.query(
+      `SELECT p.*, b."userId"
       FROM payments p
-      JOIN bookings b ON b.id = p.booking_id
+      JOIN bookings b ON b.id = p."bookingId"
       WHERE p.status = 'held'
-        AND p.updated_at < NOW() - INTERVAL '3 days'
+        AND p."updatedAt" < NOW() - INTERVAL '3 days'
       LIMIT 10`
     );
 
     let released = 0;
     for (const payment of heldPayments) {
-      const [payout] = await sql(
-        `INSERT INTO payouts (user_id, amount, status, payment_id)
+      const [payout] = await sql.query(
+        `INSERT INTO payouts ("userId", amount, status, "paymentId")
         VALUES ($1, $2, 'released', $3)
         RETURNING *`,
-        payment.user_id,
-        payment.amount,
-        payment.id
+        [payment.userId, payment.amount, payment.id]
       );
 
-      await sql(
-        `UPDATE payments SET status = 'released', updated_at = NOW() WHERE id = $1`,
-        payment.id
+      await sql.query(
+        `UPDATE payments SET status = 'released', "updatedAt" = NOW() WHERE id = $1`,
+        [payment.id]
       );
       released++;
     }
