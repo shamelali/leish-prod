@@ -1,15 +1,14 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Home, ArrowLeft } from "lucide-react";
-import { defaultLocale, isLocale } from "@/lib/i18n";
+import { isLocale, defaultLocale } from "@/lib/i18n";
 
-export default async function NotFound() {
-  const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || "";
-  const firstSegment = pathname.split("/")[1] || "";
-  const locale = isLocale(firstSegment) ? firstSegment : defaultLocale;
+type Props = { params: Promise<{ lang: string }> };
+
+export default async function LocaleNotFound({ params }: Props) {
+  const resolved = await params;
+  const locale = resolved?.lang && isLocale(resolved.lang) ? resolved.lang : defaultLocale;
 
   return (
     <main className="min-h-screen bg-gray-50/50 dark:bg-neutral-950">

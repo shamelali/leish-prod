@@ -6,8 +6,16 @@ import Link from "next/link";
 import { Search, X, ArrowRight, Star, MapPin, Clock } from "lucide-react";
 import { artists, categories } from "@/data/artists";
 import ImageWithFallback from "./ImageWithFallback";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
-export default function SearchModal() {
+export default function SearchModal({
+  locale = "en",
+  dict
+}: {
+  locale?: Locale;
+  dict?: Record<string, any>;
+} = {}) {
+  const t = dict ?? getDictionary(locale as Locale);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +65,7 @@ export default function SearchModal() {
         className="hidden lg:flex items-center gap-2 px-4 py-2 text-sm text-gray-400 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl hover:border-rose-200 dark:hover:border-rose-800 transition-all min-w-[200px]"
       >
         <Search className="w-4 h-4" />
-        <span>Search artists...</span>
+        <span>{t.search.placeholder}</span>
         <kbd className="ml-auto px-1.5 py-0.5 text-[10px] font-mono text-gray-400 bg-gray-100 dark:bg-neutral-700 rounded">⌘K</kbd>
       </button>
 
@@ -83,7 +91,7 @@ export default function SearchModal() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search artists, categories, locations..."
+                placeholder={t.search.placeholder}
                 className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none"
               />
               {query && (
@@ -99,7 +107,7 @@ export default function SearchModal() {
               {query.trim() === "" ? (
                 <div className="p-8 text-center">
                   <Search className="w-8 h-8 text-gray-200 dark:text-neutral-700 mx-auto mb-3" />
-                  <p className="text-sm text-gray-400 dark:text-gray-500">Start typing to search...</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">{t.search.placeholder}</p>
                   <div className="mt-4 flex flex-wrap gap-2 justify-center">
                     {categories.slice(0, 5).map((cat) => (
                       <button
@@ -114,13 +122,13 @@ export default function SearchModal() {
                 </div>
               ) : !hasResults ? (
                 <div className="p-8 text-center">
-                  <p className="text-sm text-gray-400 dark:text-gray-500">No results for &ldquo;{query}&rdquo;</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">{t.search.noResults} &ldquo;{query}&rdquo;</p>
                 </div>
               ) : (
                 <div className="py-2">
                   {categoryResults.length > 0 && (
                     <>
-                      <p className="px-5 py-2 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Categories</p>
+                      <p className="px-5 py-2 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t.search.categories}</p>
                       {categoryResults.map((cat) => (
                         <button
                           key={cat.id}
@@ -139,7 +147,7 @@ export default function SearchModal() {
                   )}
                   {results.length > 0 && (
                     <>
-                      <p className="px-5 py-2 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-1">Artists</p>
+                      <p className="px-5 py-2 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-1">{t.search.artists}</p>
                       {results.map((artist) => (
                         <button
                           key={artist.id}
@@ -166,7 +174,7 @@ export default function SearchModal() {
                       onClick={() => { setOpen(false); router.push(`/artists?category=&search=${encodeURIComponent(query)}`); }}
                       className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium flex items-center gap-1"
                     >
-                      View all results <ArrowRight className="w-3 h-3" />
+                      {t.common.viewAll} <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>

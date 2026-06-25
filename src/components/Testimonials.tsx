@@ -1,13 +1,21 @@
 import { Star, Quote } from "lucide-react";
 import { testimonials } from "@/data/artists";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
-export default function Testimonials() {
+export default function Testimonials({
+  locale = "en",
+  dict
+}: {
+  locale?: Locale;
+  dict?: Record<string, any>;
+} = {}) {
+  const t = dict ?? getDictionary(locale as Locale);
   return (
     <section className="py-24 bg-gradient-to-b from-rose-50/30 to-white dark:from-neutral-900 dark:to-neutral-950" id="testimonials">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <p className="text-sm font-semibold text-rose-500 uppercase tracking-wider mb-2">Testimonials</p>
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">Loved by our clients</h2>
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">{t.testimonials.title}</h2>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">

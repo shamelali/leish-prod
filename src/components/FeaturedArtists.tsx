@@ -5,8 +5,16 @@ import { Star, MapPin, ArrowRight, BadgeCheck, Clock, Heart } from "lucide-react
 import { artists } from "@/data/artists";
 import ImageWithFallback from "./ImageWithFallback";
 import { useFavorites } from "@/context/FavoritesContext";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
-export default function FeaturedArtists() {
+export default function FeaturedArtists({
+  locale = "en",
+  dict
+}: {
+  locale?: Locale;
+  dict?: Record<string, any>;
+} = {}) {
+  const t = dict ?? getDictionary(locale as Locale);
   const featured = artists.slice(0, 3);
   const { isFavorite, toggleFavorite } = useFavorites();
 
@@ -15,8 +23,8 @@ export default function FeaturedArtists() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <p className="text-sm font-semibold text-rose-500 uppercase tracking-wider mb-2">Curated For You</p>
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">Featured Artists</h2>
-          <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">Hand-selected artists known for exceptional craft and outstanding client experiences.</p>
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">{t.featured.title}</h2>
+          <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">{t.featured.subtitle}</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -75,12 +83,12 @@ export default function FeaturedArtists() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-xs text-gray-400">From </span>
+                        <span className="text-xs text-gray-400">{t.featured.from} </span>
                         <span className="text-lg font-bold text-gray-900 dark:text-white">MYR {artist.price}</span>
                         <span className="text-xs text-gray-400">/hr</span>
                       </div>
                       <span className="inline-flex items-center gap-1 text-sm font-medium text-rose-600 dark:text-rose-400 group-hover:text-rose-700 dark:group-hover:text-rose-300 transition-colors">
-                        View <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        {t.featured.viewProfile} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                       </span>
                     </div>
                   </div>
@@ -92,7 +100,7 @@ export default function FeaturedArtists() {
 
         <div className="text-center mt-12">
           <Link href="/artists" className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-100">
-            See All Artists <ArrowRight className="w-4 h-4" />
+            {t.common.viewAll} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

@@ -2,18 +2,27 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { categories } from "@/data/artists";
 import ImageWithFallback from "./ImageWithFallback";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
-export default function CategoriesSection() {
+export default function CategoriesSection({
+  locale = "en",
+  dict
+}: {
+  locale?: Locale;
+  dict?: Record<string, any>;
+} = {}) {
+  const t = dict ?? getDictionary(locale as Locale);
+
   return (
     <section className="py-24 bg-white dark:bg-neutral-950" id="categories">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-12">
           <div>
             <p className="text-sm font-semibold text-rose-500 uppercase tracking-wider mb-2">Specialties</p>
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">Browse by Category</h2>
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">{t.categories.title}</h2>
           </div>
           <Link href="/artists" className="hidden sm:inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium text-sm transition-colors group">
-            View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            {t.common.viewAll} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
@@ -32,7 +41,7 @@ export default function CategoriesSection() {
               <div className="relative p-5 flex items-start gap-3 min-h-[130px]">
                 <span className="text-2xl group-hover:scale-125 transition-transform duration-300 drop-shadow-lg">{cat.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-white group-hover:text-rose-100 transition-colors mb-1 text-sm">{cat.name}</h3>
+                  <h3 className="font-semibold text-white group-hover:text-rose-100 transition-colors mb-1 text-sm">{(t.categories as Record<string, any>)[cat.id] ?? cat.name}</h3>
                   <span className="text-xs text-rose-300 dark:text-rose-400 font-medium">{cat.count} artists</span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-rose-300 group-hover:translate-x-1 transition-all shrink-0 mt-0.5" />
@@ -43,7 +52,7 @@ export default function CategoriesSection() {
 
         <div className="sm:hidden mt-6 text-center">
           <Link href="/artists" className="inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-medium text-sm">
-            View All Categories <ArrowRight className="w-4 h-4" />
+            {t.common.viewAll} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

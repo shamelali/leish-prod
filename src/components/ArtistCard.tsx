@@ -5,8 +5,18 @@ import { Star, MapPin, ArrowRight, BadgeCheck, Clock, Heart } from "lucide-react
 import { artists } from "@/data/artists";
 import ImageWithFallback from "./ImageWithFallback";
 import { useFavorites } from "@/context/FavoritesContext";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
-export default function ArtistCard({ artist }: { artist: (typeof artists)[0] }) {
+export default function ArtistCard({
+  artist,
+  locale = "en",
+  dict
+}: {
+  artist: (typeof artists)[0];
+  locale?: Locale;
+  dict?: Record<string, any>;
+}) {
+  const t = dict ?? getDictionary(locale as Locale);
   const { isFavorite, toggleFavorite } = useFavorites();
   const liked = isFavorite(artist.id);
 
@@ -67,12 +77,12 @@ export default function ArtistCard({ artist }: { artist: (typeof artists)[0] }) 
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs text-gray-400">From </span>
-              <span className="text-lg font-bold text-gray-900 dark:text-white">MYR {artist.price}</span>
+                        <span className="text-xs text-gray-400">{t.featured.from} </span>
+                        <span className="text-lg font-bold text-gray-900 dark:text-white">MYR {artist.price}</span>
               <span className="text-xs text-gray-400">/hr</span>
             </div>
             <span className="inline-flex items-center gap-1 text-sm font-medium text-rose-600 dark:text-rose-400 group-hover:text-rose-700 dark:group-hover:text-rose-300 transition-colors">
-              View <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              {t.featured.viewProfile} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </span>
           </div>
         </div>

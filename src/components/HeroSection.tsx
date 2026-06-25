@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Star, Users, Award, Clock } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import ImageWithFallback from "./ImageWithFallback";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
 const stats = [
   { icon: Users, value: "500+", label: "Happy Brides", color: "text-rose-600 dark:text-rose-400" },
@@ -12,7 +13,14 @@ const stats = [
   { icon: Clock, value: "<2h", label: "Response Time", color: "text-rose-500 dark:text-rose-400" },
 ];
 
-export default function HeroSection() {
+export default function HeroSection({
+  locale = "en",
+  dict
+}: {
+  locale?: Locale;
+  dict?: Record<string, any>;
+} = {}) {
+  const t = dict ?? getDictionary(locale as Locale);
   const { user } = useAuth();
 
   return (
@@ -34,24 +42,22 @@ export default function HeroSection() {
               Malaysia&apos;s #1 Beauty Marketplace
             </div>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-serif font-bold text-gray-900 dark:text-white leading-[1.08] mb-6 tracking-tight">
-              Book Beauty.
-              <br />
-              <span className="gradient-text">Anywhere.</span>
+              {t.hero.title}
             </h1>
             <p className="text-lg sm:text-xl text-gray-500 dark:text-gray-400 leading-relaxed mb-8 max-w-lg">
-              Discover makeup artists and studios, view real-time availability, and secure your booking in minutes.
+              {t.hero.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/artists" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-2xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-xl shadow-rose-200/50 dark:shadow-rose-900/30 hover:scale-105 active:scale-100 text-base">
-                Browse Artists <ArrowRight className="w-4 h-4" />
+                {t.hero.browseArtists} <ArrowRight className="w-4 h-4" />
               </Link>
               {user ? (
                 <Link href="/profile" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base">
-                  My Bookings
+                  {t.hero.myBookings}
                 </Link>
               ) : (
                 <Link href="/register" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base">
-                  Sign Up Free
+                  {t.hero.signupFree}
                 </Link>
               )}
             </div>

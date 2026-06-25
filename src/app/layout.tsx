@@ -34,41 +34,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: {
-    default: "Leish! | Your Beauty, Perfected",
-    template: "%s | Leish!",
-  },
-  description:
-    "Book Beauty. Anywhere. Discover makeup artists and studios, view real-time availability, and secure your booking in minutes.",
-  keywords: [
-    "makeup artist",
-    "beauty booking",
-    "Malaysia",
-    "makeup studio",
-    "Hari Raya",
-    "hijab makeup",
-    "bridal makeup",
-    "event makeup",
-  ],
-  authors: [{ name: "Leish!" }],
-  openGraph: {
-    type: "website",
-    locale: "en_MY",
-    siteName: "Leish!",
-    title: "Leish! | Your Beauty, Perfected",
-    description:
-      "Book Beauty. Anywhere. Discover makeup artists and studios across Malaysia.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Leish! | Your Beauty, Perfected",
-    description:
-      "Book Beauty. Anywhere. Discover makeup artists and studios across Malaysia.",
-  },
   manifest: "/manifest.json",
-    icons: {
-    icon: "/favicon.svg",
-  },
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({
@@ -78,7 +45,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} antialiased bg-white dark:bg-neutral-950`}><a href="#main-content" className="skip-link">Skip to main content</a>
+      <body className={`${inter.variable} ${playfair.variable} antialiased bg-white dark:bg-neutral-950`}>
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <AuthProvider>
           <ThemeProvider>
             <FavoritesProvider>
@@ -89,8 +57,8 @@ export default function RootLayout({
                   </Suspense>
                   {children}
                   <BackToTop />
-                <PWAInstallPrompt />
-                <AccessibilityMenu />
+                  <PWAInstallPrompt />
+                  <AccessibilityMenu />
                 </ToastProvider>
               </NotificationsProvider>
             </FavoritesProvider>

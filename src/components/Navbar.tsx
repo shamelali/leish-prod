@@ -2,19 +2,27 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X, Sparkles, Heart, User, LogOut, Calendar, Sun, Moon, LayoutDashboard, ChevronDown, Camera, Building2 } from "lucide-react";
+import { Menu, X, Sparkles, Heart, User, LogOut, Calendar, Sun, Moon, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useNotifications } from "@/context/NotificationsContext";
 import SearchModal from "./SearchModal";
 import NotificationsDropdown from "./NotificationsDropdown";
+import { getDictionary } from "@/lib/i18n";
+import type { Locale } from "@/lib/i18n";
 
-export default function Navbar() {
+export default function Navbar({
+  locale = "en",
+  dict
+}: {
+  locale?: Locale;
+  dict?: Record<string, any>;
+} = {}) {
+  const t = dict ?? getDictionary(locale as Locale);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [signupOpen, setSignupOpen] = useState(false);
   const { user, logout } = useAuth();
   const { theme, toggle } = useTheme();
   const { count: favCount } = useFavorites();
@@ -26,7 +34,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => { if (open) { setProfileOpen(false); setSignupOpen(false); } }, [open]);
+  useEffect(() => { if (open) { setProfileOpen(false); } }, [open]);
 
   // Notify on booking
   useEffect(() => {
@@ -65,16 +73,16 @@ export default function Navbar() {
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-1">
             <Link href="/" className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all">
-              Home
+              {t.nav.home}
             </Link>
             <Link href="/artists" className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all">
-              Artists
+              {t.nav.artists}
             </Link>
             <Link href="/studios" className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all">
-              Studios
+              {t.nav.studios}
             </Link>
             <Link href="/artists?category=event" className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all">
-              Events
+              {t.nav.events}
             </Link>
           </div>
 
@@ -125,26 +133,26 @@ export default function Navbar() {
                         <p className="text-xs text-gray-400 truncate">{user.email}</p>
                       </div>
                       <Link href="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
-                        <User className="w-4 h-4" /> My Profile
+                        <User className="w-4 h-4" /> {t.nav.myProfile}
                       </Link>
                       <Link href="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
-                        <Calendar className="w-4 h-4" /> My Bookings
+                        <Calendar className="w-4 h-4" /> {t.nav.myBookings}
                       </Link>
                       <Link href="/favorites" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
-                        <Heart className="w-4 h-4" /> Favorites
+                        <Heart className="w-4 h-4" /> {t.nav.favorites}
                         {favCount > 0 && (
                           <span className="ml-auto px-2 py-0.5 text-[10px] font-bold bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-full">{favCount}</span>
                         )}
                       </Link>
                       <Link href="/dashboard/artist" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
-                        <LayoutDashboard className="w-4 h-4" /> Artist Dashboard
+                        <LayoutDashboard className="w-4 h-4" /> {t.nav.artistDashboard}
                       </Link>
                       <Link href="/dashboard/studio" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
-                        <LayoutDashboard className="w-4 h-4" /> Studio Dashboard
+                        <LayoutDashboard className="w-4 h-4" /> {t.nav.studioDashboard}
                       </Link>
                       <div className="border-t border-gray-100 dark:border-neutral-800 mt-1 pt-1">
                         <button onClick={() => { logout(); setProfileOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors w-full text-left">
-                          <LogOut className="w-4 h-4" /> Sign Out
+                          <LogOut className="w-4 h-4" /> {t.common.logout}
                         </button>
                       </div>
                     </div>
@@ -154,56 +162,14 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-2">
                 <Link href="/login" className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all">
-                  Log In
+                  {t.nav.login}
                 </Link>
-                <div className="relative">
-                  <button
-                    onClick={() => setSignupOpen((v) => !v)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-sm font-semibold rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-lg shadow-rose-200/50 dark:shadow-rose-900/30 hover:scale-105 active:scale-100"
-                    aria-haspopup="menu"
-                    aria-expanded={signupOpen}
-                  >
-                    Sign Up
-                    <ChevronDown className={`w-4 h-4 transition-transform ${signupOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {signupOpen && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setSignupOpen(false)} />
-                      <div className="absolute right-0 mt-2 w-64 z-50 bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800 rounded-2xl shadow-xl shadow-rose-200/40 dark:shadow-black/40 p-2 animate-fade-in">
-                        <p className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500">
-                          Sign up as
-                        </p>
-                        <Link href="/register" onClick={() => setSignupOpen(false)} className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors">
-                          <span className="mt-0.5 w-9 h-9 shrink-0 rounded-lg bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                            <User className="w-4 h-4" />
-                          </span>
-                          <span className="flex-1 min-w-0">
-                            <span className="block text-sm font-semibold text-gray-900 dark:text-white">Client / Customer</span>
-                            <span className="block text-xs text-gray-500 dark:text-gray-400">Book makeup services</span>
-                          </span>
-                        </Link>
-                        <Link href="/register/artist" onClick={() => setSignupOpen(false)} className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors">
-                          <span className="mt-0.5 w-9 h-9 shrink-0 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                            <Camera className="w-4 h-4" />
-                          </span>
-                          <span className="flex-1 min-w-0">
-                            <span className="block text-sm font-semibold text-gray-900 dark:text-white">Artist</span>
-                            <span className="block text-xs text-gray-500 dark:text-gray-400">Offer your services</span>
-                          </span>
-                        </Link>
-                        <Link href="/register/studio" onClick={() => setSignupOpen(false)} className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors">
-                          <span className="mt-0.5 w-9 h-9 shrink-0 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                            <Building2 className="w-4 h-4" />
-                          </span>
-                          <span className="flex-1 min-w-0">
-                            <span className="block text-sm font-semibold text-gray-900 dark:text-white">Studio</span>
-                            <span className="block text-xs text-gray-500 dark:text-gray-400">List a beauty studio</span>
-                          </span>
-                        </Link>
-                      </div>
-                    </>
-                  )}
-                </div>
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-sm font-semibold rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-lg shadow-rose-200/50 dark:shadow-rose-900/30 hover:scale-105 active:scale-100"
+                >
+                  {t.nav.signup}
+                </Link>
               </div>
             )}
           </div>
@@ -234,11 +200,11 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden bg-white/95 dark:bg-neutral-950/95 backdrop-blur-2xl border-b border-rose-100 dark:border-neutral-800 animate-fade-in">
           <div className="px-4 py-4 space-y-1">
-            <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-colors">Home</Link>
-            <Link href="/artists" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-colors">Browse Artists</Link>
-            <Link href="/studios" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-colors">Studios</Link>
+            <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-colors">{t.nav.home}</Link>
+            <Link href="/artists" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-colors">{t.nav.browseArtists}</Link>
+            <Link href="/studios" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-colors">{t.nav.studios}</Link>
             <Link href="/favorites" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-colors">
-              <Heart className="w-4 h-4" /> Favorites
+              <Heart className="w-4 h-4" /> {t.nav.favorites}
               {favCount > 0 && <span className="ml-auto px-2 py-0.5 text-[10px] font-bold bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-full">{favCount}</span>}
             </Link>
 
@@ -252,24 +218,17 @@ export default function Navbar() {
                       <p className="text-xs text-gray-400">{user.email}</p>
                     </div>
                   </div>
-                  <Link href="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><User className="w-4 h-4" /> My Profile</Link>
-                  <Link href="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><Calendar className="w-4 h-4" /> My Bookings</Link>
-                  <Link href="/dashboard/artist" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><LayoutDashboard className="w-4 h-4" /> Artist Dashboard</Link>
-                  <Link href="/dashboard/studio" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><LayoutDashboard className="w-4 h-4" /> Studio Dashboard</Link>
-                  <button onClick={() => { logout(); setOpen(false); }} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl w-full text-left"><LogOut className="w-4 h-4" /> Sign Out</button>
+                  <Link href="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><User className="w-4 h-4" /> {t.nav.myProfile}</Link>
+                  <Link href="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><Calendar className="w-4 h-4" /> {t.nav.myBookings}</Link>
+                  <Link href="/dashboard/artist" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><LayoutDashboard className="w-4 h-4" /> {t.nav.artistDashboard}</Link>
+                  <Link href="/dashboard/studio" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><LayoutDashboard className="w-4 h-4" /> {t.nav.studioDashboard}</Link>
+                  <button onClick={() => { logout(); setOpen(false); }} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl w-full text-left"><LogOut className="w-4 h-4" /> {t.common.logout}</button>
                 </>
               ) : (
                 <div className="space-y-2">
-                  <Link href="/login" onClick={() => setOpen(false)} className="block text-center px-5 py-3 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200">Log In</Link>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500 pt-2 text-center">Sign up as</p>
-                  <Link href="/register" onClick={() => setOpen(false)} className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-xl shadow-lg shadow-rose-200/50 dark:shadow-rose-900/30">
-                    <User className="w-4 h-4" /> Client / Customer
-                  </Link>
-                  <Link href="/register/artist" onClick={() => setOpen(false)} className="flex items-center gap-3 px-5 py-3 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-neutral-700">
-                    <Camera className="w-4 h-4" /> Artist
-                  </Link>
-                  <Link href="/register/studio" onClick={() => setOpen(false)} className="flex items-center gap-3 px-5 py-3 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-neutral-700">
-                    <Building2 className="w-4 h-4" /> Studio
+                  <Link href="/login" onClick={() => setOpen(false)} className="block text-center px-5 py-3 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200">{t.nav.login}</Link>
+                  <Link href="/register" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-xl shadow-lg shadow-rose-200/50 dark:shadow-rose-900/30">
+                    {t.nav.signup}
                   </Link>
                 </div>
               )}
