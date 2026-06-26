@@ -187,22 +187,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("leish_users", JSON.stringify(users));
     } catch {}
 
-    // Simulate email sending based on role
+    // Send real welcome email via Brevo
     try {
-      const emailSubject = data.role === 'artist'
-        ? 'Welcome to Leish! Artist Community'
-        : data.role === 'studio'
-        ? 'Your Studio Registration on Leish!'
-        : 'Welcome to Leish!';
-
-      const emailBody = data.role === 'artist'
-        ? `Hi ${data.name},\n\nThank you for joining Leish! as an artist. Your profile is now live in ${data.location}, ${data.area}. Start receiving bookings!\n\nLeish! Team`
-        : data.role === 'studio'
-        ? `Hi ${data.name},\n\nThank you for registering your studio on Leish!. Your studio listing in ${data.location}, ${data.area} is being reviewed.\n\nLeish! Team`
-        : `Hi ${data.name},\n\nWelcome to Leish! Start booking Malaysia's finest makeup artists today.\n\nLeish! Team`;
-
-      console.log(`[EMAIL] To: ${data.email} | Subject: ${emailSubject} | Body: ${emailBody}`);
-      localStorage.setItem(`leish_email_${data.email}`, JSON.stringify({ subject: emailSubject, body: emailBody, sentAt: new Date().toISOString() }));
+      const body = {
+        to: data.email,
+        subject: data.role === 'artist'
+          ? 'Welcome to Leish! Artist Community'
+          : data.role === 'studio'
+          ? 'Your Studio Registration on Leish!'
+          : 'Welcome to Leish!',
+        html: data.role === 'artist'
+          ? `<h2>Welcome to Leish!</h2><p>Hi ${data.name},</p><p>Thank you for joining Leish! as an artist. Your profile is now live in ${data.location}, ${data.area}. Start receiving bookings!</p>`
+          : data.role === 'studio'
+          ? `<h2>Your Studio Registration on Leish!</h2><p>Hi ${data.name},</p><p>Thank you for registering your studio on Leish!. Your studio listing in ${data.location}, ${data.area} is being reviewed.</p>`
+          : `<h2>Welcome to Leish!</h2><p>Hi ${data.name},</p><p>Welcome to Leish! Start booking Malaysia's finest makeup artists today.</p>`,
+        text: data.role === 'artist'
+          ? `Welcome to Leish! Artist Community\n\nHi ${data.name},\n\nThank you for joining Leish! as an artist. Your profile is now live in ${data.location}, ${data.area}. Start receiving bookings!\n\nLeish! Team`
+          : data.role === 'studio'
+          ? `Your Studio Registration on Leish!\n\nHi ${data.name},\n\nThank you for registering your studio on Leish!. Your studio listing in ${data.location}, ${data.area} is being reviewed.\n\nLeish! Team`
+          : `Welcome to Leish!\n\nHi ${data.name},\n\nWelcome to Leish! Start booking Malaysia's finest makeup artists today.\n\nLeish! Team`,
+      };
+      fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }).catch(() => {});
     } catch {}
 
     setUser({

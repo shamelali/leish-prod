@@ -134,9 +134,9 @@ npm run db:setup  # Push + seed
 
 ## Known Issues / Next Steps
 
-- `.env.production` has `VITE_NEON_AUTH_URL=""` (empty) — relies on `.env.local` at build time
+- **Enable social auth in Neon Console** (Vercel OAuth) — Google/GitHub providers need credentials in Neon Auth Settings
+- **Cloudflare DNS — disable proxying on `leish.my`** (grey cloud) so Vercel SSL issues correctly
 - `eslint.config.mjs` has warnings about unused ts-eslint directives but builds fine
-- Bundle > 500 KB — consider code-splitting via `React.lazy()` per route
 - Could not push `.github/workflows/` files — GitHub token lacks `workflow` scope
 
 ## Session Log
@@ -170,3 +170,9 @@ npm run db:setup  # Push + seed
 - Updated `ImageWithFallback` to auto-append `f_auto,q_auto` + responsive transformations for Cloudinary URLs
 - Updated registration page to upload portfolio images via `/api/upload` instead of storing data URLs
 - Added Cloudinary env vars to `.env.example`
+
+### 2026-06-26 (session 3)
+- Created `.env.production` with correct `VITE_NEON_AUTH_URL` and `VITE_CLOUDINARY_CLOUD_NAME` (was empty, relied on `.env.local` at build time)
+- Code-splitting already in place — all routes use `React.lazy()` (verified: index chunk 310 KB / 95 KB gzip)
+- Fixed eslint: installed `typescript-eslint`, updated config with TS parser — 57 parse errors → 0 errors, 74 warnings (all `no-explicit-any` and `no-unused-vars`)
+- Updated Known Issues / Next Steps in AGENTS.md

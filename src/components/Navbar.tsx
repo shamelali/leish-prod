@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Menu, X, Heart, User, LogOut, Calendar, Sun, Moon, LayoutDashboard } from "lucide-react";
+import { Menu, X, Heart, User, LogOut, Calendar, Sun, Moon, LayoutDashboard, BookOpen } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useFavorites } from "../context/FavoritesContext";
@@ -142,6 +142,11 @@ export default function Navbar({
                           <LayoutDashboard className="w-4 h-4" /> {t.nav.artistDashboard}
                         </Link>
                       )}
+                      {user.role === 'artist' && (
+                        <Link to="/onboarding/artist" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
+                          <BookOpen className="w-4 h-4" /> Onboarding Guide
+                        </Link>
+                      )}
                       {user.role === 'studio' && (
                         <Link to="/dashboard/studio" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
                           <LayoutDashboard className="w-4 h-4" /> {t.nav.studioDashboard}
@@ -224,6 +229,9 @@ export default function Navbar({
                   <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><Calendar className="w-4 h-4" /> {t.nav.myBookings}</Link>
                   {user.role === 'artist' && (
                     <Link to="/dashboard/artist" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><LayoutDashboard className="w-4 h-4" /> {t.nav.artistDashboard}</Link>
+                  )}
+                  {user.role === 'artist' && (
+                    <Link to="/onboarding/artist" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><BookOpen className="w-4 h-4" /> Onboarding Guide</Link>
                   )}
                   {user.role === 'studio' && (
                     <Link to="/dashboard/studio" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl"><LayoutDashboard className="w-4 h-4" /> {t.nav.studioDashboard}</Link>
