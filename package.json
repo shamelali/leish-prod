@@ -14,7 +14,8 @@
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed.ts",
     "db:setup": "npm run db:push && npm run db:seed",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "check:email": "tsx scripts/check-email.ts"
   },
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",

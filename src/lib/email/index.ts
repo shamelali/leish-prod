@@ -12,4 +12,5 @@ export {
   subscriptionCreatedTemplate,
   subscriptionCanceledTemplate,
   notificationEmailTemplate,
+  shamelNotificationTemplate,
 } from "./templates"

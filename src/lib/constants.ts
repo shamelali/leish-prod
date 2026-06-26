@@ -96,15 +96,19 @@ export const malaysiaDistricts: Record<string, string[]> = {
   ],
 };
 
-export const southeastAsianLanguages = [
+export const malaysiaLanguages = [
   "English",
   "Malay (Bahasa Melayu)",
   "Mandarin Chinese",
+  "Tamil",
+];
+
+export const southeastAsianLanguages = [
+  ...malaysiaLanguages,
   "Cantonese",
   "Hokkien",
   "Teochew",
   "Hakka",
-  "Tamil",
   "Indonesian (Bahasa Indonesia)",
   "Thai",
   "Vietnamese",

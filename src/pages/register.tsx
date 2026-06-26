@@ -4,7 +4,7 @@ import { User, Mail, Phone, Lock, MapPin, Building2, Sparkles, Globe, Image, Che
 import { useAuth } from '../context/AuthContext';
 import SocialLoginButtons from '../components/SocialLoginButtons';
 import {
-  malaysianStates, malaysiaDistricts, southeastAsianLanguages, specialties,
+  malaysianStates, malaysiaDistricts, malaysiaLanguages, specialties,
   roleLabels, roleDescriptions,
 } from '../lib/constants';
 
@@ -386,7 +386,7 @@ export default function Register() {
                   />
                 </div>
                 <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 bg-gray-50 dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700">
-                  {southeastAsianLanguages
+                  {malaysiaLanguages
                     .filter((l) => l.toLowerCase().includes(langSearch.toLowerCase()))
                     .map((l) => (
                       <button

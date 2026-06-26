@@ -174,6 +174,39 @@ Explore Artists: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel.ap
   return { subject, html, text }
 }
 
+export function shamelNotificationTemplate(params: { name: string; message: string }) {
+  const subject = `Message for Shamel`
+  const html = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <title>Message for Shamel</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: #1a1a1a; color: white; padding: 30px; text-align: center; }
+      .content { background: #f9f9f9; padding: 30px; margin: 20px 0; }
+      .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Message for Shamel</h1>
+    </div>
+    <div class="content">
+      <p>Hi ${params.name},</p>
+      <p>${params.message}</p>
+    </div>
+    <div class="footer">
+      <p>&copy; 2026 Leish. All rights reserved.</p>
+    </div>
+  </body>
+  </html>
+  `
+  const text = `Message for Shamel\n\nHi ${params.name},\n\n${params.message}\n\n&copy; 2026 Leish. All rights reserved.`
+  return { subject, html, text }
+}
+
 export function paymentReceiptTemplate(params: {
   customerName: string
   bookingId: string
