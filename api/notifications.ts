@@ -19,7 +19,7 @@ const createSchema = z.object({
   type: z.enum(['booking', 'payment', 'review', 'message', 'system']),
   title: z.string().min(1),
   body: z.string().optional(),
-  data: z.record(z.unknown()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
 });
 
 export default async function handler(req: Request) {

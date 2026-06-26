@@ -39,7 +39,7 @@ export function validateSearchParams<T extends Record<string, unknown>>(schema: 
 
 export function formatZodError(error: ZodError): Record<string, string[]> {
   const formatted: Record<string, string[]> = {}
-  for (const issue of error.errors) {
+  for (const issue of error.issues) {
     const path = issue.path.join(".")
     if (!formatted[path]) {
       formatted[path] = []

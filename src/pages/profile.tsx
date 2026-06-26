@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Mail, Phone, Calendar, MapPin, Star, Clock, X } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Profile() {

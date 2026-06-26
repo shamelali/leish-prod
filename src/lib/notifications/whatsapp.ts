@@ -13,7 +13,7 @@ function getAuthHeaders() {
 }
 
 function formatPhoneNumber(phone: string): string {
-  const cleaned = phone.replace(/[\s\-\(\)]/g, "")
+  const cleaned = phone.replace(/[\s\-()]/g, "")
   if (cleaned.startsWith("+")) return cleaned
   if (cleaned.startsWith("60")) return `+${cleaned}`
   if (cleaned.startsWith("0")) return `+60${cleaned.slice(1)}`

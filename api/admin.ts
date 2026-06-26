@@ -1,5 +1,4 @@
 import { neon } from '@neondatabase/serverless';
-import type { Request } from 'express';
 
 export default async function handler(req: Request) {
   const url = new URL(req.url);

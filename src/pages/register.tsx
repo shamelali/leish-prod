@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, Lock, MapPin, Building2, Sparkles, Globe, Image, Check, ChevronDown, X, Upload } from 'lucide-react';
+import { User, Mail, Phone, Lock, MapPin, Building2, Sparkles, Globe, Image, ChevronDown, X, Upload } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import SocialLoginButtons from '../components/SocialLoginButtons';
 import {
