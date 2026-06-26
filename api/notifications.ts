@@ -23,8 +23,6 @@ const createSchema = z.object({
 });
 
 export default async function handler(req: Request) {
-  const url = new URL(req.url);
-
   try {
     if (req.method === 'GET') {
       const rateCheck = enforceRateLimit(req, 'notifications:list', 60, 60_000);

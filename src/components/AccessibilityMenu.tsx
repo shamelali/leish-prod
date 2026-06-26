@@ -17,7 +17,7 @@ export default function AccessibilityMenu() {
       if (prefs.fontSize) setFontSize(prefs.fontSize);
       if (prefs.highContrast) setHighContrast(prefs.highContrast);
       if (prefs.reducedMotion) setReducedMotion(prefs.reducedMotion);
-    } catch {}
+    } catch { /* localStorage unavailable */ }
   }, []);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function AccessibilityMenu() {
     // Save
     try {
       localStorage.setItem("leish-a11y", JSON.stringify({ fontSize, highContrast, reducedMotion }));
-    } catch {}
+    } catch { /* localStorage unavailable */ }
   }, [fontSize, highContrast, reducedMotion]);
 
   const reset = () => {

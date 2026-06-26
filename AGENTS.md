@@ -139,6 +139,15 @@ npm run db:setup  # Push + seed
 - `eslint.config.mjs` has warnings about unused ts-eslint directives but builds fine
 - Could not push `.github/workflows/` files — GitHub token lacks `workflow` scope
 
+## Deploy Checklist (production switch)
+
+Before deploying to production, set these in Vercel dashboard:
+- `BILLPLZ_API_URL` → `https://www.billplz.com/api/v3` (sandbox default)
+- `BILLPLZ_API_KEY` → production key
+- `BILLPLZ_COLLECTION_ID` → production collection ID
+- `BILLPLZ_SIGNATURE_KEY` → production signature key
+- `NEXT_PUBLIC_URL` → `https://leish-clone.vercel.app` (or custom domain)
+
 ## Session Log
 
 ### 2026-06-25
@@ -176,3 +185,11 @@ npm run db:setup  # Push + seed
 - Code-splitting already in place — all routes use `React.lazy()` (verified: index chunk 310 KB / 95 KB gzip)
 - Fixed eslint: installed `typescript-eslint`, updated config with TS parser — 57 parse errors → 0 errors, 74 warnings (all `no-explicit-any` and `no-unused-vars`)
 - Updated Known Issues / Next Steps in AGENTS.md
+
+### 2026-06-27 — Phase 2 Payments & Tooling
+- **Production-ready Billplz:** Replaced hardcoded sandbox URL with `BILLPLZ_API_URL` env var (defaults to sandbox, override with production URL). Added to `.env.example` and `.env.production`.
+- **Admin refund flow:** Added `refund` action to `api/payments.ts` — calls Billplz refund API + updates payment status to `refunded` in DB. Release + Refund action buttons in admin dashboard payments table.
+- **Payout scheduling UI:** Replaced mock data in artist dashboard with real API calls. Added payouts section with pending balance, paid-out total, registered bank account, payout history, and bank registration form. Uses `/api/payments?action=payouts&userId=X`.
+- **Social auth:** Added Facebook, Instagram, and Apple buttons to `SocialLoginButtons.tsx`. Removed GitHub. Updated layout to 4-column grid.
+- **ESLint cleanup:** Fixed 2 `prefer-const` errors in scripts, removed unused imports across 5 components, removed unused `sampleBookings` mock data from AuthContext, removed unused `notifUnread` from Navbar, added comments to empty catch blocks.
+- **Infra check:** `@types/express` already installed, `ZodError`/`enforceRateLimit` signatures already correct — no changes needed.

@@ -398,7 +398,7 @@ export default function DashboardAdmin() {
                 <th className="text-left p-3 font-semibold text-gray-600 dark:text-gray-300">Status</th>
                 <th className="text-left p-3 font-semibold text-gray-600 dark:text-gray-300">Method</th>
                 <th className="text-left p-3 font-semibold text-gray-600 dark:text-gray-300">Created</th>
-                <th className="text-left p-3 font-semibold text-gray-600 dark:text-gray-300">Released</th>
+                <th className="text-left p-3 font-semibold text-gray-600 dark:text-gray-300">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-neutral-800">
@@ -409,14 +409,55 @@ export default function DashboardAdmin() {
               ) : filterBySearch(payments).map((p) => (
                 <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-neutral-800">
                   <td className="p-3 font-mono text-xs text-gray-500">{p.id.slice(0, 8)}</td>
-                  <td className="p-3 font-mono text-xs text-gray-500">{p.bookingId?.slice(0, 8) || '—'}</td>
+                  <td className="p-3 font-mono text-xs text-gray-500">{(p.bookingId || '').toString().slice(0, 8) || '—'}</td>
                   <td className="p-3 font-medium text-gray-900 dark:text-white">MYR {p.amount}</td>
                   <td className="p-3">
                     <PaymentBadge status={p.status} />
                   </td>
                   <td className="p-3 text-gray-600 dark:text-gray-300 capitalize">{p.paymentMethod || '—'}</td>
                   <td className="p-3 text-xs text-gray-400">{p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '—'}</td>
-                  <td className="p-3 text-xs text-gray-400">{p.releasedAt ? new Date(p.releasedAt).toLocaleDateString() : '—'}</td>
+                  <td className="p-3">
+                    <div className="flex items-center gap-1">
+                      {p.status === 'held' && (
+                        <button
+                          onClick={async () => {
+                            if (!confirm('Release this payment?')) return;
+                            setActionLoading(`release-${p.id}`);
+                            await fetch('/api/payments?action=release', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ paymentId: p.id }),
+                            });
+                            setActionLoading('');
+                            fetchData('payments');
+                          }}
+                          disabled={actionLoading === `release-${p.id}`}
+                          className="px-2 py-1 text-xs font-medium rounded-lg bg-green-50 text-green-600 dark:bg-green-950/30 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors disabled:opacity-40"
+                        >
+                          {actionLoading === `release-${p.id}` ? '...' : 'Release'}
+                        </button>
+                      )}
+                      {(p.status === 'paid' || p.status === 'held') && (
+                        <button
+                          onClick={async () => {
+                            if (!confirm('Refund this payment?')) return;
+                            setActionLoading(`refund-${p.id}`);
+                            await fetch('/api/payments?action=refund', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ paymentId: p.id }),
+                            });
+                            setActionLoading('');
+                            fetchData('payments');
+                          }}
+                          disabled={actionLoading === `refund-${p.id}`}
+                          className="px-2 py-1 text-xs font-medium rounded-lg bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors disabled:opacity-40"
+                        >
+                          {actionLoading === `refund-${p.id}` ? '...' : 'Refund'}
+                        </button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

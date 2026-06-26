@@ -1,5 +1,11 @@
 import { neon } from '@neondatabase/serverless';
 
+const BILLPLZ_API = process.env.BILLPLZ_API_URL || 'https://www.billplz-sandbox.com/api/v3';
+
+function billplzAuth() {
+  return `Basic ${btoa(process.env.BILLPLZ_API_KEY! + ':')}`;
+}
+
 export default async function handler(req: Request) {
   const sql = neon(process.env.DATABASE_URL!) as any;
   const url = new URL(req.url);
@@ -29,11 +35,11 @@ export default async function handler(req: Request) {
           redirect_url: `${process.env.NEXT_PUBLIC_URL}/bookings/${bookingId}/success`,
         });
 
-        const billplzResponse = await fetch('https://www.billplz-sandbox.com/api/v3/bills', {
+        const billplzResponse = await fetch(`${BILLPLZ_API}/bills`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Basic ${btoa(process.env.BILLPLZ_API_KEY! + ':')}`,
+            Authorization: billplzAuth(),
           },
           body: billplzBody,
         });
@@ -80,10 +86,10 @@ export default async function handler(req: Request) {
 
         if (payment.billplzbillid) {
           const billplzResponse = await fetch(
-            `https://www.billplz-sandbox.com/api/v3/bills/${payment.billplzbillid}`,
+            `${BILLPLZ_API}/bills/${payment.billplzbillid}`,
             {
               headers: {
-                Authorization: `Basic ${btoa(process.env.BILLPLZ_API_KEY! + ':')}`,
+                Authorization: billplzAuth(),
               },
             }
           );
@@ -159,6 +165,94 @@ export default async function handler(req: Request) {
 
         return new Response(JSON.stringify({ account }), {
           status: 201,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'refund': {
+        if (req.method !== 'POST') {
+          return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+        }
+        const refundBody = await req.json();
+        const refundPaymentId = refundBody.paymentId;
+
+        if (!refundPaymentId) {
+          return new Response(JSON.stringify({ error: 'paymentId required' }), { status: 400 });
+        }
+
+        const [payment] = await sql.query(
+          `SELECT * FROM payments WHERE id = $1 AND status IN ('paid', 'held')`,
+          [refundPaymentId]
+        );
+
+        if (!payment) {
+          return new Response(JSON.stringify({ error: 'Payment not found or cannot be refunded' }), { status: 400 });
+        }
+
+        if (payment.billplzbillid) {
+          const billplzResponse = await fetch(
+            `${BILLPLZ_API}/bills/${payment.billplzbillid}/refund`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: billplzAuth(),
+              },
+              body: JSON.stringify({ amount: payment.amount }),
+            }
+          );
+
+          const billplzData = await billplzResponse.json();
+
+          if (!billplzResponse.ok) {
+            return new Response(JSON.stringify({ error: billplzData }), {
+              status: billplzResponse.status,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+        }
+
+        await sql.query(
+          `UPDATE payments SET status = 'refunded', "updatedAt" = NOW() WHERE id = $1`,
+          [refundPaymentId]
+        );
+
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'payouts': {
+        if (req.method !== 'GET') {
+          return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+        }
+        const userId = url.searchParams.get('userId');
+        if (!userId) {
+          return new Response(JSON.stringify({ error: 'userId required' }), { status: 400 });
+        }
+
+        const payouts = await sql.query(
+          `SELECT * FROM payouts WHERE "userId" = $1 ORDER BY "createdAt" DESC LIMIT 50`,
+          [userId]
+        );
+
+        const bankAccounts = await sql.query(
+          `SELECT * FROM mua_bank_accounts WHERE "userId" = $1 ORDER BY "createdAt" DESC`,
+          [userId]
+        );
+
+        const pendingBalance = await sql.query(
+          `SELECT COALESCE(SUM(amount), 0)::int as total FROM payments WHERE "userId" = $1 AND status = 'held'`,
+          [userId]
+        );
+
+        return new Response(JSON.stringify({
+          payouts,
+          bankAccounts,
+          pendingBalance: pendingBalance[0]?.total || 0,
+        }), {
+          status: 200,
           headers: { 'Content-Type': 'application/json' },
         });
       }

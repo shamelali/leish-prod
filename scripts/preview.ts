@@ -47,7 +47,7 @@ function walkRoutes(dir: string, basePath: string = ''): Route[] {
     if (entry.isDirectory()) {
       routes.push(...walkRoutes(fullPath, `${basePath}/${entry.name}`));
     } else if (entry.name.endsWith('.ts')) {
-      let segment = entry.name.replace('.ts', '');
+      const segment = entry.name.replace('.ts', '');
       const paramNames: string[] = [];
       const regexStr = segment.replace(/\[(\w+)\]/g, (_, name: string) => {
         paramNames.push(name);

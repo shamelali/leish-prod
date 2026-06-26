@@ -1,19 +1,31 @@
-import HeroSection from '../components/HeroSection';
-import CategoriesSection from '../components/CategoriesSection';
-import HowItWorks from '../components/HowItWorks';
-import FeaturedArtists from '../components/FeaturedArtists';
-import Testimonials from '../components/Testimonials';
-import CTASection from '../components/CTASection';
+import {
+  RedirectToSignIn,
+  SignedIn,
+  UserButton,
+} from '@neondatabase/neon-js/auth/react/ui';
 
-export default function Home() {
+export function Home() {
   return (
     <>
-      <HeroSection />
-      <CategoriesSection />
-      <HowItWorks />
-      <FeaturedArtists />
-      <Testimonials />
-      <CTASection />
+      <SignedIn>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100vh',
+            gap: '2rem',
+          }}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <h1>Welcome!</h1>
+            <p>You're successfully authenticated.</p>
+            <UserButton />
+          </div>
+        </div>
+      </SignedIn>
+      <RedirectToSignIn />
     </>
   );
 }

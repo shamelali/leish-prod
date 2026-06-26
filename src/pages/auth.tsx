@@ -1,14 +1,18 @@
-import { AuthView } from '@neondatabase/auth-ui';
+import { AuthView } from '@neondatabase/auth/react/ui';
 import { useParams } from 'react-router-dom';
 
-export default function Auth() {
-  const { pathname } = useParams<{ pathname: string }>();
-
+export function Auth() {
+  const { pathname } = useParams();
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md">
-        <AuthView pathname={pathname || 'login'} />
-      </div>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <AuthView pathname={pathname} />
     </div>
   );
 }
