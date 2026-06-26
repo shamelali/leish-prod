@@ -1,4 +1,3 @@
-import { neon } from '@neondatabase/serverless';
 import { notificationService } from '../src/lib/services/notifications';
 import { enforceRateLimit } from '../src/lib/rate-limit';
 import { z } from 'zod';

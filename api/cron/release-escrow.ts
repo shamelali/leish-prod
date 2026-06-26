@@ -10,7 +10,7 @@ export default async function handler(req: Request) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
-  const sql = neon(process.env.DATABASE_URL!) as any;
+  const sql = neon(process.env.DATABASE_URL!);
 
   try {
     const heldPayments = await sql.query(
@@ -24,10 +24,9 @@ export default async function handler(req: Request) {
 
     let released = 0;
     for (const payment of heldPayments) {
-      const [payout] = await sql.query(
+      await sql.query(
         `INSERT INTO payouts ("userId", amount, status, "paymentId")
-        VALUES ($1, $2, 'released', $3)
-        RETURNING *`,
+        VALUES ($1, $2, 'released', $3)`,
         [payment.userId, payment.amount, payment.id]
       );
 

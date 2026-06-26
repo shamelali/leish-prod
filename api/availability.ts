@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req: Request) {
-  const sql = neon(process.env.DATABASE_URL!) as any;
+  const sql = neon(process.env.DATABASE_URL!);
 
   if (req.method === 'GET') {
     const url = new URL(req.url);

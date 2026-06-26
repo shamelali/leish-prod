@@ -26,9 +26,10 @@ export default async function handler(req: Request) {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Email API error:', error);
-    return new Response(JSON.stringify({ error: error.message || 'Email send failed' }), {
+    const message = error instanceof Error ? error.message : 'Email send failed';
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

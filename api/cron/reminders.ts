@@ -12,7 +12,7 @@ export default async function handler(req: Request) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
-  const sql = neon(process.env.DATABASE_URL!) as any;
+  const sql = neon(process.env.DATABASE_URL!);
 
   try {
     // Find bookings starting in ~24 hours that haven't had reminders sent

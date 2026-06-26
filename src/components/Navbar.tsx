@@ -15,7 +15,7 @@ export default function Navbar({
   dict
 }: {
   locale?: Locale;
-  dict?: Record<string, any>;
+  dict?: Record<string, unknown>;
 } = {}) {
   const t = dict ?? getDictionary(locale as Locale);
   const [open, setOpen] = useState(false);

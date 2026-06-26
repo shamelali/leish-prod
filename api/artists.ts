@@ -5,7 +5,7 @@ export default async function handler(req: Request) {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
   }
 
-  const sql = neon(process.env.DATABASE_URL!) as any;
+  const sql = neon(process.env.DATABASE_URL!);
   const url = new URL(req.url);
   const category = url.searchParams.get('category');
   const search = url.searchParams.get('search');
