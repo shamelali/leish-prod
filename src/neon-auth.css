@@ -1,0 +1,15 @@
+/* Override Neon Auth theme to match Leish! rose/pink branding */
+:root {
+  --neon-primary: #f43f5e;
+  --neon-primary-foreground: white;
+  --neon-ring: #fda4af;
+  --neon-radius: 0.75rem;
+  --neon-destructive: #ef4444;
+  --neon-destructive-foreground: #ef4444;
+}
+
+.dark {
+  --neon-primary: #fb7185;
+  --neon-primary-foreground: #4c0519;
+  --neon-ring: #fb7185;
+}

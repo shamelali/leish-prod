@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",
+    "@neondatabase/neon-js": "^0.6.2-beta",
     "@neondatabase/serverless": "^1.0.0",
     "cloudinary": "^2.10.0",
     "dotenv": "^16.4.5",

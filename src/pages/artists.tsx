@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, SlidersHorizontal, MapPin, Star, Heart, X, ChevronDown } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, Star, Heart, RotateCcw, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../context/FavoritesContext';
 import ImageWithFallback from '../components/ImageWithFallback';
@@ -106,6 +106,15 @@ export default function Artists() {
             <option value="price-high">Price: High</option>
           </select>
         </div>
+        {(search || category !== 'all') && (
+          <button
+            onClick={() => { setSearch(''); setCategory('all'); setSort('rating'); setPage(1); fetchArtists(1, false); }}
+            className="flex items-center gap-1.5 px-3 py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Clear
+          </button>
+        )}
       </div>
 
       <div className="flex items-center justify-between mb-6">

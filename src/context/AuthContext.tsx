@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { authClient } from "../lib/auth-client";
 
 export interface User {
   id: string;
@@ -33,6 +34,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithOtp: (email: string) => Promise<{ success: boolean; error?: string }>;
+  verifyOtp: (email: string, otp: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
@@ -56,7 +59,7 @@ export interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const STORAGE_KEY = "leish_auth_user";
+const PROFILE_KEY = "leish_user_profile";
 
 const sampleBookings: Booking[] = [
   {
@@ -85,141 +88,124 @@ const sampleBookings: Booking[] = [
   },
 ];
 
+function loadProfile(): Partial<User> | null {
+  try {
+    const stored = localStorage.getItem(PROFILE_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveProfile(profile: Partial<User>) {
+  const slim = {
+    phone: profile.phone,
+    role: profile.role,
+    location: profile.location,
+    area: profile.area,
+    specialties: profile.specialties,
+    languages: profile.languages,
+    portfolio: profile.portfolio,
+    createdAt: profile.createdAt,
+    bookings: profile.bookings,
+  };
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(slim));
+}
+
+function buildUser(session: { user?: { id: string; name?: string; email?: string; image?: string | null } | null }, profile: Partial<User> | null): User | null {
+  if (!session?.user) return null;
+  const p = profile || {};
+  return {
+    id: session.user.id || p.id || '',
+    name: session.user.name || p.name || '',
+    email: session.user.email || p.email || '',
+    phone: p.phone || '',
+    avatar: session.user.image || p.avatar,
+    role: p.role || 'client',
+    location: p.location || '',
+    area: p.area || '',
+    specialties: p.specialties || [],
+    languages: p.languages || [],
+    portfolio: p.portfolio || [],
+    createdAt: p.createdAt || new Date().toISOString(),
+    bookings: p.bookings || [],
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const profile = loadProfile();
+    return profile ? buildUser({ user: { id: profile.id || '', name: profile.name, email: profile.email } }, profile) : null;
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setUser(JSON.parse(stored));
-    } catch {}
-    setLoading(false);
+    let cancelled = false;
+
+    authClient.getSession().then((res: { data?: { user?: { id: string; name?: string; email?: string; image?: string | null } | null } | null }) => {
+      if (cancelled) return;
+      if (res?.data?.user) {
+        const profile = loadProfile();
+        setUser(buildUser(res.data, profile));
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    }).catch(() => {
+      if (!cancelled) {
+        setLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
+      saveProfile(user);
     }
   }, [user]);
 
   const login = async (email: string, password: string) => {
-    await new Promise((r) => setTimeout(r, 800));
+    const { error } = await authClient.signIn.email({ email, password });
+    if (error) return { success: false, error: error.message || "Invalid email or password." };
 
-    if (!email || !password) return { success: false, error: "Please fill in all fields." };
-    if (password.length < 6) return { success: false, error: "Invalid credentials." };
+    const session = await authClient.getSession();
+    const profile = loadProfile();
+    if (session?.data?.user) {
+      setUser(buildUser(session.data, profile));
+    }
+    return { success: true };
+  };
 
-    // Check if user already exists in localStorage
-    try {
-      const stored = localStorage.getItem("leish_users");
-      if (stored) {
-        const users: Array<RegisterData> = JSON.parse(stored);
-        const found = users.find((u) => u.email === email && u.password === password);
-        if (found) {
-          const existingUser = localStorage.getItem(STORAGE_KEY);
-          const existingData = existingUser ? JSON.parse(existingUser) : {};
-          setUser({
-            id: email.replace(/[^a-z0-9]/g, "_"),
-            name: found.name,
-            email: found.email,
-            phone: found.phone,
-            avatar: found.portfolio?.[0] || undefined,
-            role: found.role || 'client',
-            location: found.location || '',
-            area: found.area || '',
-            specialties: found.specialties || [],
-            languages: found.languages || [],
-            portfolio: found.portfolio || [],
-            createdAt: new Date().toISOString(),
-            bookings: existingData?.bookings || sampleBookings,
-          });
-          return { success: true };
-        }
-        return { success: false, error: "Invalid email or password." };
-      }
-    } catch {}
-
-    // Default demo login
-    setUser({
-      id: "demo_user",
-      name: "Siti Nurhaliza",
+  const loginWithOtp = async (email: string) => {
+    const { error } = await authClient.emailOtp.sendVerificationOtp({
       email,
-      phone: "+60 12-345 6789",
-      avatar: undefined,
-      role: 'client',
-      location: 'Kuala Lumpur',
-      area: 'Bukit Bintang',
-      specialties: [],
-      languages: ['English', 'Malay (Bahasa Melayu)'],
-      portfolio: [],
-      createdAt: "2025-06-15T00:00:00Z",
-      bookings: sampleBookings,
+      type: "sign-in",
     });
+    if (error) return { success: false, error: error.message || "Failed to send OTP." };
+    return { success: true };
+  };
+
+  const verifyOtp = async (email: string, otp: string) => {
+    const { error } = await authClient.signIn.emailOtp({ email, otp });
+    if (error) return { success: false, error: error.message || "Invalid OTP." };
     return { success: true };
   };
 
   const register = async (data: RegisterData) => {
-    await new Promise((r) => setTimeout(r, 1000));
+    const { error } = await authClient.signUp.email({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+    });
+    if (error) return { success: false, error: error.message || "Registration failed." };
 
-    if (!data.name || !data.email || !data.phone || !data.password) {
-      return { success: false, error: "Please fill in all fields." };
-    }
-    if (data.password.length < 8) {
-      return { success: false, error: "Password must be at least 8 characters." };
-    }
-    if (data.password !== data.confirmPassword) {
-      return { success: false, error: "Passwords do not match." };
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-      return { success: false, error: "Please enter a valid email address." };
-    }
-
-    // Save to users list
-    try {
-      const stored = localStorage.getItem("leish_users");
-      const users: Array<RegisterData> = stored ? JSON.parse(stored) : [];
-      if (users.find((u) => u.email === data.email)) {
-        return { success: false, error: "An account with this email already exists." };
-      }
-      users.push(data);
-      localStorage.setItem("leish_users", JSON.stringify(users));
-    } catch {}
-
-    // Send real welcome email via Brevo
-    try {
-      const body = {
-        to: data.email,
-        subject: data.role === 'artist'
-          ? 'Welcome to Leish! Artist Community'
-          : data.role === 'studio'
-          ? 'Your Studio Registration on Leish!'
-          : 'Welcome to Leish!',
-        html: data.role === 'artist'
-          ? `<h2>Welcome to Leish!</h2><p>Hi ${data.name},</p><p>Thank you for joining Leish! as an artist. Your profile is now live in ${data.location}, ${data.area}. Start receiving bookings!</p>`
-          : data.role === 'studio'
-          ? `<h2>Your Studio Registration on Leish!</h2><p>Hi ${data.name},</p><p>Thank you for registering your studio on Leish!. Your studio listing in ${data.location}, ${data.area} is being reviewed.</p>`
-          : `<h2>Welcome to Leish!</h2><p>Hi ${data.name},</p><p>Welcome to Leish! Start booking Malaysia's finest makeup artists today.</p>`,
-        text: data.role === 'artist'
-          ? `Welcome to Leish! Artist Community\n\nHi ${data.name},\n\nThank you for joining Leish! as an artist. Your profile is now live in ${data.location}, ${data.area}. Start receiving bookings!\n\nLeish! Team`
-          : data.role === 'studio'
-          ? `Your Studio Registration on Leish!\n\nHi ${data.name},\n\nThank you for registering your studio on Leish!. Your studio listing in ${data.location}, ${data.area} is being reviewed.\n\nLeish! Team`
-          : `Welcome to Leish!\n\nHi ${data.name},\n\nWelcome to Leish! Start booking Malaysia's finest makeup artists today.\n\nLeish! Team`,
-      };
-      fetch('/api/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      }).catch(() => {});
-    } catch {}
-
-    setUser({
+    const profile: Partial<User> = {
       id: data.email.replace(/[^a-z0-9]/g, "_"),
       name: data.name,
       email: data.email,
       phone: data.phone,
-      avatar: data.portfolio[0] || undefined,
       role: data.role,
       location: data.location,
       area: data.area,
@@ -228,16 +214,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       portfolio: data.portfolio,
       createdAt: new Date().toISOString(),
       bookings: [],
-    });
+    };
+    saveProfile(profile);
+
+    setUser(buildUser({ user: { id: profile.id || '', name: profile.name, email: profile.email } }, profile));
     return { success: true };
   };
 
   const logout = () => {
+    authClient.signOut();
     setUser(null);
+    localStorage.removeItem(PROFILE_KEY);
   };
 
   const updateProfile = (data: Partial<User>) => {
-    if (user) setUser({ ...user, ...data });
+    if (user) {
+      const updated = { ...user, ...data };
+      setUser(updated);
+      saveProfile(updated);
+    }
   };
 
   const addBooking = (booking: Omit<Booking, "id" | "createdAt" | "status">) => {
@@ -248,23 +243,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         status: "confirmed",
         createdAt: new Date().toISOString(),
       };
-      setUser({ ...user, bookings: [newBooking, ...user.bookings] });
+      const updated = { ...user, bookings: [newBooking, ...user.bookings] };
+      setUser(updated);
+      saveProfile(updated);
     }
   };
 
   const cancelBooking = (bookingId: string) => {
     if (user) {
-      setUser({
+      const updated = {
         ...user,
         bookings: user.bookings.map((b) =>
           b.id === bookingId ? { ...b, status: "cancelled" as const } : b
         ),
-      });
+      };
+      setUser(updated);
+      saveProfile(updated);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, addBooking, cancelBooking }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithOtp, verifyOtp, register, logout, updateProfile, addBooking, cancelBooking }}>
       {children}
     </AuthContext.Provider>
   );
@@ -277,11 +276,13 @@ export function useAuth() {
       user: null,
       loading: true,
       login: async () => ({ success: false, error: "Not available" }),
+      loginWithOtp: async () => ({ success: false, error: "Not available" }),
+      verifyOtp: async () => ({ success: false, error: "Not available" }),
       register: async () => ({ success: false, error: "Not available" }),
       logout: () => {},
       updateProfile: () => {},
       addBooking: () => {},
-      cancelBooking: () => {},
+      cancelBooking: async () => {},
     };
   }
   return ctx;

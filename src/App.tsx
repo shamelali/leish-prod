@@ -1,5 +1,9 @@
-import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense, useCallback } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
+import { NeonAuthUIProvider } from '@neondatabase/neon-js/auth/react';
+import '@neondatabase/neon-js/ui/css';
+import './neon-auth.css';
+import { authClient } from './lib/auth-client';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { FavoritesProvider } from './context/FavoritesContext';
@@ -26,9 +30,17 @@ const Auth = lazy(() => import('./pages/auth'));
 const Account = lazy(() => import('./pages/account'));
 const NotFound = lazy(() => import('./pages/not-found'));
 
-export default function App() {
+function AppLayout() {
+  const navigate = useNavigate();
+
   return (
-    <BrowserRouter>
+    <NeonAuthUIProvider
+      emailOTP
+      authClient={authClient}
+      navigate={navigate}
+      Link={Link}
+      social={{ providers: ['google', 'github'] }}
+    >
       <ThemeProvider>
         <AuthProvider>
           <FavoritesProvider>
@@ -70,6 +82,14 @@ export default function App() {
           </FavoritesProvider>
         </AuthProvider>
       </ThemeProvider>
+    </NeonAuthUIProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppLayout />
     </BrowserRouter>
   );
 }

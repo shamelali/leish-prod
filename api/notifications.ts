@@ -92,7 +92,13 @@ export default async function handler(req: Request) {
       const { data, error } = await validateBody(createSchema)(req);
       if (error) return error;
 
-      const notification = await notificationService.create(data!);
+      const notification = await notificationService.create({
+        userId: data!.userId,
+        type: data!.type,
+        title: data!.title,
+        body: data!.body ?? null,
+        data: data!.data ?? null,
+      });
       return new Response(JSON.stringify({ notification }), {
         status: 201,
         headers: { 'Content-Type': 'application/json' },
@@ -122,6 +128,4 @@ export default async function handler(req: Request) {
   }
 }
 
-export const config = {
-  runtime: 'edge',
-};
+

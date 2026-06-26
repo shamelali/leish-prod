@@ -7,7 +7,7 @@ export interface Notification {
   userId: string;
   type: 'booking' | 'payment' | 'review' | 'message' | 'system';
   title: string;
-  body: string;
+  body: string | null;
   data: Record<string, unknown> | null;
   readAt: string | null;
   createdAt: string;
