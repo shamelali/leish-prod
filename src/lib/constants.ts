@@ -165,3 +165,18 @@ export const roleDescriptions: Record<string, string> = {
   artist: "Offer your makeup services on Leish!",
   studio: "List your studio and team of artists",
 };
+
+export const EMAIL_ALIASES = {
+  support: 'SUPPORT_EMAIL',
+  billing: 'BILLING_EMAIL',
+  marketing: 'MARKETING_EMAIL',
+  admin: 'ADMIN_EMAIL',
+  notifications: 'NOTIFICATIONS_EMAIL',
+  info: 'INFO_EMAIL',
+  studio: 'STUDIO_EMAIL',
+  artist: 'ARTIST_EMAIL',
+} as const;
+
+export function getEmailAlias(key: keyof typeof EMAIL_ALIASES): string {
+  return process.env[EMAIL_ALIASES[key]] || `${key}@leish.my`;
+}

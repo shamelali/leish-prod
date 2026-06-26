@@ -1,4 +1,11 @@
 import { neon } from '@neondatabase/serverless';
+import { enforceRateLimit } from '../src/lib/rate-limit';
+import { z } from 'zod';
+import { validateBody } from '../src/lib/validate';
+
+const cancelBookingSchema = z.object({
+  bookingId: z.union([z.string(), z.number()]),
+});
 
 export default async function handler(req: Request) {
   const sql = neon(process.env.DATABASE_URL!) as any;
@@ -92,11 +99,32 @@ export default async function handler(req: Request) {
         if (req.method !== 'POST') {
           return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
         }
-        const body = await req.json();
-        const { bookingId } = body;
 
-        if (!bookingId) {
-          return new Response(JSON.stringify({ error: 'bookingId required' }), { status: 400 });
+        const rateCheck = enforceRateLimit(req, 'bookings:cancel', 10, 60_000);
+        if (!rateCheck.ok) {
+          return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+            status: 429,
+            headers: { 'Retry-After': String(rateCheck.retryAfterSec), 'Content-Type': 'application/json' },
+          });
+        }
+
+        const { data, error } = await validateBody(cancelBookingSchema)(req);
+        if (error) return error;
+        const bookingId = data!.bookingId;
+
+        // Fetch current booking to validate transition
+        const [current] = await sql.query(
+          `SELECT * FROM bookings WHERE id = $1`,
+          [bookingId]
+        );
+
+        if (!current) {
+          return new Response(JSON.stringify({ error: 'Booking not found' }), { status: 404 });
+        }
+
+        const cancellable = ['pending', 'confirmed', 'paid_deposit'];
+        if (!cancellable.includes(current.status)) {
+          return new Response(JSON.stringify({ error: `Cannot cancel booking with status '${current.status}'` }), { status: 400 });
         }
 
         const [booking] = await sql.query(
@@ -106,9 +134,12 @@ export default async function handler(req: Request) {
           [bookingId]
         );
 
-        if (!booking) {
-          return new Response(JSON.stringify({ error: 'Booking not found' }), { status: 404 });
-        }
+        // Log cancellation event
+        await sql.query(
+          `INSERT INTO booking_events ("bookingId", "eventType", "eventPayload", "createdAt")
+           VALUES ($1, 'status_changed_to_cancelled', $2, NOW())`,
+          [bookingId, JSON.stringify({ previousStatus: current.status })]
+        );
 
         return new Response(JSON.stringify({ booking }), {
           status: 200,

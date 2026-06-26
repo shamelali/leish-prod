@@ -222,3 +222,39 @@ export const payouts = pgTable('payouts', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
 });
+
+export const availabilitySlots = pgTable('availability_slots', {
+  id: serial('id').primaryKey(),
+  artistId: integer('artist_id').references(() => artists.id, { onDelete: 'cascade' }),
+  studioId: integer('studio_id').references(() => studios.id, { onDelete: 'cascade' }),
+  date: timestamp('date', { mode: 'date' }).notNull(),
+  time: varchar('time', { length: 50 }).notNull(),
+  isBooked: boolean('is_booked').default(false),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+}, (table) => [
+  index('availability_artist_date_idx').on(table.artistId, table.date),
+  index('availability_studio_date_idx').on(table.studioId, table.date),
+]);
+
+export const bookingEvents = pgTable('booking_events', {
+  id: serial('id').primaryKey(),
+  bookingId: integer('booking_id').notNull().references(() => bookings.id, { onDelete: 'cascade' }),
+  eventType: varchar('event_type', { length: 100 }).notNull(),
+  eventPayload: jsonb('event_payload'),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+}, (table) => [
+  index('booking_events_booking_idx').on(table.bookingId),
+]);
+
+export const notifications = pgTable('notifications', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: varchar('type', { length: 50 }).notNull().default('system'),
+  title: varchar('title', { length: 255 }).notNull(),
+  body: text('body'),
+  data: jsonb('data'),
+  readAt: timestamp('read_at', { mode: 'date' }),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+}, (table) => [
+  index('notifications_user_idx').on(table.userId),
+]);
