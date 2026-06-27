@@ -1,15 +1,17 @@
-import { neon } from '@neondatabase/serverless';
-import { enforceRateLimit } from '../src/lib/rate-limit';
-import { z } from 'zod';
-import { validateBody } from '../src/lib/validate';
+import { Pool } from '@neondatabase/serverless';
 
-const cancelBookingSchema = z.object({
-  bookingId: z.union([z.string(), z.number()]),
-});
+const cancelBookingSchema = {
+  parse: (data: unknown) => {
+    const obj = data as Record<string, unknown>;
+    if (!('bookingId' in obj)) throw new Error('bookingId required');
+    return { bookingId: obj.bookingId };
+  }
+};
 
 export default async function handler(req: Request) {
-  const sql = neon(process.env.DATABASE_URL!) as any;
-  const url = new URL(req.url);
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const baseUrl = `https://${req.headers.get('host') || 'localhost'}`;
+  const url = new URL(req.url, baseUrl);
   const action = url.searchParams.get('action');
 
   try {
@@ -17,19 +19,21 @@ export default async function handler(req: Request) {
       case 'favorites': {
         const userId = url.searchParams.get('userId');
         if (!userId) {
+          await pool.end();
           return new Response(JSON.stringify({ error: 'userId required' }), { status: 400 });
         }
 
         if (req.method === 'GET') {
-          const favorites = await sql.query(
-            `            SELECT f.*, a.name, a.image, a.location, a.rating, a.price
+          const favoritesResult = await pool.query(
+            `SELECT f.*, a.name, a.image, a.location, a.rating, a.price
             FROM favorites f
             JOIN artists a ON a.id = f."artistId"
             WHERE f."userId" = $1
             ORDER BY f."createdAt" DESC`,
             [userId]
           );
-          return new Response(JSON.stringify({ favorites }), {
+          await pool.end();
+          return new Response(JSON.stringify({ favorites: favoritesResult.rows }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
           });
@@ -38,10 +42,11 @@ export default async function handler(req: Request) {
         if (req.method === 'POST') {
           const body = await req.json();
           const { artistId } = body;
-          await sql.query(
+          await pool.query(
             `INSERT INTO favorites ("userId", "artistId") VALUES ($1, $2) ON CONFLICT DO NOTHING`,
             [userId, artistId]
           );
+          await pool.end();
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
@@ -51,10 +56,11 @@ export default async function handler(req: Request) {
         if (req.method === 'DELETE') {
           const body = await req.json();
           const { artistId } = body;
-          await sql.query(
+          await pool.query(
             `DELETE FROM favorites WHERE "userId" = $1 AND "artistId" = $2`,
             [userId, artistId]
           );
+          await pool.end();
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
@@ -65,23 +71,25 @@ export default async function handler(req: Request) {
 
       case 'review': {
         if (req.method !== 'POST') {
+          await pool.end();
           return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
         }
         const body = await req.json();
         const { userId, artistId, rating, text, author, service } = body;
 
         if (!userId || !artistId || !rating || !author) {
+          await pool.end();
           return new Response(JSON.stringify({ error: 'userId, artistId, rating, and author required' }), { status: 400 });
         }
 
-        const [review] = await sql.query(
+        const reviewResult = await pool.query(
           `INSERT INTO reviews ("userId", "artistId", rating, text, author, service)
           VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING *`,
           [userId, artistId, rating, text, author, service]
         );
 
-        await sql.query(
+        await pool.query(
           `UPDATE artists SET
             "reviewCount" = (SELECT COUNT(*) FROM reviews WHERE "artistId" = $1),
             rating = (SELECT ROUND(AVG(rating)::numeric, 2) FROM reviews WHERE "artistId" = $1)
@@ -89,7 +97,8 @@ export default async function handler(req: Request) {
           [artistId]
         );
 
-        return new Response(JSON.stringify({ review }), {
+        await pool.end();
+        return new Response(JSON.stringify({ review: reviewResult.rows[0] }), {
           status: 201,
           headers: { 'Content-Type': 'application/json' },
         });
@@ -97,60 +106,57 @@ export default async function handler(req: Request) {
 
       case 'cancel-booking': {
         if (req.method !== 'POST') {
+          await pool.end();
           return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
         }
 
-        const rateCheck = enforceRateLimit(req, 'bookings:cancel', 10, 60_000);
-        if (!rateCheck.ok) {
-          return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
-            status: 429,
-            headers: { 'Retry-After': String(rateCheck.retryAfterSec), 'Content-Type': 'application/json' },
-          });
+        let bookingId: string | number;
+        try {
+          const body = await req.json();
+          const parsed = cancelBookingSchema.parse(body);
+          bookingId = parsed.bookingId as string | number;
+        } catch {
+          await pool.end();
+          return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400 });
         }
 
-        const { data, error } = await validateBody(cancelBookingSchema)(req);
-        if (error) return error;
-        const bookingId = data!.bookingId;
-
-        // Fetch current booking to validate transition
-        const [current] = await sql.query(
+        const currentResult = await pool.query(
           `SELECT * FROM bookings WHERE id = $1`,
           [bookingId]
         );
+        const current = currentResult.rows[0];
 
         if (!current) {
+          await pool.end();
           return new Response(JSON.stringify({ error: 'Booking not found' }), { status: 404 });
         }
 
         const cancellable = ['pending', 'confirmed', 'paid_deposit'];
         if (!cancellable.includes(current.status)) {
+          await pool.end();
           return new Response(JSON.stringify({ error: `Cannot cancel booking with status '${current.status}'` }), { status: 400 });
         }
 
-        const [booking] = await sql.query(
+        const bookingResult = await pool.query(
           `UPDATE bookings SET status = 'cancelled', "updatedAt" = NOW()
           WHERE id = $1
           RETURNING *`,
           [bookingId]
         );
 
-        // Log cancellation event
-        await sql.query(
-          `INSERT INTO booking_events ("bookingId", "eventType", "eventPayload", "createdAt")
-           VALUES ($1, 'status_changed_to_cancelled', $2, NOW())`,
-          [bookingId, JSON.stringify({ previousStatus: current.status })]
-        );
-
-        return new Response(JSON.stringify({ booking }), {
+        await pool.end();
+        return new Response(JSON.stringify({ booking: bookingResult.rows[0] }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         });
       }
 
       default:
+        await pool.end();
         return new Response(JSON.stringify({ error: 'Unknown action' }), { status: 400 });
     }
   } catch (err) {
+    await pool.end();
     console.error('User action error:', err);
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
@@ -158,9 +164,10 @@ export default async function handler(req: Request) {
     });
   }
 
+  await pool.end();
   return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
 }
 
 export const config = {
-  runtime: 'edge',
+  regions: ['iad1'],
 };

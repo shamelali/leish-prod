@@ -5,36 +5,51 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "scheme": "leish",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#6366f1"
+      "backgroundColor": "#0a0a0a"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.leish.mobile"
+      "bundleIdentifier": "com.leish.mobile",
+      "jsEngine": "hermes",
+      "newArchEnabled": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#6366f1"
+        "backgroundColor": "#0a0a0a"
       },
       "package": "com.leish.mobile",
-      "permissions": [
-        "android.permission.INTERNET"
-      ]
+      "jsEngine": "hermes",
+      "newArchEnabled": true,
+      "permissions": ["android.permission.INTERNET"]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-updates"
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "treeShake": true
+    },
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/leish-mobile"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "extra": {
+      "API_URL": "https://leish-clone-shamelalis-projects.vercel.app/api"
     }
   }
 }

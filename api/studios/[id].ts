@@ -1,81 +1,100 @@
-import { neon } from '@neondatabase/serverless';
+import { Pool } from '@neondatabase/serverless';
 
 export default async function handler(req: Request) {
   if (req.method !== 'GET') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
   }
 
-  const sql = neon(process.env.DATABASE_URL!) as any;
-  const url = new URL(req.url);
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const baseUrl = `https://${req.headers.get('host') || 'localhost'}`;
+  const url = new URL(req.url, baseUrl);
   const id = url.pathname.split('/').pop();
 
   if (!id) {
+    await pool.end();
     return new Response(JSON.stringify({ error: 'Invalid studio ID' }), { status: 400 });
   }
 
-  const [studio] = await sql.query(
-    `SELECT s.*,
-      COALESCE(
-        json_agg(DISTINCT jsonb_build_object('id', c.id, 'name', c.name, 'slug', c.slug))
-        FILTER (WHERE c.id IS NOT NULL),
-        '[]'::json
-      ) AS categories
-    FROM studios s
-    LEFT JOIN studio_categories sc ON sc."studioId" = s.id
-    LEFT JOIN categories c ON c.id = sc."categoryId"
-    WHERE s.id = $1
-    GROUP BY s.id`,
-    [id]
-  );
+  try {
+    const studioResult = await pool.query(
+      `SELECT studios.*,
+        COALESCE(
+          json_agg(DISTINCT jsonb_build_object('id', c.id, 'name', c.name, 'slug', c.slug))
+          FILTER (WHERE c.id IS NOT NULL),
+          '[]'::json
+        ) AS categories
+      FROM studios
+      LEFT JOIN studio_categories sc ON sc."studioId" = studios.id
+      LEFT JOIN categories c ON c.id = sc."categoryId"
+      WHERE studios.id = $1
+      GROUP BY studios.id`,
+      [id]
+    );
 
-  if (!studio) {
-    return new Response(JSON.stringify({ error: 'Studio not found' }), { status: 404 });
+    if (studioResult.rows.length === 0) {
+      await pool.end();
+      return new Response(JSON.stringify({ error: 'Studio not found' }), { status: 404 });
+    }
+
+    const artistsResult = await pool.query(
+      `SELECT DISTINCT artists.*
+      FROM artists
+      JOIN artist_categories ac ON ac."artistId" = artists.id
+      WHERE ac."categoryId" IN (
+        SELECT "categoryId" FROM studio_categories WHERE "studioId" = $1
+      )
+      ORDER BY artists.rating DESC
+      LIMIT 10`,
+      [id]
+    );
+
+    const servicesResult = await pool.query(
+      `SELECT DISTINCT services.*
+      FROM services
+      JOIN artists a ON a.id = services."artistId"
+      JOIN artist_categories ac ON ac."artistId" = a.id
+      WHERE ac."categoryId" IN (
+        SELECT "categoryId" FROM studio_categories WHERE "studioId" = $1
+      )
+      ORDER BY services.price ASC
+      LIMIT 20`,
+      [id]
+    );
+
+    const reviewsResult = await pool.query(
+      `SELECT reviews.*
+      FROM reviews
+      JOIN artists a ON a.id = reviews."artistId"
+      JOIN artist_categories ac ON ac."artistId" = a.id
+      WHERE ac."categoryId" IN (
+        SELECT "categoryId" FROM studio_categories WHERE "studioId" = $1
+      )
+      ORDER BY reviews."createdAt" DESC
+      LIMIT 10`,
+      [id]
+    );
+
+    await pool.end();
+
+    return new Response(JSON.stringify({
+      studio: studioResult.rows[0],
+      artists: artistsResult.rows,
+      services: servicesResult.rows,
+      reviews: reviewsResult.rows,
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    await pool.end();
+    console.error('[Studio Detail] DB error:', err);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-
-  const artists = await sql.query(
-    `SELECT DISTINCT a.*
-    FROM artists a
-    JOIN artist_categories ac ON ac."artistId" = a.id
-    WHERE ac."categoryId" IN (
-      SELECT "categoryId" FROM studio_categories WHERE "studioId" = $1
-    )
-    ORDER BY a.rating DESC
-    LIMIT 10`,
-    [id]
-  );
-
-  const services = await sql.query(
-    `SELECT DISTINCT s.*
-    FROM services s
-    JOIN artists a ON a.id = s."artistId"
-    JOIN artist_categories ac ON ac."artistId" = a.id
-    WHERE ac."categoryId" IN (
-      SELECT "categoryId" FROM studio_categories WHERE "studioId" = $1
-    )
-    ORDER BY s.price ASC
-    LIMIT 20`,
-    [id]
-  );
-
-  const reviews = await sql.query(
-    `SELECT r.*
-    FROM reviews r
-    JOIN artists a ON a.id = r."artistId"
-    JOIN artist_categories ac ON ac."artistId" = a.id
-    WHERE ac."categoryId" IN (
-      SELECT "categoryId" FROM studio_categories WHERE "studioId" = $1
-    )
-    ORDER BY r."createdAt" DESC
-    LIMIT 10`,
-    [id]
-  );
-
-  return new Response(JSON.stringify({ studio, artists, services, reviews }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
 }
 
 export const config = {
-  runtime: 'edge',
+  regions: ['iad1'],
 };
