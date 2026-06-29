@@ -133,9 +133,9 @@ export function welcomeEmailTemplate(params: { name: string; role?: string }) {
   <div class="content">
     <p>Hi ${params.name},</p>
     ${params.role === "artist"
-      ? `<p>Thank you for joining Leish! as an artist. Your profile is now live. Start receiving bookings!</p>`
+      ? `<p>Thank you for joining Leish! As an artist, your profile is now live. Start receiving bookings!</p>`
       : params.role === "studio"
-      ? `<p>Thank you for registering your studio on Leish!. Your studio listing is being reviewed.</p>`
+      ? `<p>Thank you for registering your studio on Leish! Your studio listing is being reviewed.</p>`
       : `<p>Welcome to Leish! We're thrilled to have you join our community of beauty enthusiasts.</p>`
     }
     <p>Discover top makeup artists, book appointments, and find your perfect look.</p>
@@ -158,9 +158,9 @@ ${subject}
 Hi ${params.name},
 
 ${params.role === "artist"
-  ? "Thank you for joining Leish! as an artist. Your profile is now live. Start receiving bookings!"
+  ? "Thank you for joining Leish! As an artist, your profile is now live. Start receiving bookings!"
   : params.role === "studio"
-  ? "Thank you for registering your studio on Leish!. Your studio listing is being reviewed."
+  ? "Thank you for registering your studio on Leish! Your studio listing is being reviewed."
   : "Welcome to Leish! We're thrilled to have you join our community of beauty enthusiasts."
 }
 

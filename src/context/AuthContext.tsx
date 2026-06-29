@@ -218,6 +218,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     saveProfile(profile);
 
     setUser(buildUser({ user: { id: profile.id || '', name: profile.name, email: profile.email } }, profile));
+
+    (async () => {
+      try {
+        await fetch('/api/user?action=send-welcome-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: data.email, name: data.name, role: data.role }),
+        });
+      } catch (err) {
+        console.error('Welcome email failed:', err);
+      }
+    })();
+
     return { success: true };
   };
 

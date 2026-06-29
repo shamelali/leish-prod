@@ -151,6 +151,65 @@ export default async function handler(req: Request) {
         });
       }
 
+      case 'send-welcome-email': {
+        if (req.method !== 'POST') {
+          await pool.end();
+          return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+        }
+
+        const { email, name, role, userId } = await req.json();
+
+        if (!email || !name || !role || !userId) {
+          await pool.end();
+          return new Response(JSON.stringify({ error: 'email, name, role, and userId required' }), { status: 400 });
+        }
+
+        const validRoles = ['client', 'artist', 'studio'];
+        if (!validRoles.includes(role)) {
+          await pool.end();
+          return new Response(JSON.stringify({ error: 'role must be one of: client, artist, studio' }), { status: 400 });
+        }
+
+        const userResult = await pool.query(`SELECT email FROM users WHERE id = $1`, [userId]);
+        const user = userResult.rows[0];
+
+        if (!user) {
+          await pool.end();
+          return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
+        }
+
+        if (user.email !== email) {
+          await pool.end();
+          return new Response(JSON.stringify({ error: 'Email address does not match authenticated user' }), { status: 403 });
+        }
+
+        try {
+          const { sendWelcomeEmail } = await import('../src/lib/email/welcome');
+          const result = await sendWelcomeEmail({ email, name, role });
+
+          await pool.end();
+
+          if (!result.success) {
+            return new Response(JSON.stringify({ success: false, error: 'Failed to send welcome email' }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+
+          return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        } catch (err) {
+          console.error('Welcome email failed:', err);
+          await pool.end();
+          return new Response(JSON.stringify({ success: false, error: 'Welcome email failed' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      }
+
       default:
         await pool.end();
         return new Response(JSON.stringify({ error: 'Unknown action' }), { status: 400 });
