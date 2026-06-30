@@ -26,9 +26,9 @@ export default function Navbar({
   dict,
 }: {
   locale?: Locale;
-  dict?: Record<string, unknown>;
+  dict?: Record<string, any>;
 } = {}) {
-  const t = dict ?? getDictionary(locale as Locale);
+  const t: any = dict ?? getDictionary(locale as Locale);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
