@@ -1,4 +1,4 @@
-import { getPool } from "../../src/lib/db";
+import { getPool } from "../src/lib/db";
 
 const cancelBookingSchema = {
   parse: (data: unknown) => {
