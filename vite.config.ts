@@ -9,9 +9,7 @@ export default defineConfig(({ mode }) => {
 
   const plugins = [
     react(),
-    tailwindcss({
-      config: "./tailwind.config.js",
-    }),
+    tailwindcss(),
   ];
 
   // Add visualizer in analyze mode
