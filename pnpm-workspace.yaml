@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - sharp
+  - "@tailwindcss/postcss"
+  - unrs-resolver
+  - "@swc/core"
+  - esbuild

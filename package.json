@@ -4,19 +4,19 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "24.x"
+    "node": ">=20"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "preview:full": "npm run build && tsx scripts/preview.ts",
+    "preview:full": "pnpm build && tsx scripts/preview.ts",
     "api:serve": "tsx watch scripts/api-server.ts",
-    "dev:full": "concurrently -n api,vite -c blue,green \"npm run api:serve\" \"npm run dev\"",
+    "dev:full": "concurrently -n api,vite -c blue,green \"pnpm api:serve\" \"pnpm dev\"",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed.ts",
-    "db:setup": "npm run db:push && npm run db:seed",
+    "db:setup": "pnpm db:push && pnpm db:seed",
     "test:e2e": "playwright test",
     "check:email": "tsx scripts/check-email.ts",
     "analyze": "vite build --mode analyz",
@@ -24,6 +24,8 @@
   },
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",
+    "@neondatabase/auth": "^0.4.2-beta",
+    "@neondatabase/auth-ui": "^0.2.1-beta",
     "@neondatabase/neon-js": "^0.6.2-beta",
     "@neondatabase/serverless": "^1.0.0",
     "cloudinary": "^2.10.0",
@@ -61,12 +63,5 @@
     "typescript": "^5",
     "typescript-eslint": "^8.62.0",
     "vite": "^6.0.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp",
-      "@tailwindcss/postcss",
-      "unrs-resolver"
-    ]
   }
 }

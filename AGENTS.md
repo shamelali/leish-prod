@@ -125,7 +125,7 @@ npm run db:setup  # Push + seed
 
 ## Deployment
 
-- **Production URL:** https://leish-clone-cvybwdbg7-shamelalis-projects.vercel.app
+- **Production URL:** https://www.leish.my (aliased from Vercel) 
 - **Region:** iad1 (Vercel default)
 - **Build command:** `vite build`
 - **Output directory:** `dist/`
@@ -146,7 +146,8 @@ Before deploying to production, set these in Vercel dashboard:
 - `BILLPLZ_API_KEY` → production key
 - `BILLPLZ_COLLECTION_ID` → production collection ID
 - `BILLPLZ_SIGNATURE_KEY` → production signature key
-- `NEXT_PUBLIC_URL` → `https://leish-clone.vercel.app` (or custom domain)
+- `NEXT_PUBLIC_URL` → `https://leish-clone.vercel.app` (update to `https://leish.my` once custom domain is live)
+- `CRON_SECRET` ✅ set in `.env.production`
 
 ## Session Log
 
@@ -185,6 +186,19 @@ Before deploying to production, set these in Vercel dashboard:
 - Code-splitting already in place — all routes use `React.lazy()` (verified: index chunk 310 KB / 95 KB gzip)
 - Fixed eslint: installed `typescript-eslint`, updated config with TS parser — 57 parse errors → 0 errors, 74 warnings (all `no-explicit-any` and `no-unused-vars`)
 - Updated Known Issues / Next Steps in AGENTS.md
+
+### 2026-06-30 (session 2) — Data API + Production Deploy
+- **Neon Data API:** Added `VITE_NEON_DATA_API_URL` to all `.env` files and created `src/lib/data-api.ts` client wrapper using `@neondatabase/neon-js` `createClient()`
+- **Production deploy:** Deployed to Vercel — live at **https://www.leish.my**
+- **Production env vars:** Filled `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `BREVO_API_KEY`, and `CRON_SECRET` in `.env.production`
+- **Updated production URL** in AGENTS.md
+
+### 2026-06-30 — Infra & Email Provider Config
+- **Database hostname migration:** Updated host from `ep-proud-breeze-ao1j6li8` → `ep-mute-shape-aof1sms8` across all `.env` files
+- **Neon branching workflow:** Created `.github/workflows/neon-branching.yml` for PR database branching
+- **Neon Auth email:** Configured Neon Auth email provider in dashboard (shared server, `auth@mail.myneon.app` sender)
+- **Production env vars:** Filled `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `BREVO_API_KEY`, and `CRON_SECRET` in `.env.production`
+- **Updated deploy checklist** in AGENTS.md
 
 ### 2026-06-27 — Phase 2 Payments & Tooling
 - **Production-ready Billplz:** Replaced hardcoded sandbox URL with `BILLPLZ_API_URL` env var (defaults to sandbox, override with production URL). Added to `.env.example` and `.env.production`.

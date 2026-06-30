@@ -1,10 +1,12 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
+import { NeonAuthUIProvider } from "@neondatabase/neon-js/auth/react/ui";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { FavoritesProvider } from "./context/FavoritesContext";
 import { ToastProvider } from "./context/ToastContext";
 import { NotificationsProvider } from "./context/NotificationsContext";
+import { authClient } from "./lib/auth-client";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
@@ -36,6 +38,7 @@ function PageLoading() {
 export default function App() {
   return (
     <ThemeProvider>
+      <NeonAuthUIProvider authClient={authClient}>
       <AuthProvider>
         <FavoritesProvider>
           <ToastProvider>
@@ -81,6 +84,7 @@ export default function App() {
           </ToastProvider>
         </FavoritesProvider>
       </AuthProvider>
+      </NeonAuthUIProvider>
     </ThemeProvider>
   );
 }
