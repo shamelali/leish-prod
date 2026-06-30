@@ -1,4 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
+import { getPool } from "../../src/lib/db";
 
 export default async function handler(req: Request) {
   if (req.method !== "GET") {
@@ -7,13 +7,12 @@ export default async function handler(req: Request) {
     });
   }
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = getPool();
   const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
   const url = new URL(req.url, baseUrl);
   const id = url.pathname.split("/").pop();
 
   if (!id) {
-    await pool.end();
     return new Response(JSON.stringify({ error: "Invalid artist ID" }), {
       status: 400,
     });
@@ -36,7 +35,6 @@ export default async function handler(req: Request) {
     );
 
     if (artistResult.rows.length === 0) {
-      await pool.end();
       return new Response(JSON.stringify({ error: "Artist not found" }), {
         status: 404,
       });
@@ -64,8 +62,6 @@ export default async function handler(req: Request) {
       [id],
     );
 
-    await pool.end();
-
     return new Response(
       JSON.stringify({
         artist: artistResult.rows[0],
@@ -79,7 +75,6 @@ export default async function handler(req: Request) {
       },
     );
   } catch (err) {
-    await pool.end();
     console.error("[Artist Detail] DB error:", err);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,

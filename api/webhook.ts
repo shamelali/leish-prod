@@ -1,4 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
+import { getPool } from "../src/lib/db";
 
 export default async function handler(req: Request) {
   if (req.method !== "POST") {
@@ -14,7 +14,7 @@ export default async function handler(req: Request) {
     });
   }
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = getPool();
 
   try {
     const body = await req.json();
@@ -32,13 +32,11 @@ export default async function handler(req: Request) {
       );
     }
 
-    await pool.end();
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    await pool.end();
     console.error("Webhook error:", err);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,

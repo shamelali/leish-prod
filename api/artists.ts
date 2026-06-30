@@ -1,4 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
+import { getPool } from "../src/lib/db";
 
 export default async function handler(req: Request) {
   if (req.method !== "GET") {
@@ -7,7 +7,7 @@ export default async function handler(req: Request) {
     });
   }
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = getPool();
   const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
   const url = new URL(req.url, baseUrl);
   const category = url.searchParams.get("category");
@@ -77,8 +77,6 @@ export default async function handler(req: Request) {
       `SELECT * FROM categories ORDER BY name`,
     );
 
-    await pool.end();
-
     return new Response(
       JSON.stringify({
         artists: artistsResult.rows,
@@ -91,7 +89,6 @@ export default async function handler(req: Request) {
       },
     );
   } catch (err) {
-    await pool.end();
     console.error("[Artists] DB error:", err);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,

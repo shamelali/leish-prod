@@ -1,4 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
+import { getPool } from "../../src/lib/db";
 import { sendEmail } from "../../src/lib/email/brevo";
 import {
   bookingExpiredTemplate,
@@ -20,7 +20,7 @@ export default async function handler(req: Request) {
     });
   }
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = getPool();
   const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
   const url = new URL(req.url, baseUrl);
   const action = url.searchParams.get("action") || "cleanup";
@@ -48,7 +48,6 @@ export default async function handler(req: Request) {
           });
         }
 
-        await pool.end();
         return new Response(JSON.stringify({ success: true, results }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -89,7 +88,6 @@ export default async function handler(req: Request) {
           }
         }
 
-        await pool.end();
         return new Response(
           JSON.stringify({ released, total: heldPaymentsResult.rows.length }),
           {
@@ -194,7 +192,6 @@ export default async function handler(req: Request) {
           result.cancelled++;
         }
 
-        await pool.end();
         return new Response(JSON.stringify({ ok: true, result }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -219,7 +216,6 @@ export default async function handler(req: Request) {
         );
 
         if (bookingsResult.rows.length === 0) {
-          await pool.end();
           return new Response(JSON.stringify({ ok: true, sent: 0, total: 0 }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -280,7 +276,6 @@ export default async function handler(req: Request) {
           }
         }
 
-        await pool.end();
         return new Response(
           JSON.stringify({
             ok: true,
@@ -296,13 +291,11 @@ export default async function handler(req: Request) {
       }
 
       default:
-        await pool.end();
         return new Response(JSON.stringify({ error: "Unknown action" }), {
           status: 400,
         });
     }
   } catch (err) {
-    await pool.end();
     console.error("Cron error:", err);
     return new Response(JSON.stringify({ error: "Cron job failed" }), {
       status: 500,

@@ -1,4 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
+import { getPool } from "../src/lib/db";
 
 const BILLPLZ_API =
   process.env.BILLPLZ_API_URL || "https://www.billplz-sandbox.com/api/v3";
@@ -8,7 +8,7 @@ function billplzAuth() {
 }
 
 export default async function handler(req: Request) {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = getPool();
   const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
   const url = new URL(req.url, baseUrl);
   const action = url.searchParams.get("action");
@@ -17,7 +17,6 @@ export default async function handler(req: Request) {
     switch (action) {
       case "create-bill": {
         if (req.method !== "POST") {
-          pool.end();
           return new Response(JSON.stringify({ error: "Method not allowed" }), {
             status: 405,
           });
@@ -26,7 +25,6 @@ export default async function handler(req: Request) {
         const { bookingId, amount, description, name, email, phone } = body;
 
         if (!bookingId || !amount) {
-          pool.end();
           return new Response(
             JSON.stringify({ error: "bookingId and amount required" }),
             { status: 400 },
@@ -56,7 +54,6 @@ export default async function handler(req: Request) {
         const billplzData = await billplzResponse.json();
 
         if (!billplzResponse.ok) {
-          pool.end();
           return new Response(JSON.stringify({ error: billplzData }), {
             status: billplzResponse.status,
             headers: { "Content-Type": "application/json" },
@@ -72,7 +69,6 @@ export default async function handler(req: Request) {
           [bookingId, Math.round(Number(amount)), billplzData.id],
         );
 
-        await pool.end();
         return new Response(JSON.stringify({ bill: billplzData, payment }), {
           status: 201,
           headers: { "Content-Type": "application/json" },
@@ -81,14 +77,12 @@ export default async function handler(req: Request) {
 
       case "status": {
         if (req.method !== "GET") {
-          pool.end();
           return new Response(JSON.stringify({ error: "Method not allowed" }), {
             status: 405,
           });
         }
         const paymentId = url.searchParams.get("paymentId");
         if (!paymentId) {
-          pool.end();
           return new Response(JSON.stringify({ error: "paymentId required" }), {
             status: 400,
           });
@@ -101,7 +95,6 @@ export default async function handler(req: Request) {
         ]);
 
         if (!payment) {
-          pool.end();
           return new Response(JSON.stringify({ error: "Payment not found" }), {
             status: 404,
           });
@@ -125,7 +118,6 @@ export default async function handler(req: Request) {
             );
           }
 
-          await pool.end();
           return new Response(
             JSON.stringify({ payment, billplz: billplzData }),
             {
@@ -135,7 +127,6 @@ export default async function handler(req: Request) {
           );
         }
 
-        await pool.end();
         return new Response(JSON.stringify({ payment }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -144,7 +135,6 @@ export default async function handler(req: Request) {
 
       case "release": {
         if (req.method !== "POST") {
-          pool.end();
           return new Response(JSON.stringify({ error: "Method not allowed" }), {
             status: 405,
           });
@@ -153,7 +143,6 @@ export default async function handler(req: Request) {
         const { paymentId } = body;
 
         if (!paymentId) {
-          pool.end();
           return new Response(JSON.stringify({ error: "paymentId required" }), {
             status: 400,
           });
@@ -167,7 +156,6 @@ export default async function handler(req: Request) {
         );
 
         if (!payment) {
-          pool.end();
           return new Response(
             JSON.stringify({
               error: "Payment not found or not in held status",
@@ -181,7 +169,6 @@ export default async function handler(req: Request) {
           [paymentId],
         );
 
-        await pool.end();
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -190,7 +177,6 @@ export default async function handler(req: Request) {
 
       case "register-bank": {
         if (req.method !== "POST") {
-          pool.end();
           return new Response(JSON.stringify({ error: "Method not allowed" }), {
             status: 405,
           });
@@ -199,7 +185,6 @@ export default async function handler(req: Request) {
         const { userId, bankName, accountNumber, accountHolder } = bankBody;
 
         if (!userId || !bankName || !accountNumber || !accountHolder) {
-          pool.end();
           return new Response(
             JSON.stringify({ error: "All fields required" }),
             { status: 400 },
@@ -215,7 +200,6 @@ export default async function handler(req: Request) {
           [userId, bankName, accountNumber, accountHolder],
         );
 
-        await pool.end();
         return new Response(JSON.stringify({ account }), {
           status: 201,
           headers: { "Content-Type": "application/json" },
@@ -224,7 +208,6 @@ export default async function handler(req: Request) {
 
       case "refund": {
         if (req.method !== "POST") {
-          pool.end();
           return new Response(JSON.stringify({ error: "Method not allowed" }), {
             status: 405,
           });
@@ -233,7 +216,6 @@ export default async function handler(req: Request) {
         const refundPaymentId = refundBody.paymentId;
 
         if (!refundPaymentId) {
-          pool.end();
           return new Response(JSON.stringify({ error: "paymentId required" }), {
             status: 400,
           });
@@ -247,7 +229,6 @@ export default async function handler(req: Request) {
         );
 
         if (!payment) {
-          pool.end();
           return new Response(
             JSON.stringify({
               error: "Payment not found or cannot be refunded",
@@ -272,7 +253,6 @@ export default async function handler(req: Request) {
           const billplzData = await billplzResponse.json();
 
           if (!billplzResponse.ok) {
-            pool.end();
             return new Response(JSON.stringify({ error: billplzData }), {
               status: billplzResponse.status,
               headers: { "Content-Type": "application/json" },
@@ -285,7 +265,6 @@ export default async function handler(req: Request) {
           [refundPaymentId],
         );
 
-        await pool.end();
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -294,14 +273,12 @@ export default async function handler(req: Request) {
 
       case "payouts": {
         if (req.method !== "GET") {
-          pool.end();
           return new Response(JSON.stringify({ error: "Method not allowed" }), {
             status: 405,
           });
         }
         const userId = url.searchParams.get("userId");
         if (!userId) {
-          pool.end();
           return new Response(JSON.stringify({ error: "userId required" }), {
             status: 400,
           });
@@ -322,7 +299,6 @@ export default async function handler(req: Request) {
           [userId],
         );
 
-        await pool.end();
         return new Response(
           JSON.stringify({
             payouts,
@@ -338,7 +314,6 @@ export default async function handler(req: Request) {
 
       case "webhook": {
         if (req.method !== "POST") {
-          pool.end();
           return new Response(JSON.stringify({ error: "Method not allowed" }), {
             status: 405,
           });
@@ -357,7 +332,6 @@ export default async function handler(req: Request) {
           );
         }
 
-        await pool.end();
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
@@ -365,14 +339,12 @@ export default async function handler(req: Request) {
       }
 
       default:
-        await pool.end();
         return new Response(JSON.stringify({ error: "Unknown action" }), {
           status: 400,
         });
     }
   } catch (err) {
     console.error("Payment action error:", err);
-    await pool.end();
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

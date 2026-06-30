@@ -1,4 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
+import { getPool } from "../../src/lib/db";
 
 export default async function handler(req: Request) {
   if (req.method !== "POST") {
@@ -8,13 +8,12 @@ export default async function handler(req: Request) {
     });
   }
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = getPool();
 
   try {
     const { id, name, email, image, role } = await req.json();
 
     if (!id || !email) {
-      await pool.end();
       return new Response(
         JSON.stringify({ error: "id and email are required" }),
         {
@@ -35,13 +34,11 @@ export default async function handler(req: Request) {
       [id, name || null, email, image || null, role || "client"],
     );
 
-    await pool.end();
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    await pool.end();
     console.error("Register API error:", err);
     return new Response(JSON.stringify({ error: "Registration failed" }), {
       status: 500,

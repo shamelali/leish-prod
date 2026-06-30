@@ -9,10 +9,10 @@ const cancelBookingSchema = {
 };
 
 export default async function handler(req: Request) {
-   const pool = getPool();
-   const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
-   const url = new URL(req.url, baseUrl);
-   const action = url.searchParams.get("action");
+  const pool = getPool();
+  const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
+  const url = new URL(req.url, baseUrl);
+  const action = url.searchParams.get("action");
 
   try {
     switch (action) {
@@ -60,14 +60,14 @@ export default async function handler(req: Request) {
         );
       }
 
-case "favorites": {
-         const userId = url.searchParams.get("userId");
-         if (!userId) {
-           return new Response(JSON.stringify({ error: "userId required" }), {
-             status: 400,
-             headers: { "Content-Type": "application/json" },
-           });
-         }
+      case "favorites": {
+        const userId = url.searchParams.get("userId");
+        if (!userId) {
+          return new Response(JSON.stringify({ error: "userId required" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
 
         if (req.method === "GET") {
           const favoritesResult = await pool.query(
@@ -115,23 +115,23 @@ case "favorites": {
         break;
       }
 
-case "review": {
-         if (req.method !== "POST") {
-           return new Response(JSON.stringify({ error: "Method not allowed" }), {
-             status: 405,
-           });
-         }
+      case "review": {
+        if (req.method !== "POST") {
+          return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+          });
+        }
         const body = await req.json();
         const { userId, artistId, rating, text, author, service } = body;
 
-if (!userId || !artistId || !rating || !author) {
-           return new Response(
-             JSON.stringify({
-               error: "userId, artistId, rating, and author required",
-             }),
-             { status: 400 },
-           );
-         }
+        if (!userId || !artistId || !rating || !author) {
+          return new Response(
+            JSON.stringify({
+              error: "userId, artistId, rating, and author required",
+            }),
+            { status: 400 },
+          );
+        }
 
         const reviewResult = await pool.query(
           `INSERT INTO reviews ("userId", "artistId", rating, text, author, service)
@@ -154,24 +154,24 @@ if (!userId || !artistId || !rating || !author) {
         });
       }
 
-case "cancel-booking": {
-         if (req.method !== "POST") {
-           return new Response(JSON.stringify({ error: "Method not allowed" }), {
-             status: 405,
-           });
-         }
+      case "cancel-booking": {
+        if (req.method !== "POST") {
+          return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+          });
+        }
 
-         let bookingId: string | number;
-         try {
-           const body = await req.json();
-           const parsed = cancelBookingSchema.parse(body);
-           bookingId = parsed.bookingId as string | number;
-         } catch {
-           return new Response(
-             JSON.stringify({ error: "Invalid request body" }),
-             { status: 400 },
-           );
-         }
+        let bookingId: string | number;
+        try {
+          const body = await req.json();
+          const parsed = cancelBookingSchema.parse(body);
+          bookingId = parsed.bookingId as string | number;
+        } catch {
+          return new Response(
+            JSON.stringify({ error: "Invalid request body" }),
+            { status: 400 },
+          );
+        }
 
         const currentResult = await pool.query(
           `SELECT * FROM bookings WHERE id = $1`,
@@ -211,19 +211,19 @@ case "cancel-booking": {
         );
       }
 
-case "confirm-booking": {
-         if (req.method !== "POST") {
-           return new Response(JSON.stringify({ error: "Method not allowed" }), {
-             status: 405,
-           });
-         }
-         const confirmBody = await req.json();
-         const confirmBookingId = confirmBody.bookingId;
-         if (!confirmBookingId) {
-           return new Response(JSON.stringify({ error: "bookingId required" }), {
-             status: 400,
-           });
-         }
+      case "confirm-booking": {
+        if (req.method !== "POST") {
+          return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+          });
+        }
+        const confirmBody = await req.json();
+        const confirmBookingId = confirmBody.bookingId;
+        if (!confirmBookingId) {
+          return new Response(JSON.stringify({ error: "bookingId required" }), {
+            status: 400,
+          });
+        }
         const confirmResult = await pool.query(
           `UPDATE bookings SET status = 'confirmed', "updatedAt" = NOW()
             WHERE id = $1 AND status = 'pending'
@@ -242,19 +242,19 @@ case "confirm-booking": {
         );
       }
 
-case "reject-booking": {
-         if (req.method !== "POST") {
-           return new Response(JSON.stringify({ error: "Method not allowed" }), {
-             status: 405,
-           });
-         }
-         const rejectBody = await req.json();
-         const rejectBookingId = rejectBody.bookingId;
-         if (!rejectBookingId) {
-           return new Response(JSON.stringify({ error: "bookingId required" }), {
-             status: 400,
-           });
-         }
+      case "reject-booking": {
+        if (req.method !== "POST") {
+          return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+          });
+        }
+        const rejectBody = await req.json();
+        const rejectBookingId = rejectBody.bookingId;
+        if (!rejectBookingId) {
+          return new Response(JSON.stringify({ error: "bookingId required" }), {
+            status: 400,
+          });
+        }
         const rejectResult = await pool.query(
           `UPDATE bookings SET status = 'rejected', "updatedAt" = NOW()
            WHERE id = $1 AND status = 'pending'
@@ -273,12 +273,12 @@ case "reject-booking": {
         });
       }
 
-case "send-welcome-email": {
-         if (req.method !== "POST") {
-           return new Response(JSON.stringify({ error: "Method not allowed" }), {
-             status: 405,
-           });
-         }
+      case "send-welcome-email": {
+        if (req.method !== "POST") {
+          return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+          });
+        }
 
         const { email, name, role } = await req.json();
 
@@ -332,13 +332,13 @@ case "send-welcome-email": {
         }
       }
 
-case "notifications": {
-         const userId = url.searchParams.get("userId");
-         if (!userId) {
-           return new Response(JSON.stringify({ error: "userId required" }), {
-             status: 400,
-           });
-         }
+      case "notifications": {
+        const userId = url.searchParams.get("userId");
+        if (!userId) {
+          return new Response(JSON.stringify({ error: "userId required" }), {
+            status: 400,
+          });
+        }
 
         if (req.method === "GET") {
           const notifResult = await pool.query(
@@ -404,23 +404,23 @@ case "notifications": {
         break;
       }
 
-default:
-         return new Response(JSON.stringify({ error: "Unknown action" }), {
-           status: 400,
-         });
+      default:
+        return new Response(JSON.stringify({ error: "Unknown action" }), {
+          status: 400,
+        });
     }
-} catch (err) {
-     console.error("User action error:", err);
-     return new Response(JSON.stringify({ error: "Internal server error" }), {
-       status: 500,
-       headers: { "Content-Type": "application/json" },
-     });
+  } catch (err) {
+    console.error("User action error:", err);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  return new Response(JSON.stringify({ error: "Method not allowed" }), {
+    status: 405,
+  });
 }
-   
-   return new Response(JSON.stringify({ error: "Method not allowed" }), {
-     status: 405,
-   });
- }
 
 export const config = {
   regions: ["iad1"],

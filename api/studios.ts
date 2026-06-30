@@ -1,7 +1,7 @@
-import { Pool } from "@neondatabase/serverless";
+import { getPool } from "../src/lib/db";
 
 export default async function handler(req: Request) {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = getPool();
   const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
   const url = new URL(req.url, baseUrl);
   const action = url.searchParams.get("action");
@@ -9,7 +9,6 @@ export default async function handler(req: Request) {
   if (action === "dashboard") {
     const userId = url.searchParams.get("userId");
     if (!userId) {
-      await pool.end();
       return new Response(JSON.stringify({ error: "userId required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
@@ -22,7 +21,6 @@ export default async function handler(req: Request) {
     );
 
     if (!studioResult.rows[0]) {
-      await pool.end();
       return new Response(JSON.stringify({ error: "Studio not found" }), {
         status: 404,
         headers: { "Content-Type": "application/json" },
@@ -75,7 +73,6 @@ export default async function handler(req: Request) {
       [studio.id],
     );
 
-    await pool.end();
     return new Response(
       JSON.stringify({
         studio,
@@ -96,7 +93,6 @@ export default async function handler(req: Request) {
   }
 
   if (req.method !== "GET") {
-    await pool.end();
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
       headers: { "Content-Type": "application/json" },
@@ -167,8 +163,6 @@ export default async function handler(req: Request) {
       `SELECT * FROM categories ORDER BY name`,
     );
 
-    await pool.end();
-
     return new Response(
       JSON.stringify({
         studios: studiosResult.rows,
@@ -181,7 +175,6 @@ export default async function handler(req: Request) {
       },
     );
   } catch (err) {
-    await pool.end();
     console.error("[Studios] DB error:", err);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
