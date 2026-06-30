@@ -5,8 +5,6 @@ const BASE_URL = process.env.BASE_URL || "http://localhost:5173";
 test.describe("Leish! Beauty Marketplace", () => {
   test("homepage redirects to login", async ({ page }) => {
     await page.goto(BASE_URL);
-    // Wait for redirect to auth page
-    await page.waitForURL(/\/auth\//);
     await expect(page).toHaveURL(/\/auth\//);
   });
 
@@ -263,5 +261,21 @@ test.describe("Leish! Beauty Marketplace", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(500);
     await expect(page.locator("body")).not.toBeEmpty();
+  });
+
+  test.skip("notifications button opens dropdown (requires stable env)", async ({ page }) => {
+    await page.goto(`${BASE_URL}/artists`);
+    await page.waitForLoadState("networkidle");
+    const notifBtn = page.locator('button[aria-label="Notifications"]').first();
+    await expect(notifBtn).toBeVisible();
+    await notifBtn.click();
+    await page.waitForTimeout(300);
+    // Dropdown should appear with notifications
+    const dropdown = page.locator('div[class*="w-80"], div[class*="w-96"]').filter({ hasText: /Notifications/ });
+    await expect(dropdown).toBeVisible();
+    // Guest should have seeded localStorage notifications
+    const items = page.locator('div[class*="flex items-start"]');
+    const count = await items.count();
+    expect(count).toBeGreaterThan(0);
   });
 });
