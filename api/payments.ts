@@ -1,4 +1,5 @@
 import { getPool } from "../src/lib/db";
+import { createHmac, timingSafeEqual } from "crypto";
 
 const BILLPLZ_API =
   process.env.BILLPLZ_API_URL || "https://www.billplz-sandbox.com/api/v3";
@@ -318,7 +319,25 @@ export default async function handler(req: Request) {
             status: 405,
           });
         }
-        const webhookBody = await req.json();
+        const rawBody = await req.text();
+        const signatureKey = process.env.BILLPLZ_SIGNATURE_KEY;
+        if (signatureKey) {
+          const signatureHeader = req.headers.get("x-signature") || "";
+          const computedSignature = createHmac("sha256", signatureKey)
+            .update(rawBody)
+            .digest("hex");
+          const computedBuf = Buffer.from(computedSignature, "utf-8");
+          const headerBuf = Buffer.from(signatureHeader, "utf-8");
+          if (
+            computedBuf.length !== headerBuf.length ||
+            !timingSafeEqual(computedBuf, headerBuf)
+          ) {
+            return new Response(JSON.stringify({ error: "Invalid signature" }), {
+              status: 401,
+            });
+          }
+        }
+        const webhookBody = JSON.parse(rawBody);
 
         await pool.query(
           `INSERT INTO webhook_events (event, payload) VALUES ($1, $2)`,
