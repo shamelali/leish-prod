@@ -224,6 +224,76 @@ export default async function handler(req: Request) {
         );
       }
 
+      case "confirm-booking": {
+        if (req.method !== "POST") {
+          await pool.end();
+          return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+          });
+        }
+        const confirmBody = await req.json();
+        const confirmBookingId = confirmBody.bookingId;
+        if (!confirmBookingId) {
+          await pool.end();
+          return new Response(JSON.stringify({ error: "bookingId required" }), {
+            status: 400,
+          });
+        }
+        const confirmResult = await pool.query(
+          `UPDATE bookings SET status = 'confirmed', "updatedAt" = NOW()
+           WHERE id = $1 AND status = 'pending'
+           RETURNING *`,
+          [confirmBookingId],
+        );
+        if (!confirmResult.rows[0]) {
+          await pool.end();
+          return new Response(
+            JSON.stringify({ error: "Booking not found or not pending" }),
+            { status: 400 },
+          );
+        }
+        await pool.end();
+        return new Response(
+          JSON.stringify({ booking: confirmResult.rows[0] }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      case "reject-booking": {
+        if (req.method !== "POST") {
+          await pool.end();
+          return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+          });
+        }
+        const rejectBody = await req.json();
+        const rejectBookingId = rejectBody.bookingId;
+        if (!rejectBookingId) {
+          await pool.end();
+          return new Response(JSON.stringify({ error: "bookingId required" }), {
+            status: 400,
+          });
+        }
+        const rejectResult = await pool.query(
+          `UPDATE bookings SET status = 'cancelled', "updatedAt" = NOW()
+           WHERE id = $1 AND status = 'pending'
+           RETURNING *`,
+          [rejectBookingId],
+        );
+        if (!rejectResult.rows[0]) {
+          await pool.end();
+          return new Response(
+            JSON.stringify({ error: "Booking not found or not pending" }),
+            { status: 400 },
+          );
+        }
+        await pool.end();
+        return new Response(
+          JSON.stringify({ booking: rejectResult.rows[0] }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
       case "send-welcome-email": {
         if (req.method !== "POST") {
           await pool.end();

@@ -1,40 +1,36 @@
-import { google } from "googleapis"
+import { google } from "googleapis";
 
-const LEISH_CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || ""
+const LEISH_CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || "";
 
 type CalendarEvent = {
-  summary: string
-  description?: string
-  start: string
-  end: string
-  attendees?: string[]
-}
+  summary: string;
+  description?: string;
+  start: string;
+  end: string;
+  attendees?: string[];
+};
 
-let auth: any
+let auth: any;
 
 function getAuth() {
-  if (auth) return auth
+  if (auth) return auth;
 
-  const key = process.env.GOOGLE_SERVICE_ACCOUNT_KEY
-  if (!key) throw new Error("GOOGLE_SERVICE_ACCOUNT_KEY not set")
+  const key = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  if (!key) throw new Error("GOOGLE_SERVICE_ACCOUNT_KEY not set");
 
-  const credentials = JSON.parse(
-    Buffer.from(key, "base64").toString("utf-8"),
-  )
+  const credentials = JSON.parse(Buffer.from(key, "base64").toString("utf-8"));
 
   auth = new google.auth.JWT({
     email: credentials.client_email,
     key: credentials.private_key,
     scopes: ["https://www.googleapis.com/auth/calendar"],
-  })
+  });
 
-  return auth
+  return auth;
 }
 
-export async function createEvent(
-  event: CalendarEvent,
-): Promise<string> {
-  if (!LEISH_CALENDAR_ID) throw new Error("GOOGLE_CALENDAR_ID not set")
+export async function createEvent(event: CalendarEvent): Promise<string> {
+  if (!LEISH_CALENDAR_ID) throw new Error("GOOGLE_CALENDAR_ID not set");
 
   const response = await google.calendar("v3").events.insert({
     auth: getAuth(),
@@ -46,15 +42,15 @@ export async function createEvent(
       end: { dateTime: event.end, timeZone: "Asia/Kuala_Lumpur" },
       attendees: event.attendees?.map((email) => ({ email })),
     },
-  })
-  return response.data.id!
+  });
+  return response.data.id!;
 }
 
 export async function updateEvent(
   eventId: string,
   event: Partial<CalendarEvent>,
 ): Promise<void> {
-  if (!LEISH_CALENDAR_ID) throw new Error("GOOGLE_CALENDAR_ID not set")
+  if (!LEISH_CALENDAR_ID) throw new Error("GOOGLE_CALENDAR_ID not set");
 
   await google.calendar("v3").events.update({
     auth: getAuth(),
@@ -71,26 +67,24 @@ export async function updateEvent(
         : undefined,
       attendees: event.attendees?.map((email) => ({ email })),
     },
-  })
+  });
 }
 
-export async function deleteEvent(
-  eventId: string,
-): Promise<void> {
-  if (!LEISH_CALENDAR_ID) throw new Error("GOOGLE_CALENDAR_ID not set")
+export async function deleteEvent(eventId: string): Promise<void> {
+  if (!LEISH_CALENDAR_ID) throw new Error("GOOGLE_CALENDAR_ID not set");
 
   await google.calendar("v3").events.delete({
     auth: getAuth(),
     calendarId: LEISH_CALENDAR_ID,
     eventId,
-  })
+  });
 }
 
 export async function listEvents(
   timeMin: string,
   timeMax: string,
 ): Promise<any[]> {
-  if (!LEISH_CALENDAR_ID) throw new Error("GOOGLE_CALENDAR_ID not set")
+  if (!LEISH_CALENDAR_ID) throw new Error("GOOGLE_CALENDAR_ID not set");
 
   const response = await google.calendar("v3").events.list({
     auth: getAuth(),
@@ -100,6 +94,6 @@ export async function listEvents(
     timeZone: "Asia/Kuala_Lumpur",
     singleEvents: true,
     orderBy: "startTime",
-  })
-  return response.data.items || []
+  });
+  return response.data.items || [];
 }

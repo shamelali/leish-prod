@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Bell, Check, Trash2, Calendar, Star, UserPlus, Info, X } from "lucide-react";
+import { Bell, Trash2, Calendar, Star, UserPlus, Info, X } from "lucide-react";
 import { useNotifications } from "../context/NotificationsContext";
 
 const iconMap: Record<string, typeof Bell> = {
@@ -13,22 +13,29 @@ const iconMap: Record<string, typeof Bell> = {
 };
 
 const colorMap: Record<string, string> = {
-  booking_confirmed: "bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400",
-  booking_cancelled: "bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400",
-  booking_reminder: "bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400",
-  review_request: "bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400",
-  new_artist: "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400",
+  booking_confirmed:
+    "bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400",
+  booking_cancelled:
+    "bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400",
+  booking_reminder:
+    "bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400",
+  review_request:
+    "bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400",
+  new_artist:
+    "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400",
   welcome: "bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400",
 };
 
 export default function NotificationsDropdown() {
-  const { notifications, unread, markRead, markAllRead, clearAll } = useNotifications();
+  const { notifications, unread, markRead, markAllRead, clearAll } =
+    useNotifications();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -64,15 +71,24 @@ export default function NotificationsDropdown() {
         <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-neutral-800 z-50 animate-scale-in overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-neutral-800">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Notifications</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+              Notifications
+            </h3>
             <div className="flex items-center gap-2">
               {unread > 0 && (
-                <button onClick={markAllRead} className="text-[10px] font-medium text-rose-500 hover:text-rose-600 transition-colors">
+                <button
+                  onClick={markAllRead}
+                  className="text-[10px] font-medium text-rose-500 hover:text-rose-600 transition-colors"
+                >
                   Mark all read
                 </button>
               )}
               {notifications.length > 0 && (
-                <button onClick={clearAll} className="p-1 text-gray-400 hover:text-red-500 transition-colors" aria-label="Clear all">
+                <button
+                  onClick={clearAll}
+                  className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  aria-label="Clear all"
+                >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -84,12 +100,16 @@ export default function NotificationsDropdown() {
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
                 <Bell className="w-8 h-8 text-gray-200 dark:text-neutral-700 mx-auto mb-2" />
-                <p className="text-sm text-gray-400 dark:text-gray-500">No notifications yet</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">
+                  No notifications yet
+                </p>
               </div>
             ) : (
               notifications.map((notif) => {
                 const Icon = iconMap[notif.type] || Bell;
-                const color = colorMap[notif.type] || "bg-gray-100 dark:bg-neutral-800 text-gray-500";
+                const color =
+                  colorMap[notif.type] ||
+                  "bg-gray-100 dark:bg-neutral-800 text-gray-500";
                 return (
                   <div
                     key={notif.id}
@@ -99,19 +119,37 @@ export default function NotificationsDropdown() {
                       if (notif.link) setOpen(false);
                     }}
                   >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}
+                    >
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                       {notif.link ? (
-                        <Link to={notif.link} className="block" onClick={() => setOpen(false)}>
-                          <p className={`text-sm ${!notif.read ? "font-semibold text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}>{notif.title}</p>
+                        <Link
+                          to={notif.link}
+                          className="block"
+                          onClick={() => setOpen(false)}
+                        >
+                          <p
+                            className={`text-sm ${!notif.read ? "font-semibold text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}
+                          >
+                            {notif.title}
+                          </p>
                         </Link>
                       ) : (
-                        <p className={`text-sm ${!notif.read ? "font-semibold text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}>{notif.title}</p>
+                        <p
+                          className={`text-sm ${!notif.read ? "font-semibold text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}
+                        >
+                          {notif.title}
+                        </p>
                       )}
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 line-clamp-2">{notif.message}</p>
-                      <p className="text-[10px] text-gray-300 dark:text-gray-600 mt-1">{formatTime(notif.date)}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 line-clamp-2">
+                        {notif.message}
+                      </p>
+                      <p className="text-[10px] text-gray-300 dark:text-gray-600 mt-1">
+                        {formatTime(notif.date)}
+                      </p>
                     </div>
                     {!notif.read && (
                       <div className="w-2 h-2 bg-rose-500 rounded-full shrink-0 mt-2" />

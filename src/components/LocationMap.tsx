@@ -10,7 +10,13 @@ interface LocationMapProps {
 
 // Since we can't use Google Maps API without a key, we create a beautiful
 // interactive location card with a link to open in Google Maps
-export default function LocationMap({ name, address, area, rating, responseTime }: LocationMapProps) {
+export default function LocationMap({
+  name,
+  address,
+  area,
+  rating,
+  responseTime,
+}: LocationMapProps) {
   const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(`${name} ${address} ${area}`)}`;
 
   return (
@@ -21,8 +27,19 @@ export default function LocationMap({ name, address, area, rating, responseTime 
         <div className="absolute inset-0 opacity-20 dark:opacity-10">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gray-400" />
+              <pattern
+                id="grid"
+                width="40"
+                height="40"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 40 0 L 0 0 0 40"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.5"
+                  className="text-gray-400"
+                />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
@@ -40,7 +57,10 @@ export default function LocationMap({ name, address, area, rating, responseTime 
         {/* Center Pin */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full">
           <div className="relative">
-            <div className="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-rose-300/50 dark:shadow-rose-900/50 animate-bounce" style={{ animationDuration: "2s" }}>
+            <div
+              className="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-rose-300/50 dark:shadow-rose-900/50 animate-bounce"
+              style={{ animationDuration: "2s" }}
+            >
               <MapPin className="w-5 h-5 text-white fill-white" />
             </div>
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-rose-500 rotate-45" />
@@ -49,7 +69,10 @@ export default function LocationMap({ name, address, area, rating, responseTime 
         </div>
 
         {/* Pulse rings */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-rose-300/30 dark:border-rose-700/30 rounded-full animate-ping" style={{ animationDuration: "3s" }} />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-rose-300/30 dark:border-rose-700/30 rounded-full animate-ping"
+          style={{ animationDuration: "3s" }}
+        />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-rose-200/20 dark:border-rose-800/20 rounded-full" />
 
         {/* "View on Maps" overlay button */}
@@ -73,7 +96,9 @@ export default function LocationMap({ name, address, area, rating, responseTime 
       <div className="p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="font-semibold text-gray-900 dark:text-white text-sm">{name}</p>
+            <p className="font-semibold text-gray-900 dark:text-white text-sm">
+              {name}
+            </p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center gap-1">
               <MapPin className="w-3 h-3" /> {address}, {area}
             </p>
@@ -81,7 +106,9 @@ export default function LocationMap({ name, address, area, rating, responseTime 
           {rating && (
             <div className="flex items-center gap-1 text-xs">
               <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span className="font-semibold text-gray-900 dark:text-white">{rating}</span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                {rating}
+              </span>
             </div>
           )}
         </div>

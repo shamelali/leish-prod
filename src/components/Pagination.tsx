@@ -13,7 +13,11 @@ interface NumberedPaginationProps {
   centered?: boolean;
 }
 
-export function NumberedPagination({ pagination, onPageChange, centered }: NumberedPaginationProps) {
+export function NumberedPagination({
+  pagination,
+  onPageChange,
+  centered,
+}: NumberedPaginationProps) {
   const { page, totalPages } = pagination;
   if (totalPages <= 1) return null;
 
@@ -27,7 +31,9 @@ export function NumberedPagination({ pagination, onPageChange, centered }: Numbe
   }
 
   return (
-    <div className={`flex items-center ${centered ? "justify-center gap-4" : "justify-between"} pt-4 pb-2`}>
+    <div
+      className={`flex items-center ${centered ? "justify-center gap-4" : "justify-between"} pt-4 pb-2`}
+    >
       {!centered && (
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Page {page} of {totalPages}
@@ -43,7 +49,10 @@ export function NumberedPagination({ pagination, onPageChange, centered }: Numbe
         </button>
         {pages.map((p, i) =>
           p === "..." ? (
-            <span key={`ellipsis-${i}`} className="px-2 text-gray-400 dark:text-gray-500 text-sm">
+            <span
+              key={`ellipsis-${i}`}
+              className="px-2 text-gray-400 dark:text-gray-500 text-sm"
+            >
               ...
             </span>
           ) : (
@@ -58,7 +67,7 @@ export function NumberedPagination({ pagination, onPageChange, centered }: Numbe
             >
               {p}
             </button>
-          )
+          ),
         )}
         <button
           onClick={() => onPageChange(page + 1)}
@@ -93,7 +102,9 @@ export function LoadMore({ pagination, onLoadMore, loading }: LoadMoreProps) {
         ) : (
           <ChevronDown className="w-4 h-4" />
         )}
-        {loading ? "Loading..." : `Explore More (${pagination.total - pagination.page * pagination.limit} left)`}
+        {loading
+          ? "Loading..."
+          : `Explore More (${pagination.total - pagination.page * pagination.limit} left)`}
       </button>
     </div>
   );
@@ -105,11 +116,17 @@ interface PageSizeSelectorProps {
   options?: number[];
 }
 
-export function PageSizeSelector({ pageSize, onChange, options }: PageSizeSelectorProps) {
+export function PageSizeSelector({
+  pageSize,
+  onChange,
+  options,
+}: PageSizeSelectorProps) {
   const sizes = options || [10, 25, 50, 100];
   return (
     <div className="flex items-center gap-2">
-      <label className="text-sm text-gray-500 dark:text-gray-400">Per page:</label>
+      <label className="text-sm text-gray-500 dark:text-gray-400">
+        Per page:
+      </label>
       <select
         value={pageSize}
         onChange={(e) => onChange(Number(e.target.value))}

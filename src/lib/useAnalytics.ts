@@ -11,7 +11,10 @@ interface AnalyticsEvent {
 const eventStore: AnalyticsEvent[] = [];
 const MAX_EVENTS = 100;
 
-function track(name: string, properties?: Record<string, string | number | boolean>) {
+function track(
+  name: string,
+  properties?: Record<string, string | number | boolean>,
+) {
   const event: AnalyticsEvent = {
     name,
     properties,
@@ -27,7 +30,9 @@ function track(name: string, properties?: Record<string, string | number | boole
 
   // Store in localStorage for dashboard
   try {
-    const existing = JSON.parse(localStorage.getItem("leish-analytics") || "[]");
+    const existing = JSON.parse(
+      localStorage.getItem("leish-analytics") || "[]",
+    );
     existing.unshift(event);
     if (existing.length > 200) existing.length = 200;
     localStorage.setItem("leish-analytics", JSON.stringify(existing));
@@ -80,11 +85,9 @@ export const analytics = {
   shareClick: (artistId: string, platform: string) =>
     track("share_click", { artistId, platform }),
 
-  login: (method: string) =>
-    track("login", { method }),
+  login: (method: string) => track("login", { method }),
 
-  register: (type: string) =>
-    track("register", { type }),
+  register: (type: string) => track("register", { type }),
 
   reviewSubmitted: (artistId: string, rating: number) =>
     track("review_submitted", { artistId, rating }),

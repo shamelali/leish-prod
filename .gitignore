@@ -32,3 +32,4 @@ playwright-report/
 
 # Misc
 *.tsbuildinfo
+.vercel

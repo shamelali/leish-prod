@@ -1,29 +1,32 @@
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
-export function cloudinaryUrl(publicId: string, options?: {
-  width?: number;
-  height?: number;
-  aspectRatio?: string;
-  crop?: string;
-  quality?: number | 'auto';
-  format?: string;
-  radius?: number;
-  effect?: string;
-}): string {
+export function cloudinaryUrl(
+  publicId: string,
+  options?: {
+    width?: number;
+    height?: number;
+    aspectRatio?: string;
+    crop?: string;
+    quality?: number | "auto";
+    format?: string;
+    radius?: number;
+    effect?: string;
+  },
+): string {
   if (!CLOUD_NAME) return publicId;
 
   const {
     width,
     height,
     aspectRatio,
-    crop = 'fill',
-    quality = 'auto',
-    format = 'auto',
+    crop = "fill",
+    quality = "auto",
+    format = "auto",
     radius,
     effect,
   } = options || {};
 
-  const transformations: string[] = ['f_auto', `q_${quality}`];
+  const transformations: string[] = ["f_auto", `q_${quality}`];
 
   if (width) transformations.push(`w_${width}`);
   if (height) transformations.push(`h_${height}`);
@@ -32,11 +35,11 @@ export function cloudinaryUrl(publicId: string, options?: {
   if (radius) transformations.push(`r_${radius}`);
   if (effect) transformations.push(`e_${effect}`);
 
-  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${transformations.join(',')}/${publicId}`;
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${transformations.join(",")}/${publicId}`;
 }
 
 export function isCloudinaryUrl(url: string): boolean {
-  return url?.includes('res.cloudinary.com');
+  return url?.includes("res.cloudinary.com");
 }
 
 export function extractPublicId(url: string): string | null {

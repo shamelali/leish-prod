@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 import { Check, X, AlertCircle, Info, XCircle } from "lucide-react";
 
 type ToastType = "success" | "error" | "info" | "warning";
@@ -20,12 +26,20 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-const icons: Record<ToastType, typeof Check> = { success: Check, error: XCircle, info: Info, warning: AlertCircle };
+const icons: Record<ToastType, typeof Check> = {
+  success: Check,
+  error: XCircle,
+  info: Info,
+  warning: AlertCircle,
+};
 const colors: Record<ToastType, string> = {
-  success: "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300",
-  error: "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300",
+  success:
+    "bg-green-50 dark:bg-green-950/50 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300",
+  error:
+    "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300",
   info: "bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300",
-  warning: "bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300",
+  warning:
+    "bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300",
 };
 const iconColors: Record<ToastType, string> = {
   success: "text-green-500 dark:text-green-400",
@@ -41,13 +55,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const addToast = useCallback((type: ToastType, message: string, duration = 4000) => {
-    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    setToasts((prev) => [...prev, { id, type, message, duration }]);
-    if (duration > 0) {
-      setTimeout(() => removeToast(id), duration);
-    }
-  }, [removeToast]);
+  const addToast = useCallback(
+    (type: ToastType, message: string, duration = 4000) => {
+      const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      setToasts((prev) => [...prev, { id, type, message, duration }]);
+      if (duration > 0) {
+        setTimeout(() => removeToast(id), duration);
+      }
+    },
+    [removeToast],
+  );
 
   const value: ToastContextType = {
     toast: addToast,

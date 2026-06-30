@@ -5,15 +5,35 @@ import ImageWithFallback from "./ImageWithFallback";
 import { getDictionary, type Locale } from "../lib/i18n";
 
 const stats = [
-  { icon: Users, value: "500+", label: "Happy Brides", color: "text-rose-600 dark:text-rose-400" },
-  { icon: Star, value: "4.9", label: "Avg Rating", color: "text-amber-500 dark:text-amber-400" },
-  { icon: Award, value: "50+", label: "Pro Artists", color: "text-pink-600 dark:text-pink-400" },
-  { icon: Clock, value: "<2h", label: "Response Time", color: "text-rose-500 dark:text-rose-400" },
+  {
+    icon: Users,
+    value: "500+",
+    label: "Happy Brides",
+    color: "text-rose-600 dark:text-rose-400",
+  },
+  {
+    icon: Star,
+    value: "4.9",
+    label: "Avg Rating",
+    color: "text-amber-500 dark:text-amber-400",
+  },
+  {
+    icon: Award,
+    value: "50+",
+    label: "Pro Artists",
+    color: "text-pink-600 dark:text-pink-400",
+  },
+  {
+    icon: Clock,
+    value: "<2h",
+    label: "Response Time",
+    color: "text-rose-500 dark:text-rose-400",
+  },
 ];
 
 export default function HeroSection({
   locale = "en",
-  dict
+  dict,
 }: {
   locale?: Locale;
   dict?: Record<string, any>;
@@ -46,15 +66,24 @@ export default function HeroSection({
               {t.hero.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/artists" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-2xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-xl shadow-rose-200/50 dark:shadow-rose-900/30 hover:scale-105 active:scale-100 text-base">
+              <Link
+                to="/artists"
+                className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-2xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-xl shadow-rose-200/50 dark:shadow-rose-900/30 hover:scale-105 active:scale-100 text-base"
+              >
                 {t.hero.browseArtists} <ArrowRight className="w-4 h-4" />
               </Link>
               {user ? (
-                <Link to="/profile" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base">
+                <Link
+                  to="/profile"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base"
+                >
                   {t.hero.myBookings}
                 </Link>
               ) : (
-                <Link to="/register" className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base">
+                <Link
+                  to="/register"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-2xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200 dark:hover:border-rose-700 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all shadow-sm hover:shadow-md text-base"
+                >
                   {t.hero.signupFree}
                 </Link>
               )}
@@ -62,10 +91,20 @@ export default function HeroSection({
 
             <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6">
               {stats.map((stat, i) => (
-                <div key={i} className="text-center animate-fade-in-up" style={{ animationDelay: `${200 + i * 100}ms` }}>
-                  <stat.icon className={`w-5 h-5 mx-auto mb-1.5 ${stat.color}`} />
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">{stat.label}</p>
+                <div
+                  key={i}
+                  className="text-center animate-fade-in-up"
+                  style={{ animationDelay: `${200 + i * 100}ms` }}
+                >
+                  <stat.icon
+                    className={`w-5 h-5 mx-auto mb-1.5 ${stat.color}`}
+                  />
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">
+                    {stat.value}
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                    {stat.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -77,24 +116,40 @@ export default function HeroSection({
               <div className="space-y-4">
                 <div className="rounded-2xl overflow-hidden shadow-2xl shadow-rose-200/40 dark:shadow-rose-900/20 transform rotate-1 hover:rotate-0 transition-transform duration-500">
                   <div className="aspect-[3/4] relative group">
-                    <ImageWithFallback src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=800&fit=crop" alt="Soft glam makeup" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <ImageWithFallback
+                      src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=800&fit=crop"
+                      alt="Soft glam makeup"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
                   </div>
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-xl shadow-rose-200/40 dark:shadow-rose-900/20 transform -rotate-2 hover:rotate-0 transition-transform duration-500">
                   <div className="aspect-square group">
-                    <ImageWithFallback src="https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=400&h=400&fit=crop" alt="Contemporary beauty" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <ImageWithFallback
+                      src="https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=400&h=400&fit=crop"
+                      alt="Contemporary beauty"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
                   </div>
                 </div>
               </div>
               <div className="space-y-4 pt-8">
                 <div className="rounded-2xl overflow-hidden shadow-xl shadow-rose-200/40 dark:shadow-rose-900/20 transform -rotate-1 hover:rotate-0 transition-transform duration-500">
                   <div className="aspect-square group">
-                    <ImageWithFallback src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=400&fit=crop" alt="Warm tones" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <ImageWithFallback
+                      src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=400&fit=crop"
+                      alt="Warm tones"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
                   </div>
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-2xl shadow-rose-200/40 dark:shadow-rose-900/20 transform rotate-2 hover:rotate-0 transition-transform duration-500">
                   <div className="aspect-[3/4] group">
-                    <ImageWithFallback src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=800&fit=crop" alt="Beautiful look" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <ImageWithFallback
+                      src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=800&fit=crop"
+                      alt="Beautiful look"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
                   </div>
                 </div>
               </div>
@@ -105,19 +160,28 @@ export default function HeroSection({
                 <Star className="w-5 h-5 text-white fill-white" />
               </div>
               <div>
-                <p className="text-sm font-bold text-gray-900 dark:text-white">Top Rated</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">4.9 avg from 500+ reviews</p>
+                <p className="text-sm font-bold text-gray-900 dark:text-white">
+                  Top Rated
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">
+                  4.9 avg from 500+ reviews
+                </p>
               </div>
             </div>
 
-            <div className="absolute -top-2 -right-2 bg-white dark:bg-neutral-800 rounded-2xl shadow-xl shadow-rose-100/50 dark:shadow-rose-900/20 p-3 animate-float border border-rose-100/50 dark:border-neutral-700" style={{ animationDelay: "1s" }}>
+            <div
+              className="absolute -top-2 -right-2 bg-white dark:bg-neutral-800 rounded-2xl shadow-xl shadow-rose-100/50 dark:shadow-rose-900/20 p-3 animate-float border border-rose-100/50 dark:border-neutral-700"
+              style={{ animationDelay: "1s" }}
+            >
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   <div className="w-7 h-7 rounded-full bg-rose-300 dark:bg-rose-600 border-2 border-white dark:border-neutral-800" />
                   <div className="w-7 h-7 rounded-full bg-pink-300 dark:bg-pink-600 border-2 border-white dark:border-neutral-800" />
                   <div className="w-7 h-7 rounded-full bg-rose-400 dark:bg-rose-500 border-2 border-white dark:border-neutral-800" />
                 </div>
-                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">+50 artists</p>
+                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  +50 artists
+                </p>
               </div>
             </div>
           </div>

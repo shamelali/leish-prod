@@ -1,15 +1,15 @@
-import { config } from 'dotenv';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { config } from "dotenv";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
-config({ path: resolve(__dirname, '../.env.local') });
+config({ path: resolve(__dirname, "../.env.local") });
 
-import { neon } from '@neondatabase/serverless';
+import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL!) as any;
 
 async function seed() {
-  console.log('🌱 Seeding database...');
+  console.log("🌱 Seeding database...");
 
   // Clean existing app data (keep users/auth tables intact)
   await sql.query(`TRUNCATE TABLE
@@ -21,42 +21,94 @@ async function seed() {
 
   // Categories
   const categoryData = [
-    { name: 'Bridal Makeup', slug: 'bridal-makeup', description: 'Wedding day glamour', image: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400' },
-    { name: 'Special Effects', slug: 'special-effects', description: 'Creative and fantasy looks', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400' },
-    { name: 'Everyday Glam', slug: 'everyday-glam', description: 'Daily beauty enhancement', image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400' },
-    { name: 'Editorial', slug: 'editorial', description: 'Fashion and photoshoot looks', image: 'https://images.unsplash.com/photo-1457972729786-0411a3b2b626?w=400' },
-    { name: 'Airbrush', slug: 'airbrush', description: 'Flawless airbrush application', image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400' },
-    { name: 'Hair Styling', slug: 'hair-styling', description: 'Professional hair design', image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400' },
-    { name: 'Nail Art', slug: 'nail-art', description: 'Creative nail designs', image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400' },
-    { name: 'Skincare', slug: 'skincare', description: 'Facial treatments and care', image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400' },
+    {
+      name: "Bridal Makeup",
+      slug: "bridal-makeup",
+      description: "Wedding day glamour",
+      image:
+        "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400",
+    },
+    {
+      name: "Special Effects",
+      slug: "special-effects",
+      description: "Creative and fantasy looks",
+      image:
+        "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400",
+    },
+    {
+      name: "Everyday Glam",
+      slug: "everyday-glam",
+      description: "Daily beauty enhancement",
+      image:
+        "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400",
+    },
+    {
+      name: "Editorial",
+      slug: "editorial",
+      description: "Fashion and photoshoot looks",
+      image:
+        "https://images.unsplash.com/photo-1457972729786-0411a3b2b626?w=400",
+    },
+    {
+      name: "Airbrush",
+      slug: "airbrush",
+      description: "Flawless airbrush application",
+      image:
+        "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400",
+    },
+    {
+      name: "Hair Styling",
+      slug: "hair-styling",
+      description: "Professional hair design",
+      image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400",
+    },
+    {
+      name: "Nail Art",
+      slug: "nail-art",
+      description: "Creative nail designs",
+      image:
+        "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400",
+    },
+    {
+      name: "Skincare",
+      slug: "skincare",
+      description: "Facial treatments and care",
+      image:
+        "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400",
+    },
   ];
   const cats = await Promise.all(
-    categoryData.map((c) =>
-      sql`INSERT INTO categories (id, name, slug, description, image)
-          VALUES (${c.slug}, ${c.name}, ${c.slug}, ${c.description}, ${c.image}) RETURNING id`
-    )
+    categoryData.map(
+      (c) =>
+        sql`INSERT INTO categories (id, name, slug, description, image)
+          VALUES (${c.slug}, ${c.name}, ${c.slug}, ${c.description}, ${c.image}) RETURNING id`,
+    ),
   );
   const categoryIds = Object.fromEntries(
-    cats.map((r, i) => [categoryData[i].slug, r[0].id])
+    cats.map((r, i) => [categoryData[i].slug, r[0].id]),
   );
   console.log(`  ✓ ${categoryData.length} categories`);
 
   // Fetch registered users to link studios to
-  const existingUsers = await sql`SELECT id, name, email, role FROM "user" ORDER BY role, name`;
+  const existingUsers =
+    await sql`SELECT id, name, email, role FROM "user" ORDER BY role, name`;
   console.log(`  Found ${existingUsers.length} registered users`);
 
   // Studios linked to registered users
   const studioUserIds = existingUsers
-    .filter((u: any) => u.role === 'studio')
+    .filter((u: any) => u.role === "studio")
     .map((u: any) => u.id)
     .slice(0, 3);
 
   const remainingCustomers = existingUsers
-    .filter((u: any) => u.role === 'customer' || u.role === 'client')
+    .filter((u: any) => u.role === "customer" || u.role === "client")
     .map((u: any) => u.id);
 
   const extraStudiosNeeded = 3 - studioUserIds.length;
-  const promoForStudio = remainingCustomers.slice(0, Math.max(0, extraStudiosNeeded));
+  const promoForStudio = remainingCustomers.slice(
+    0,
+    Math.max(0, extraStudiosNeeded),
+  );
   for (const uid of promoForStudio) {
     await sql`UPDATE "user" SET role = 'studio' WHERE id = ${uid}`;
   }
@@ -65,38 +117,243 @@ async function seed() {
   console.log(`  Assigned ${allStudioUserIds.length} users as studios`);
 
   // Fetch the user details for display names
-  const studioUsers = await sql`SELECT id, name, email, image FROM "user" WHERE id = ANY(${allStudioUserIds})`;
-  const studioUserMap = Object.fromEntries(studioUsers.map((u: any) => [u.id, u]));
+  const studioUsers =
+    await sql`SELECT id, name, email, image FROM "user" WHERE id = ANY(${allStudioUserIds})`;
+  const studioUserMap = Object.fromEntries(
+    studioUsers.map((u: any) => [u.id, u]),
+  );
 
   // Artists (self-linked with generated IDs, independent of user accounts)
   const artistNames = [
-    'Nurul Huda Ahmad', 'Jia Ling Wong', 'Deepa Rajendran', 'Sarah Natasha',
-    'Amir Zulkifli', 'Lee Shi En', 'Priya Mohan', 'Firdaus Jamaludin',
-    'Michelle Teoh', 'Khadijah Hassan', 'Tan Wei Lynn', 'Vinoth Kumar',
-    'Nadia Mansor', 'Chloe Leong', 'Ravi Krishnan',
+    "Nurul Huda Ahmad",
+    "Jia Ling Wong",
+    "Deepa Rajendran",
+    "Sarah Natasha",
+    "Amir Zulkifli",
+    "Lee Shi En",
+    "Priya Mohan",
+    "Firdaus Jamaludin",
+    "Michelle Teoh",
+    "Khadijah Hassan",
+    "Tan Wei Lynn",
+    "Vinoth Kumar",
+    "Nadia Mansor",
+    "Chloe Leong",
+    "Ravi Krishnan",
   ];
   const artistSlugs = [
-    'nurul-huda-ahmad', 'jia-ling-wong', 'deepa-rajendran', 'sarah-natasha',
-    'amir-zulkifli', 'lee-shi-en', 'priya-mohan', 'firdaus-jamaludin',
-    'michelle-teoh', 'khadijah-hassan', 'tan-wei-lynn', 'vinoth-kumar',
-    'nadia-mansor', 'chloe-leong', 'ravi-krishnan',
+    "nurul-huda-ahmad",
+    "jia-ling-wong",
+    "deepa-rajendran",
+    "sarah-natasha",
+    "amir-zulkifli",
+    "lee-shi-en",
+    "priya-mohan",
+    "firdaus-jamaludin",
+    "michelle-teoh",
+    "khadijah-hassan",
+    "tan-wei-lynn",
+    "vinoth-kumar",
+    "nadia-mansor",
+    "chloe-leong",
+    "ravi-krishnan",
   ];
   const artistDetails = [
-    { location: 'Kuala Lumpur', area: 'Bukit Bintang', rating: '4.9', reviewCount: 127, bio: 'Award-winning bridal MUA with 10+ years experience. Specializing in timeless elegant looks for Malay weddings.', available: true, verified: true, yearsExperience: 10, price: '350', languages: ['English', 'Malay', 'Mandarin'], slug: 'nurul-huda-ahmad' },
-    { location: 'Selangor', area: 'Petaling Jaya', rating: '4.8', reviewCount: 98, bio: 'Editorial makeup artist who brings avant-garde visions to life for magazines, TV dramas, and high-fashion runway shows.', available: true, verified: true, yearsExperience: 8, price: '300', languages: ['English', 'Malay', 'Cantonese'], slug: 'jia-ling-wong' },
-    { location: 'Kuala Lumpur', area: 'Mont Kiara', rating: '4.7', reviewCount: 83, bio: 'Airbrush makeup specialist who creates flawless, camera-ready looks. Favoured by influencers and content creators across Malaysia.', available: true, verified: true, yearsExperience: 6, price: '280', languages: ['English', 'Malay', 'Tamil'], slug: 'deepa-rajendran' },
-    { location: 'Penang', area: 'George Town', rating: '4.9', reviewCount: 145, bio: 'SFX and special occasion makeup artist. Known for transformative prosthetic work and stunning bridal henna designs.', available: true, verified: true, yearsExperience: 12, price: '400', languages: ['English', 'Malay', 'Hokkien'], slug: 'sarah-natasha' },
-    { location: 'Johor Bahru', area: 'Iskandar Puteri', rating: '4.6', reviewCount: 72, bio: 'Bridal specialist with a passion for preserving cultural traditions. Expert in Malay, Chinese, and Indian wedding looks.', available: true, verified: true, yearsExperience: 5, price: '250', languages: ['English', 'Malay', 'Tamil'], slug: 'amir-zulkifli' },
-    { location: 'Selangor', area: 'Subang Jaya', rating: '4.8', reviewCount: 110, bio: 'Luxury hair and makeup artist for high-end events and destination weddings. Known for glamorous Hollywood waves.', available: true, verified: true, yearsExperience: 9, price: '380', languages: ['English', 'Mandarin', 'Cantonese'], slug: 'lee-shi-en' },
-    { location: 'Kuala Lumpur', area: 'Cheras', rating: '4.5', reviewCount: 55, bio: 'Creative nail artist and makeup enthusiast. Specializing in cohesive bridal beauty packages including hand art.', available: true, verified: false, yearsExperience: 4, price: '180', languages: ['English', 'Malay', 'Tamil'], slug: 'priya-mohan' },
-    { location: 'Selangor', area: 'Shah Alam', rating: '4.7', reviewCount: 91, bio: 'Clinical aesthetician and makeup artist with a skincare-first philosophy. Perfect for the natural, glowing bride.', available: true, verified: true, yearsExperience: 7, price: '320', languages: ['English', 'Malay', 'Arabic'], slug: 'firdaus-jamaludin' },
-    { location: 'Kuala Lumpur', area: 'Bangsar', rating: '4.8', reviewCount: 134, bio: 'Celebrity MUA with a client list of Malaysian actors and influencers. Master of flawless contouring and glam looks.', available: true, verified: true, yearsExperience: 11, price: '450', languages: ['English', 'Malay'], slug: 'michelle-teoh' },
-    { location: 'Penang', area: 'Bayan Lepas', rating: '4.6', reviewCount: 68, bio: 'Shooting star in the East — specialises in pre-wedding photo shoot makeup with cinematic lighting techniques.', available: true, verified: true, yearsExperience: 6, price: '260', languages: ['English', 'Malay', 'Hokkien'], slug: 'khadijah-hassan' },
-    { location: 'Selangor', area: 'Puchong', rating: '4.7', reviewCount: 102, bio: 'Avant-garde editorial artist and trainer. Runs workshops across Malaysia teaching advanced makeup techniques.', available: true, verified: true, yearsExperience: 8, price: '290', languages: ['English', 'Mandarin', 'Malay'], slug: 'tan-wei-lynn' },
-    { location: 'Kuala Lumpur', area: 'Kepong', rating: '4.4', reviewCount: 47, bio: 'Young and dynamic makeup talent specialising in K-pop inspired looks, bold colours, and graphic eyeliner art.', available: true, verified: false, yearsExperience: 3, price: '150', languages: ['English', 'Malay', 'Tamil'], slug: 'vinoth-kumar' },
-    { location: 'Johor Bahru', area: 'Taman Sentosa', rating: '4.8', reviewCount: 88, bio: 'Destination wedding expert covering Malaysia and Singapore. Famous for romantic, soft-glam bridal aesthetics.', available: true, verified: true, yearsExperience: 7, price: '340', languages: ['English', 'Malay'], slug: 'nadia-mansor' },
-    { location: 'Selangor', area: 'Klang', rating: '4.5', reviewCount: 61, bio: 'Full-service beauty artist offering makeup, hair styling, and lash extensions for every occasion from formal to festive.', available: true, verified: true, yearsExperience: 5, price: '220', languages: ['English', 'Malay', 'Cantonese'], slug: 'chloe-leong' },
-    { location: 'Kuala Lumpur', area: 'Sri Petaling', rating: '4.3', reviewCount: 39, bio: 'Rising talent with fresh perspectives. Passionate about editorial makeup, costume design, and creative collaborations.', available: true, verified: false, yearsExperience: 2, price: '130', languages: ['English', 'Malay', 'Tamil'], slug: 'ravi-krishnan' },
+    {
+      location: "Kuala Lumpur",
+      area: "Bukit Bintang",
+      rating: "4.9",
+      reviewCount: 127,
+      bio: "Award-winning bridal MUA with 10+ years experience. Specializing in timeless elegant looks for Malay weddings.",
+      available: true,
+      verified: true,
+      yearsExperience: 10,
+      price: "350",
+      languages: ["English", "Malay", "Mandarin"],
+      slug: "nurul-huda-ahmad",
+    },
+    {
+      location: "Selangor",
+      area: "Petaling Jaya",
+      rating: "4.8",
+      reviewCount: 98,
+      bio: "Editorial makeup artist who brings avant-garde visions to life for magazines, TV dramas, and high-fashion runway shows.",
+      available: true,
+      verified: true,
+      yearsExperience: 8,
+      price: "300",
+      languages: ["English", "Malay", "Cantonese"],
+      slug: "jia-ling-wong",
+    },
+    {
+      location: "Kuala Lumpur",
+      area: "Mont Kiara",
+      rating: "4.7",
+      reviewCount: 83,
+      bio: "Airbrush makeup specialist who creates flawless, camera-ready looks. Favoured by influencers and content creators across Malaysia.",
+      available: true,
+      verified: true,
+      yearsExperience: 6,
+      price: "280",
+      languages: ["English", "Malay", "Tamil"],
+      slug: "deepa-rajendran",
+    },
+    {
+      location: "Penang",
+      area: "George Town",
+      rating: "4.9",
+      reviewCount: 145,
+      bio: "SFX and special occasion makeup artist. Known for transformative prosthetic work and stunning bridal henna designs.",
+      available: true,
+      verified: true,
+      yearsExperience: 12,
+      price: "400",
+      languages: ["English", "Malay", "Hokkien"],
+      slug: "sarah-natasha",
+    },
+    {
+      location: "Johor Bahru",
+      area: "Iskandar Puteri",
+      rating: "4.6",
+      reviewCount: 72,
+      bio: "Bridal specialist with a passion for preserving cultural traditions. Expert in Malay, Chinese, and Indian wedding looks.",
+      available: true,
+      verified: true,
+      yearsExperience: 5,
+      price: "250",
+      languages: ["English", "Malay", "Tamil"],
+      slug: "amir-zulkifli",
+    },
+    {
+      location: "Selangor",
+      area: "Subang Jaya",
+      rating: "4.8",
+      reviewCount: 110,
+      bio: "Luxury hair and makeup artist for high-end events and destination weddings. Known for glamorous Hollywood waves.",
+      available: true,
+      verified: true,
+      yearsExperience: 9,
+      price: "380",
+      languages: ["English", "Mandarin", "Cantonese"],
+      slug: "lee-shi-en",
+    },
+    {
+      location: "Kuala Lumpur",
+      area: "Cheras",
+      rating: "4.5",
+      reviewCount: 55,
+      bio: "Creative nail artist and makeup enthusiast. Specializing in cohesive bridal beauty packages including hand art.",
+      available: true,
+      verified: false,
+      yearsExperience: 4,
+      price: "180",
+      languages: ["English", "Malay", "Tamil"],
+      slug: "priya-mohan",
+    },
+    {
+      location: "Selangor",
+      area: "Shah Alam",
+      rating: "4.7",
+      reviewCount: 91,
+      bio: "Clinical aesthetician and makeup artist with a skincare-first philosophy. Perfect for the natural, glowing bride.",
+      available: true,
+      verified: true,
+      yearsExperience: 7,
+      price: "320",
+      languages: ["English", "Malay", "Arabic"],
+      slug: "firdaus-jamaludin",
+    },
+    {
+      location: "Kuala Lumpur",
+      area: "Bangsar",
+      rating: "4.8",
+      reviewCount: 134,
+      bio: "Celebrity MUA with a client list of Malaysian actors and influencers. Master of flawless contouring and glam looks.",
+      available: true,
+      verified: true,
+      yearsExperience: 11,
+      price: "450",
+      languages: ["English", "Malay"],
+      slug: "michelle-teoh",
+    },
+    {
+      location: "Penang",
+      area: "Bayan Lepas",
+      rating: "4.6",
+      reviewCount: 68,
+      bio: "Shooting star in the East — specialises in pre-wedding photo shoot makeup with cinematic lighting techniques.",
+      available: true,
+      verified: true,
+      yearsExperience: 6,
+      price: "260",
+      languages: ["English", "Malay", "Hokkien"],
+      slug: "khadijah-hassan",
+    },
+    {
+      location: "Selangor",
+      area: "Puchong",
+      rating: "4.7",
+      reviewCount: 102,
+      bio: "Avant-garde editorial artist and trainer. Runs workshops across Malaysia teaching advanced makeup techniques.",
+      available: true,
+      verified: true,
+      yearsExperience: 8,
+      price: "290",
+      languages: ["English", "Mandarin", "Malay"],
+      slug: "tan-wei-lynn",
+    },
+    {
+      location: "Kuala Lumpur",
+      area: "Kepong",
+      rating: "4.4",
+      reviewCount: 47,
+      bio: "Young and dynamic makeup talent specialising in K-pop inspired looks, bold colours, and graphic eyeliner art.",
+      available: true,
+      verified: false,
+      yearsExperience: 3,
+      price: "150",
+      languages: ["English", "Malay", "Tamil"],
+      slug: "vinoth-kumar",
+    },
+    {
+      location: "Johor Bahru",
+      area: "Taman Sentosa",
+      rating: "4.8",
+      reviewCount: 88,
+      bio: "Destination wedding expert covering Malaysia and Singapore. Famous for romantic, soft-glam bridal aesthetics.",
+      available: true,
+      verified: true,
+      yearsExperience: 7,
+      price: "340",
+      languages: ["English", "Malay"],
+      slug: "nadia-mansor",
+    },
+    {
+      location: "Selangor",
+      area: "Klang",
+      rating: "4.5",
+      reviewCount: 61,
+      bio: "Full-service beauty artist offering makeup, hair styling, and lash extensions for every occasion from formal to festive.",
+      available: true,
+      verified: true,
+      yearsExperience: 5,
+      price: "220",
+      languages: ["English", "Malay", "Cantonese"],
+      slug: "chloe-leong",
+    },
+    {
+      location: "Kuala Lumpur",
+      area: "Sri Petaling",
+      rating: "4.3",
+      reviewCount: 39,
+      bio: "Rising talent with fresh perspectives. Passionate about editorial makeup, costume design, and creative collaborations.",
+      available: true,
+      verified: false,
+      yearsExperience: 2,
+      price: "130",
+      languages: ["English", "Malay", "Tamil"],
+      slug: "ravi-krishnan",
+    },
   ];
 
   const artistIds: string[] = [];
@@ -114,21 +371,34 @@ async function seed() {
 
   // Artist-Category assignments
   const artistCatAssignments: [number, string][] = [
-    [0, 'bridal-makeup'], [0, 'everyday-glam'],
-    [1, 'editorial'], [1, 'airbrush'],
-    [2, 'airbrush'], [2, 'everyday-glam'],
-    [3, 'special-effects'], [3, 'hair-styling'],
-    [4, 'bridal-makeup'], [4, 'everyday-glam'],
-    [5, 'bridal-makeup'], [5, 'hair-styling'],
-    [6, 'nail-art'],
-    [7, 'skincare'], [7, 'everyday-glam'],
-    [8, 'editorial'], [8, 'everyday-glam'],
-    [9, 'bridal-makeup'], [9, 'airbrush'],
-    [10, 'editorial'], [10, 'hair-styling'],
-    [11, 'everyday-glam'],
-    [12, 'bridal-makeup'], [12, 'hair-styling'],
-    [13, 'skincare'], [13, 'nail-art'],
-    [14, 'editorial'], [14, 'special-effects'],
+    [0, "bridal-makeup"],
+    [0, "everyday-glam"],
+    [1, "editorial"],
+    [1, "airbrush"],
+    [2, "airbrush"],
+    [2, "everyday-glam"],
+    [3, "special-effects"],
+    [3, "hair-styling"],
+    [4, "bridal-makeup"],
+    [4, "everyday-glam"],
+    [5, "bridal-makeup"],
+    [5, "hair-styling"],
+    [6, "nail-art"],
+    [7, "skincare"],
+    [7, "everyday-glam"],
+    [8, "editorial"],
+    [8, "everyday-glam"],
+    [9, "bridal-makeup"],
+    [9, "airbrush"],
+    [10, "editorial"],
+    [10, "hair-styling"],
+    [11, "everyday-glam"],
+    [12, "bridal-makeup"],
+    [12, "hair-styling"],
+    [13, "skincare"],
+    [13, "nail-art"],
+    [14, "editorial"],
+    [14, "special-effects"],
   ];
   for (const [ai, catSlug] of artistCatAssignments) {
     await sql`INSERT INTO artist_categories ("artistId", "categoryId") VALUES (${artistIds[ai]}, ${categoryIds[catSlug]})`;
@@ -137,15 +407,20 @@ async function seed() {
 
   // Services (4 per artist)
   const serviceTemplates = [
-    { name: 'Basic Makeup', duration: '60 min', price: '150', popular: true },
-    { name: 'Premium Makeup', duration: '90 min', price: '250', popular: true },
-    { name: 'Bridal Package', duration: '180 min', price: '500', popular: true },
-    { name: 'Trial Session', duration: '60 min', price: '100', popular: false },
+    { name: "Basic Makeup", duration: "60 min", price: "150", popular: true },
+    { name: "Premium Makeup", duration: "90 min", price: "250", popular: true },
+    {
+      name: "Bridal Package",
+      duration: "180 min",
+      price: "500",
+      popular: true,
+    },
+    { name: "Trial Session", duration: "60 min", price: "100", popular: false },
   ];
   let svcCount = 0;
   for (const aid of artistIds) {
     for (const s of serviceTemplates) {
-      const id = `${aid}-${s.name.toLowerCase().replace(/\s+/g, '-')}`;
+      const id = `${aid}-${s.name.toLowerCase().replace(/\s+/g, "-")}`;
       await sql`
         INSERT INTO services (id, "artistId", name, description, price, duration, popular)
         VALUES (${id}, ${aid}, ${s.name}, ${s.name}, ${s.price}, ${s.duration}, ${s.popular})
@@ -156,12 +431,36 @@ async function seed() {
   console.log(`  ✓ ${svcCount} services`);
 
   // Studios (linked to registered users)
-  const studioNames = ['Glam Studio KL', 'Beauty Haven PJ', 'Editorial Haus'];
-  const studioSlugs = ['glam-studio-kl', 'beauty-haven-pj', 'editial-haus'];
+  const studioNames = ["Glam Studio KL", "Beauty Haven PJ", "Editorial Haus"];
+  const studioSlugs = ["glam-studio-kl", "beauty-haven-pj", "editial-haus"];
   const studioDetails = [
-    { location: 'Kuala Lumpur', area: 'Bukit Bintang', rating: '4.8', reviewCount: 234, bio: 'Premium beauty studio in the heart of KL. Home to 15+ talented artists.', price: '500', slug: 'glam-studio-kl' },
-    { location: 'Selangor', area: 'Petaling Jaya', rating: '4.7', reviewCount: 189, bio: 'High-end beauty lounge offering full-service beauty treatments in a luxury setting.', price: '450', slug: 'beauty-haven-pj' },
-    { location: 'Penang', area: 'George Town', rating: '4.9', reviewCount: 312, bio: 'Heritage studio blending traditional techniques with modern beauty trends.', price: '400', slug: 'editial-haus' },
+    {
+      location: "Kuala Lumpur",
+      area: "Bukit Bintang",
+      rating: "4.8",
+      reviewCount: 234,
+      bio: "Premium beauty studio in the heart of KL. Home to 15+ talented artists.",
+      price: "500",
+      slug: "glam-studio-kl",
+    },
+    {
+      location: "Selangor",
+      area: "Petaling Jaya",
+      rating: "4.7",
+      reviewCount: 189,
+      bio: "High-end beauty lounge offering full-service beauty treatments in a luxury setting.",
+      price: "450",
+      slug: "beauty-haven-pj",
+    },
+    {
+      location: "Penang",
+      area: "George Town",
+      rating: "4.9",
+      reviewCount: 312,
+      bio: "Heritage studio blending traditional techniques with modern beauty trends.",
+      price: "400",
+      slug: "editial-haus",
+    },
   ];
 
   const studioIds: string[] = [];
@@ -172,7 +471,7 @@ async function seed() {
     const slug = studioSlugs[i];
     const r = await sql`
       INSERT INTO studios (id, name, slug, image, bio, rating, "reviewCount", price, location, area, "userId")
-      VALUES (${slug}, ${studioNames[i]}, ${slug}, ${user?.image || ''}, ${d.bio}, ${d.rating}, ${d.reviewCount}, ${d.price}, ${d.location}, ${d.area}, ${uid})
+      VALUES (${slug}, ${studioNames[i]}, ${slug}, ${user?.image || ""}, ${d.bio}, ${d.rating}, ${d.reviewCount}, ${d.price}, ${d.location}, ${d.area}, ${uid})
       RETURNING id
     `;
     studioIds.push(r[0].id);
@@ -181,9 +480,15 @@ async function seed() {
 
   // Studio-Category assignments
   const studioCatAssignments: [number, string][] = [
-    [0, 'bridal-makeup'], [0, 'everyday-glam'], [0, 'hair-styling'],
-    [1, 'everyday-glam'], [1, 'airbrush'], [1, 'skincare'],
-    [2, 'special-effects'], [2, 'editorial'], [2, 'nail-art'],
+    [0, "bridal-makeup"],
+    [0, "everyday-glam"],
+    [0, "hair-styling"],
+    [1, "everyday-glam"],
+    [1, "airbrush"],
+    [1, "skincare"],
+    [2, "special-effects"],
+    [2, "editorial"],
+    [2, "nail-art"],
   ];
   for (const [si, catSlug] of studioCatAssignments) {
     await sql`INSERT INTO studio_categories ("studioId", "categoryId") VALUES (${studioIds[si]}, ${categoryIds[catSlug]})`;
@@ -192,20 +497,28 @@ async function seed() {
 
   // Reviews
   const reviewAuthors = [
-    'Alice M.', 'Bob K.', 'Carol T.', 'David L.', 'Eve R.',
-    'Frank W.', 'Grace P.', 'Henry C.', 'Ivy N.', 'Jack S.',
+    "Alice M.",
+    "Bob K.",
+    "Carol T.",
+    "David L.",
+    "Eve R.",
+    "Frank W.",
+    "Grace P.",
+    "Henry C.",
+    "Ivy N.",
+    "Jack S.",
   ];
   const reviewTexts = [
-    'Absolutely stunning work! Exceeded my expectations.',
-    'Very professional and talented. Highly recommend!',
-    'Loved the final look. Made me feel beautiful.',
-    'Great attention to detail. Will book again!',
-    'Amazing transformation. She really knows her craft.',
-    'Punctual, friendly, and incredibly skilled.',
-    'The airbrush finish was flawless. Lasted all day!',
-    'Beautiful bridal makeup. Made my wedding day perfect.',
-    'Creative and unique style. Stands out from the rest.',
-    'Very patient and listened to what I wanted.',
+    "Absolutely stunning work! Exceeded my expectations.",
+    "Very professional and talented. Highly recommend!",
+    "Loved the final look. Made me feel beautiful.",
+    "Great attention to detail. Will book again!",
+    "Amazing transformation. She really knows her craft.",
+    "Punctual, friendly, and incredibly skilled.",
+    "The airbrush finish was flawless. Lasted all day!",
+    "Beautiful bridal makeup. Made my wedding day perfect.",
+    "Creative and unique style. Stands out from the rest.",
+    "Very patient and listened to what I wanted.",
   ];
   const usedPairs = new Set<string>();
   let reviewCount = 0;
@@ -229,10 +542,34 @@ async function seed() {
 
   // Testimonials
   const testimonialData = [
-    { quote: 'Leish made my wedding day absolutely perfect. Sophia created the most beautiful bridal look I could have imagined.', author: 'Sarah L.', role: 'Bride', rating: 5 },
-    { quote: 'The attention to detail was incredible. I felt like a celebrity on my special day.', author: 'Amirah K.', role: 'Client', rating: 5 },
-    { quote: 'Booking through Leish was seamless. Found the perfect artist for my needs within minutes.', author: 'Jennifer T.', role: 'Regular Client', rating: 5 },
-    { quote: 'Professional, talented, and absolutely lovely to work with. Highly recommend!', author: 'Diana R.', role: 'Client', rating: 5 },
+    {
+      quote:
+        "Leish made my wedding day absolutely perfect. Sophia created the most beautiful bridal look I could have imagined.",
+      author: "Sarah L.",
+      role: "Bride",
+      rating: 5,
+    },
+    {
+      quote:
+        "The attention to detail was incredible. I felt like a celebrity on my special day.",
+      author: "Amirah K.",
+      role: "Client",
+      rating: 5,
+    },
+    {
+      quote:
+        "Booking through Leish was seamless. Found the perfect artist for my needs within minutes.",
+      author: "Jennifer T.",
+      role: "Regular Client",
+      rating: 5,
+    },
+    {
+      quote:
+        "Professional, talented, and absolutely lovely to work with. Highly recommend!",
+      author: "Diana R.",
+      role: "Client",
+      rating: 5,
+    },
   ];
   for (let i = 0; i < testimonialData.length; i++) {
     const t = testimonialData[i];
@@ -243,11 +580,11 @@ async function seed() {
   }
   console.log(`  ✓ ${testimonialData.length} testimonials`);
 
-  console.log('✅ Database seeded successfully!');
+  console.log("✅ Database seeded successfully!");
   process.exit(0);
 }
 
 seed().catch((err) => {
-  console.error('❌ Seed failed:', err);
+  console.error("❌ Seed failed:", err);
   process.exit(1);
 });

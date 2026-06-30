@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Download, X, Sparkles } from "lucide-react";
 
 export default function PWAInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [show, setShow] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -41,7 +42,10 @@ export default function PWAInstallPrompt() {
 
   return (
     <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-4 sm:w-80 z-40 bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-neutral-800 p-4 animate-fade-in-up">
-      <button onClick={handleDismiss} className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+      <button
+        onClick={handleDismiss}
+        className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+      >
         <X className="w-4 h-4" />
       </button>
       <div className="flex items-start gap-3">
@@ -49,13 +53,26 @@ export default function PWAInstallPrompt() {
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div className="flex-1">
-          <h3 className="font-bold text-gray-900 dark:text-white text-sm">Install Leish!</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Get the app experience on your device — faster access, offline support.</p>
+          <h3 className="font-bold text-gray-900 dark:text-white text-sm">
+            Install Leish!
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            Get the app experience on your device — faster access, offline
+            support.
+          </p>
           <div className="flex items-center gap-2 mt-3">
-            <button onClick={handleInstall} className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-xs font-semibold rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all shadow-md">
+            <button
+              onClick={handleInstall}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-xs font-semibold rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all shadow-md"
+            >
               <Download className="w-3 h-3" /> Install App
             </button>
-            <button onClick={handleDismiss} className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">Not now</button>
+            <button
+              onClick={handleDismiss}
+              className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              Not now
+            </button>
           </div>
         </div>
       </div>

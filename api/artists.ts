@@ -1,48 +1,55 @@
-import { Pool } from '@neondatabase/serverless';
+import { Pool } from "@neondatabase/serverless";
 
 export default async function handler(req: Request) {
-  if (req.method !== 'GET') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  if (req.method !== "GET") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+    });
   }
 
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const baseUrl = `https://${req.headers.get('host') || 'localhost'}`;
+  const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
   const url = new URL(req.url, baseUrl);
-  const category = url.searchParams.get('category');
-  const search = url.searchParams.get('search');
-  const sort = url.searchParams.get('sort') || 'rating';
-  const page = parseInt(url.searchParams.get('page') || '1');
-  const limit = parseInt(url.searchParams.get('limit') || '6');
+  const category = url.searchParams.get("category");
+  const search = url.searchParams.get("search");
+  const sort = url.searchParams.get("sort") || "rating";
+  const page = parseInt(url.searchParams.get("page") || "1");
+  const limit = parseInt(url.searchParams.get("limit") || "6");
 
   try {
     const conditions: string[] = [];
     const params: (string | number)[] = [];
     let paramIndex = 1;
 
-    if (category && category !== 'all') {
-      conditions.push(`EXISTS (SELECT 1 FROM artist_categories ac JOIN categories c ON c.id = ac."categoryId" WHERE ac."artistId" = artists.id AND c.slug = $${paramIndex})`);
+    if (category && category !== "all") {
+      conditions.push(
+        `EXISTS (SELECT 1 FROM artist_categories ac JOIN categories c ON c.id = ac."categoryId" WHERE ac."artistId" = artists.id AND c.slug = $${paramIndex})`,
+      );
       params.push(category);
       paramIndex++;
     }
 
     if (search) {
-      conditions.push(`(artists.name ILIKE $${paramIndex} OR artists.location ILIKE $${paramIndex} OR artists.area ILIKE $${paramIndex})`);
+      conditions.push(
+        `(artists.name ILIKE $${paramIndex} OR artists.location ILIKE $${paramIndex} OR artists.area ILIKE $${paramIndex})`,
+      );
       params.push(`%${search}%`);
       paramIndex++;
     }
 
-    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const where =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
     const orderMap: Record<string, string> = {
-      rating: 'artists.rating DESC',
-      'price-low': 'artists.price ASC',
-      'price-high': 'artists.price DESC',
+      rating: "artists.rating DESC",
+      "price-low": "artists.price ASC",
+      "price-high": "artists.price DESC",
     };
-    const orderBy = orderMap[sort] || 'artists.rating DESC';
+    const orderBy = orderMap[sort] || "artists.rating DESC";
 
     const countResult = await pool.query(
       `SELECT COUNT(*)::int as total FROM artists ${where}`,
-      params
+      params,
     );
     const total = countResult.rows[0].total;
     const totalPages = Math.ceil(total / limit);
@@ -63,31 +70,36 @@ export default async function handler(req: Request) {
       GROUP BY artists.id
       ORDER BY ${orderBy}
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-      queryParams
+      queryParams,
     );
 
-    const allCatsResult = await pool.query(`SELECT * FROM categories ORDER BY name`);
+    const allCatsResult = await pool.query(
+      `SELECT * FROM categories ORDER BY name`,
+    );
 
     await pool.end();
 
-    return new Response(JSON.stringify({
-      artists: artistsResult.rows,
-      categories: allCatsResult.rows,
-      pagination: { page, limit, total, totalPages },
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        artists: artistsResult.rows,
+        categories: allCatsResult.rows,
+        pagination: { page, limit, total, totalPages },
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (err) {
     await pool.end();
-    console.error('[Artists] DB error:', err);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    console.error("[Artists] DB error:", err);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 }
 
 export const config = {
-  regions: ['iad1'],
+  regions: ["iad1"],
 };

@@ -2,7 +2,7 @@ import {
   RedirectToSignIn,
   SignedIn,
   UserButton,
-} from '@neondatabase/neon-js/auth/react/ui';
+} from "@neondatabase/neon-js/auth/react/ui";
 
 export function Home() {
   return (
@@ -10,15 +10,15 @@ export function Home() {
       <SignedIn>
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '100vh',
-            gap: '2rem',
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "100vh",
+            gap: "2rem",
           }}
         >
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: "center" }}>
             <h1>Welcome!</h1>
             <p>You're successfully authenticated.</p>
             <UserButton />

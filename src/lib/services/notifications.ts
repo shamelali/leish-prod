@@ -1,11 +1,11 @@
-import { neon } from '@neondatabase/serverless';
-import { sendEmail } from '../email/brevo';
-import { notificationEmailTemplate } from '../email/templates';
+import { neon } from "@neondatabase/serverless";
+import { sendEmail } from "../email/brevo";
+import { notificationEmailTemplate } from "../email/templates";
 
 export interface Notification {
   id: number;
   userId: string;
-  type: 'booking' | 'payment' | 'review' | 'message' | 'system';
+  type: "booking" | "payment" | "review" | "message" | "system";
   title: string;
   body: string | null;
   data: Record<string, unknown> | null;
@@ -25,7 +25,7 @@ export const notificationService = {
        WHERE "userId" = $1
        ORDER BY "createdAt" DESC
        LIMIT $2 OFFSET $3`,
-      [userId, limit, offset]
+      [userId, limit, offset],
     );
     return data || [];
   },
@@ -35,7 +35,7 @@ export const notificationService = {
     const [row] = await sql.query(
       `SELECT COUNT(*) as count FROM notifications
        WHERE "userId" = $1 AND "readAt" IS NULL`,
-      [userId]
+      [userId],
     );
     return Number(row?.count) || 0;
   },
@@ -45,7 +45,7 @@ export const notificationService = {
     await sql.query(
       `UPDATE notifications SET "readAt" = NOW()
        WHERE id = $1 AND "userId" = $2`,
-      [id, userId]
+      [id, userId],
     );
   },
 
@@ -54,17 +54,25 @@ export const notificationService = {
     await sql.query(
       `UPDATE notifications SET "readAt" = NOW()
        WHERE "userId" = $1 AND "readAt" IS NULL`,
-      [userId]
+      [userId],
     );
   },
 
-  async create(input: Omit<Notification, 'id' | 'readAt' | 'createdAt'>): Promise<Notification> {
+  async create(
+    input: Omit<Notification, "id" | "readAt" | "createdAt">,
+  ): Promise<Notification> {
     const sql = this.getSql();
     const [notification] = await sql.query(
       `INSERT INTO notifications ("userId", type, title, body, data)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [input.userId, input.type, input.title, input.body, input.data ? JSON.stringify(input.data) : null]
+      [
+        input.userId,
+        input.type,
+        input.title,
+        input.body,
+        input.data ? JSON.stringify(input.data) : null,
+      ],
     );
 
     // Fire-and-forget email notification via Brevo
@@ -72,13 +80,13 @@ export const notificationService = {
       try {
         const [profile] = await sql.query(
           `SELECT email, name FROM "user" WHERE id = $1`,
-          [input.userId]
+          [input.userId],
         );
         if (profile?.email) {
           const template = notificationEmailTemplate({
-            name: profile.name || 'Valued Customer',
+            name: profile.name || "Valued Customer",
             title: notification.title,
-            body: notification.body || '',
+            body: notification.body || "",
             type: notification.type,
           });
           await sendEmail({
@@ -100,7 +108,7 @@ export const notificationService = {
     const sql = this.getSql();
     await sql.query(
       `DELETE FROM notifications WHERE id = $1 AND "userId" = $2`,
-      [id, userId]
+      [id, userId],
     );
   },
 };

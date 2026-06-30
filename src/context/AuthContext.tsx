@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { authClient } from "../lib/auth-client";
 
 export interface User {
@@ -7,7 +13,7 @@ export interface User {
   email: string;
   phone: string;
   avatar?: string;
-  role: 'client' | 'artist' | 'studio';
+  role: "client" | "artist" | "studio";
   location: string;
   area: string;
   specialties: string[];
@@ -33,10 +39,20 @@ export interface Booking {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithOtp: (email: string) => Promise<{ success: boolean; error?: string }>;
-  verifyOtp: (email: string, otp: string) => Promise<{ success: boolean; error?: string }>;
-  register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  loginWithOtp: (
+    email: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  verifyOtp: (
+    email: string,
+    otp: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  register: (
+    data: RegisterData,
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
   addBooking: (booking: Omit<Booking, "id" | "createdAt" | "status">) => void;
@@ -49,7 +65,7 @@ export interface RegisterData {
   phone: string;
   password: string;
   confirmPassword: string;
-  role: 'client' | 'artist' | 'studio';
+  role: "client" | "artist" | "studio";
   location: string;
   area: string;
   specialties: string[];
@@ -85,18 +101,28 @@ function saveProfile(profile: Partial<User>) {
   localStorage.setItem(PROFILE_KEY, JSON.stringify(slim));
 }
 
-function buildUser(session: { user?: { id: string; name?: string; email?: string; image?: string | null } | null }, profile: Partial<User> | null): User | null {
+function buildUser(
+  session: {
+    user?: {
+      id: string;
+      name?: string;
+      email?: string;
+      image?: string | null;
+    } | null;
+  },
+  profile: Partial<User> | null,
+): User | null {
   if (!session?.user) return null;
   const p = profile || {};
   return {
-    id: session.user.id || p.id || '',
-    name: session.user.name || p.name || '',
-    email: session.user.email || p.email || '',
-    phone: p.phone || '',
+    id: session.user.id || p.id || "",
+    name: session.user.name || p.name || "",
+    email: session.user.email || p.email || "",
+    phone: p.phone || "",
     avatar: session.user.image || p.avatar,
-    role: p.role || 'client',
-    location: p.location || '',
-    area: p.area || '',
+    role: p.role || "client",
+    location: p.location || "",
+    area: p.area || "",
     specialties: p.specialties || [],
     languages: p.languages || [],
     portfolio: p.portfolio || [],
@@ -108,29 +134,56 @@ function buildUser(session: { user?: { id: string; name?: string; email?: string
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     const profile = loadProfile();
-    return profile ? buildUser({ user: { id: profile.id || '', name: profile.name, email: profile.email } }, profile) : null;
+    return profile
+      ? buildUser(
+          {
+            user: {
+              id: profile.id || "",
+              name: profile.name,
+              email: profile.email,
+            },
+          },
+          profile,
+        )
+      : null;
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
 
-    authClient.getSession().then((res: { data?: { user?: { id: string; name?: string; email?: string; image?: string | null } | null } | null }) => {
-      if (cancelled) return;
-      if (res?.data?.user) {
-        const profile = loadProfile();
-        setUser(buildUser(res.data, profile));
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    }).catch(() => {
-      if (!cancelled) {
-        setLoading(false);
-      }
-    });
+    authClient
+      .getSession()
+      .then(
+        (res: {
+          data?: {
+            user?: {
+              id: string;
+              name?: string;
+              email?: string;
+              image?: string | null;
+            } | null;
+          } | null;
+        }) => {
+          if (cancelled) return;
+          if (res?.data?.user) {
+            const profile = loadProfile();
+            setUser(buildUser(res.data, profile));
+          } else {
+            setUser(null);
+          }
+          setLoading(false);
+        },
+      )
+      .catch(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -141,7 +194,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const { error } = await authClient.signIn.email({ email, password });
-    if (error) return { success: false, error: error.message || "Invalid email or password." };
+    if (error)
+      return {
+        success: false,
+        error: error.message || "Invalid email or password.",
+      };
 
     const session = await authClient.getSession();
     const profile = loadProfile();
@@ -156,13 +213,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       type: "sign-in",
     });
-    if (error) return { success: false, error: error.message || "Failed to send OTP." };
+    if (error)
+      return { success: false, error: error.message || "Failed to send OTP." };
     return { success: true };
   };
 
   const verifyOtp = async (email: string, otp: string) => {
     const { error } = await authClient.signIn.emailOtp({ email, otp });
-    if (error) return { success: false, error: error.message || "Invalid OTP." };
+    if (error)
+      return { success: false, error: error.message || "Invalid OTP." };
     return { success: true };
   };
 
@@ -172,7 +231,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: data.email,
       password: data.password,
     });
-    if (error) return { success: false, error: error.message || "Registration failed." };
+    if (error)
+      return { success: false, error: error.message || "Registration failed." };
 
     const session = await authClient.getSession();
     const neonUserId = session?.data?.user?.id;
@@ -195,27 +255,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (neonUserId) {
       try {
-        await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: neonUserId, name: data.name, email: data.email, role: data.role }),
+        await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: neonUserId,
+            name: data.name,
+            email: data.email,
+            role: data.role,
+          }),
         });
       } catch (err) {
-        console.error('Profile sync failed:', err);
+        console.error("Profile sync failed:", err);
       }
     }
 
-    setUser(buildUser({ user: { id: profile.id || '', name: profile.name, email: profile.email } }, profile));
+    setUser(
+      buildUser(
+        {
+          user: {
+            id: profile.id || "",
+            name: profile.name,
+            email: profile.email,
+          },
+        },
+        profile,
+      ),
+    );
 
     (async () => {
       try {
-        await fetch('/api/user?action=send-welcome-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: data.email, name: data.name, role: data.role }),
+        await fetch("/api/user?action=send-welcome-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: data.email,
+            name: data.name,
+            role: data.role,
+          }),
         });
       } catch (err) {
-        console.error('Welcome email failed:', err);
+        console.error("Welcome email failed:", err);
       }
     })();
 
@@ -236,7 +316,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addBooking = (booking: Omit<Booking, "id" | "createdAt" | "status">) => {
+  const addBooking = (
+    booking: Omit<Booking, "id" | "createdAt" | "status">,
+  ) => {
     if (user) {
       const newBooking: Booking = {
         ...booking,
@@ -255,7 +337,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const updated = {
         ...user,
         bookings: user.bookings.map((b) =>
-          b.id === bookingId ? { ...b, status: "cancelled" as const } : b
+          b.id === bookingId ? { ...b, status: "cancelled" as const } : b,
         ),
       };
       setUser(updated);
@@ -264,7 +346,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, loginWithOtp, verifyOtp, register, logout, updateProfile, addBooking, cancelBooking }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        loginWithOtp,
+        verifyOtp,
+        register,
+        logout,
+        updateProfile,
+        addBooking,
+        cancelBooking,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

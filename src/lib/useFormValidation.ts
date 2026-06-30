@@ -18,53 +18,65 @@ export interface FieldState {
 export function useFormValidation(fields: Record<string, ValidationRule>) {
   const [fieldStates, setFieldStates] = useState<Record<string, FieldState>>(
     Object.fromEntries(
-      Object.keys(fields).map((key) => [key, { value: "", error: undefined, touched: false }])
-    )
+      Object.keys(fields).map((key) => [
+        key,
+        { value: "", error: undefined, touched: false },
+      ]),
+    ),
   );
 
-  const validateField = useCallback((name: string, value: string): string | undefined => {
-    const rule = fields[name];
-    if (!rule) return undefined;
+  const validateField = useCallback(
+    (name: string, value: string): string | undefined => {
+      const rule = fields[name];
+      if (!rule) return undefined;
 
-    if (rule.required && !value.trim()) {
-      return `${name.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())} is required`;
-    }
-    if (rule.minLength && value.length < rule.minLength) {
-      return `Must be at least ${rule.minLength} characters`;
-    }
-    if (rule.maxLength && value.length > rule.maxLength) {
-      return `Must be at most ${rule.maxLength} characters`;
-    }
-    if (rule.pattern && !rule.pattern.test(value)) {
-      return rule.patternMessage || "Invalid format";
-    }
-    if (rule.custom) {
-      return rule.custom(value);
-    }
-    return undefined;
-  }, [fields]);
+      if (rule.required && !value.trim()) {
+        return `${name.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())} is required`;
+      }
+      if (rule.minLength && value.length < rule.minLength) {
+        return `Must be at least ${rule.minLength} characters`;
+      }
+      if (rule.maxLength && value.length > rule.maxLength) {
+        return `Must be at most ${rule.maxLength} characters`;
+      }
+      if (rule.pattern && !rule.pattern.test(value)) {
+        return rule.patternMessage || "Invalid format";
+      }
+      if (rule.custom) {
+        return rule.custom(value);
+      }
+      return undefined;
+    },
+    [fields],
+  );
 
-  const setValue = useCallback((name: string, value: string) => {
-    setFieldStates((prev) => ({
-      ...prev,
-      [name]: {
-        value,
-        error: prev[name]?.touched ? validateField(name, value) : undefined,
-        touched: prev[name]?.touched,
-      },
-    }));
-  }, [validateField]);
+  const setValue = useCallback(
+    (name: string, value: string) => {
+      setFieldStates((prev) => ({
+        ...prev,
+        [name]: {
+          value,
+          error: prev[name]?.touched ? validateField(name, value) : undefined,
+          touched: prev[name]?.touched,
+        },
+      }));
+    },
+    [validateField],
+  );
 
-  const setTouched = useCallback((name: string) => {
-    setFieldStates((prev) => ({
-      ...prev,
-      [name]: {
-        ...prev[name],
-        touched: true,
-        error: validateField(name, prev[name]?.value || ""),
-      },
-    }));
-  }, [validateField]);
+  const setTouched = useCallback(
+    (name: string) => {
+      setFieldStates((prev) => ({
+        ...prev,
+        [name]: {
+          ...prev[name],
+          touched: true,
+          error: validateField(name, prev[name]?.value || ""),
+        },
+      }));
+    },
+    [validateField],
+  );
 
   const validateAll = useCallback((): boolean => {
     let valid = true;
@@ -81,14 +93,20 @@ export function useFormValidation(fields: Record<string, ValidationRule>) {
   const reset = useCallback(() => {
     setFieldStates(
       Object.fromEntries(
-        Object.keys(fields).map((key) => [key, { value: "", error: undefined, touched: false }])
-      )
+        Object.keys(fields).map((key) => [
+          key,
+          { value: "", error: undefined, touched: false },
+        ]),
+      ),
     );
   }, [fields]);
 
   const getValues = useCallback((): Record<string, string> => {
     return Object.fromEntries(
-      Object.keys(fieldStates).map((key) => [key, fieldStates[key]?.value || ""])
+      Object.keys(fieldStates).map((key) => [
+        key,
+        fieldStates[key]?.value || "",
+      ]),
     );
   }, [fieldStates]);
 

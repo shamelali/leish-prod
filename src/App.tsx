@@ -1,29 +1,29 @@
-import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import { ThemeProvider } from './context/ThemeContext';
-import { AuthProvider } from './context/AuthContext';
-import { FavoritesProvider } from './context/FavoritesContext';
-import { ToastProvider } from './context/ToastContext';
-import { NotificationsProvider } from './context/NotificationsContext';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import ScrollToTop from './components/ScrollToTop';
-import { Home } from './pages/home';
-import { Auth } from './pages/auth';
-import { Account } from './pages/account';
+import { lazy, Suspense } from "react";
+import { Route, Routes } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
+import { FavoritesProvider } from "./context/FavoritesContext";
+import { ToastProvider } from "./context/ToastContext";
+import { NotificationsProvider } from "./context/NotificationsContext";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
+import { Home } from "./pages/home";
+import { Auth } from "./pages/auth";
+import { Account } from "./pages/account";
 
-const Register = lazy(() => import('./pages/register'));
-const Artists = lazy(() => import('./pages/artists'));
-const ArtistDetail = lazy(() => import('./pages/artist-detail'));
-const Studios = lazy(() => import('./pages/studios'));
-const StudioDetail = lazy(() => import('./pages/studio-detail'));
-const Profile = lazy(() => import('./pages/profile'));
-const Favorites = lazy(() => import('./pages/favorites'));
-const DashboardArtist = lazy(() => import('./pages/dashboard-artist'));
-const DashboardStudio = lazy(() => import('./pages/dashboard-studio'));
-const DashboardAdmin = lazy(() => import('./pages/dashboard-admin'));
-const ArtistOnboarding = lazy(() => import('./pages/artist-onboarding'));
-const NotFound = lazy(() => import('./pages/not-found'));
+const Register = lazy(() => import("./pages/register"));
+const Artists = lazy(() => import("./pages/artists"));
+const ArtistDetail = lazy(() => import("./pages/artist-detail"));
+const Studios = lazy(() => import("./pages/studios"));
+const StudioDetail = lazy(() => import("./pages/studio-detail"));
+const Profile = lazy(() => import("./pages/profile"));
+const Favorites = lazy(() => import("./pages/favorites"));
+const DashboardArtist = lazy(() => import("./pages/dashboard-artist"));
+const DashboardStudio = lazy(() => import("./pages/dashboard-studio"));
+const DashboardAdmin = lazy(() => import("./pages/dashboard-admin"));
+const ArtistOnboarding = lazy(() => import("./pages/artist-onboarding"));
+const NotFound = lazy(() => import("./pages/not-found"));
 
 function PageLoading() {
   return (
@@ -54,10 +54,22 @@ export default function App() {
                     <Route path="/studios/:id" element={<StudioDetail />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/favorites" element={<Favorites />} />
-                    <Route path="/dashboard/artist" element={<DashboardArtist />} />
-                    <Route path="/dashboard/studio" element={<DashboardStudio />} />
-                    <Route path="/dashboard/admin" element={<DashboardAdmin />} />
-                    <Route path="/artist-onboarding" element={<ArtistOnboarding />} />
+                    <Route
+                      path="/dashboard/artist"
+                      element={<DashboardArtist />}
+                    />
+                    <Route
+                      path="/dashboard/studio"
+                      element={<DashboardStudio />}
+                    />
+                    <Route
+                      path="/dashboard/admin"
+                      element={<DashboardAdmin />}
+                    />
+                    <Route
+                      path="/artist-onboarding"
+                      element={<ArtistOnboarding />}
+                    />
                     <Route path="/auth/:pathname" element={<Auth />} />
                     <Route path="/account/:pathname" element={<Account />} />
                     <Route path="*" element={<NotFound />} />

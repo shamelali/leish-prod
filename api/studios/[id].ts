@@ -1,18 +1,22 @@
-import { Pool } from '@neondatabase/serverless';
+import { Pool } from "@neondatabase/serverless";
 
 export default async function handler(req: Request) {
-  if (req.method !== 'GET') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  if (req.method !== "GET") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+    });
   }
 
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const baseUrl = `https://${req.headers.get('host') || 'localhost'}`;
+  const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
   const url = new URL(req.url, baseUrl);
-  const id = url.pathname.split('/').pop();
+  const id = url.pathname.split("/").pop();
 
   if (!id) {
     await pool.end();
-    return new Response(JSON.stringify({ error: 'Invalid studio ID' }), { status: 400 });
+    return new Response(JSON.stringify({ error: "Invalid studio ID" }), {
+      status: 400,
+    });
   }
 
   try {
@@ -28,12 +32,14 @@ export default async function handler(req: Request) {
       LEFT JOIN categories c ON c.id = sc."categoryId"
       WHERE studios.id = $1
       GROUP BY studios.id`,
-      [id]
+      [id],
     );
 
     if (studioResult.rows.length === 0) {
       await pool.end();
-      return new Response(JSON.stringify({ error: 'Studio not found' }), { status: 404 });
+      return new Response(JSON.stringify({ error: "Studio not found" }), {
+        status: 404,
+      });
     }
 
     const artistsResult = await pool.query(
@@ -45,7 +51,7 @@ export default async function handler(req: Request) {
       )
       ORDER BY artists.rating DESC
       LIMIT 10`,
-      [id]
+      [id],
     );
 
     const servicesResult = await pool.query(
@@ -58,7 +64,7 @@ export default async function handler(req: Request) {
       )
       ORDER BY services.price ASC
       LIMIT 20`,
-      [id]
+      [id],
     );
 
     const reviewsResult = await pool.query(
@@ -71,30 +77,33 @@ export default async function handler(req: Request) {
       )
       ORDER BY reviews."createdAt" DESC
       LIMIT 10`,
-      [id]
+      [id],
     );
 
     await pool.end();
 
-    return new Response(JSON.stringify({
-      studio: studioResult.rows[0],
-      artists: artistsResult.rows,
-      services: servicesResult.rows,
-      reviews: reviewsResult.rows,
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        studio: studioResult.rows[0],
+        artists: artistsResult.rows,
+        services: servicesResult.rows,
+        reviews: reviewsResult.rows,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (err) {
     await pool.end();
-    console.error('[Studio Detail] DB error:', err);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    console.error("[Studio Detail] DB error:", err);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 }
 
 export const config = {
-  regions: ['iad1'],
+  regions: ["iad1"],
 };

@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { Search, X, ArrowRight, Star, MapPin, Clock } from "lucide-react";
+import { Search, X, ArrowRight, Star, MapPin } from "lucide-react";
 import { artists, categories } from "../data/artists";
 import ImageWithFallback from "./ImageWithFallback";
 import { getDictionary, type Locale } from "../lib/i18n";
 
 export default function SearchModal({
   locale = "en",
-  dict
+  dict,
 }: {
   locale?: Locale;
   dict?: Record<string, any>;
@@ -39,18 +38,26 @@ export default function SearchModal({
   }, [open]);
 
   const results = query.trim()
-    ? artists.filter((a) =>
-        a.name.toLowerCase().includes(query.toLowerCase()) ||
-        a.location.toLowerCase().includes(query.toLowerCase()) ||
-        a.categories.some((c) => c.toLowerCase().includes(query.toLowerCase()))
-      ).slice(0, 5)
+    ? artists
+        .filter(
+          (a) =>
+            a.name.toLowerCase().includes(query.toLowerCase()) ||
+            a.location.toLowerCase().includes(query.toLowerCase()) ||
+            a.categories.some((c) =>
+              c.toLowerCase().includes(query.toLowerCase()),
+            ),
+        )
+        .slice(0, 5)
     : [];
 
   const categoryResults = query.trim()
-    ? categories.filter((c) =>
-        c.name.toLowerCase().includes(query.toLowerCase()) ||
-        c.id.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 3)
+    ? categories
+        .filter(
+          (c) =>
+            c.name.toLowerCase().includes(query.toLowerCase()) ||
+            c.id.toLowerCase().includes(query.toLowerCase()),
+        )
+        .slice(0, 3)
     : [];
 
   const hasResults = results.length > 0 || categoryResults.length > 0;
@@ -64,7 +71,9 @@ export default function SearchModal({
       >
         <Search className="w-4 h-4" />
         <span>{t.search.placeholder}</span>
-        <kbd className="ml-auto px-1.5 py-0.5 text-[10px] font-mono text-gray-400 bg-gray-100 dark:bg-neutral-700 rounded">⌘K</kbd>
+        <kbd className="ml-auto px-1.5 py-0.5 text-[10px] font-mono text-gray-400 bg-gray-100 dark:bg-neutral-700 rounded">
+          ⌘K
+        </kbd>
       </button>
 
       {/* Mobile trigger */}
@@ -79,7 +88,10 @@ export default function SearchModal({
       {/* Modal */}
       {open && (
         <div className="fixed inset-0 z-[70] flex items-start justify-center pt-[15vh]">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
           <div className="relative w-full max-w-xl mx-4 bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-neutral-700 overflow-hidden animate-scale-in">
             {/* Search input */}
             <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 dark:border-neutral-800">
@@ -93,11 +105,16 @@ export default function SearchModal({
                 className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none"
               />
               {query && (
-                <button onClick={() => setQuery("")} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <button
+                  onClick={() => setQuery("")}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
                   <X className="w-4 h-4" />
                 </button>
               )}
-              <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-gray-400 bg-gray-100 dark:bg-neutral-800 rounded">ESC</kbd>
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-gray-400 bg-gray-100 dark:bg-neutral-800 rounded">
+                ESC
+              </kbd>
             </div>
 
             {/* Results */}
@@ -105,12 +122,17 @@ export default function SearchModal({
               {query.trim() === "" ? (
                 <div className="p-8 text-center">
                   <Search className="w-8 h-8 text-gray-200 dark:text-neutral-700 mx-auto mb-3" />
-                  <p className="text-sm text-gray-400 dark:text-gray-500">{t.search.placeholder}</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">
+                    {t.search.placeholder}
+                  </p>
                   <div className="mt-4 flex flex-wrap gap-2 justify-center">
                     {categories.slice(0, 5).map((cat) => (
                       <button
                         key={cat.id}
-                        onClick={() => { setOpen(false); navigate(`/artists?category=${cat.id}`); }}
+                        onClick={() => {
+                          setOpen(false);
+                          navigate(`/artists?category=${cat.id}`);
+                        }}
                         className="px-3 py-1.5 text-xs font-medium bg-gray-50 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                       >
                         {cat.icon} {cat.name}
@@ -120,23 +142,32 @@ export default function SearchModal({
                 </div>
               ) : !hasResults ? (
                 <div className="p-8 text-center">
-                  <p className="text-sm text-gray-400 dark:text-gray-500">{t.search.noResults} &ldquo;{query}&rdquo;</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">
+                    {t.search.noResults} &ldquo;{query}&rdquo;
+                  </p>
                 </div>
               ) : (
                 <div className="py-2">
                   {categoryResults.length > 0 && (
                     <>
-                      <p className="px-5 py-2 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t.search.categories}</p>
+                      <p className="px-5 py-2 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                        {t.search.categories}
+                      </p>
                       {categoryResults.map((cat) => (
                         <button
                           key={cat.id}
-                          onClick={() => { setOpen(false); navigate(`/artists?category=${cat.id}`); }}
+                          onClick={() => {
+                            setOpen(false);
+                            navigate(`/artists?category=${cat.id}`);
+                          }}
                           className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left"
                         >
                           <span className="text-lg">{cat.icon}</span>
                           <div className="flex-1">
                             <span className="font-medium">{cat.name}</span>
-                            <span className="text-xs text-gray-400 ml-2">{cat.count} artists</span>
+                            <span className="text-xs text-gray-400 ml-2">
+                              {cat.count} artists
+                            </span>
                           </div>
                           <ArrowRight className="w-3.5 h-3.5 text-gray-300 dark:text-neutral-600" />
                         </button>
@@ -145,23 +176,37 @@ export default function SearchModal({
                   )}
                   {results.length > 0 && (
                     <>
-                      <p className="px-5 py-2 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-1">{t.search.artists}</p>
+                      <p className="px-5 py-2 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-1">
+                        {t.search.artists}
+                      </p>
                       {results.map((artist) => (
                         <button
                           key={artist.id}
-                          onClick={() => { setOpen(false); navigate(`/artists/${artist.id}`); }}
+                          onClick={() => {
+                            setOpen(false);
+                            navigate(`/artists/${artist.id}`);
+                          }}
                           className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left"
                         >
-                          <ImageWithFallback src={artist.image} alt={artist.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <ImageWithFallback
+                            src={artist.image}
+                            alt={artist.name}
+                            className="w-10 h-10 rounded-xl object-cover"
+                          />
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{artist.name}</p>
+                            <p className="font-medium truncate">
+                              {artist.name}
+                            </p>
                             <p className="text-xs text-gray-400">
-                              <MapPin className="w-3 h-3 inline" /> {artist.location}
+                              <MapPin className="w-3 h-3 inline" />{" "}
+                              {artist.location}
                             </p>
                           </div>
                           <div className="flex items-center gap-1 text-xs">
                             <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                            <span className="font-medium text-gray-700 dark:text-gray-300">{artist.rating}</span>
+                            <span className="font-medium text-gray-700 dark:text-gray-300">
+                              {artist.rating}
+                            </span>
                           </div>
                         </button>
                       ))}
@@ -169,7 +214,12 @@ export default function SearchModal({
                   )}
                   <div className="px-5 py-3 border-t border-gray-50 dark:border-neutral-800">
                     <button
-                      onClick={() => { setOpen(false); navigate(`/artists?category=&search=${encodeURIComponent(query)}`); }}
+                      onClick={() => {
+                        setOpen(false);
+                        navigate(
+                          `/artists?category=&search=${encodeURIComponent(query)}`,
+                        );
+                      }}
                       className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium flex items-center gap-1"
                     >
                       {t.common.viewAll} <ArrowRight className="w-3 h-3" />

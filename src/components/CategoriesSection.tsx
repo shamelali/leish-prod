@@ -6,7 +6,7 @@ import { getDictionary, type Locale } from "../lib/i18n";
 
 export default function CategoriesSection({
   locale = "en",
-  dict
+  dict,
 }: {
   locale?: Locale;
   dict?: Record<string, any>;
@@ -18,11 +18,19 @@ export default function CategoriesSection({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-12">
           <div>
-            <p className="text-sm font-semibold text-rose-500 uppercase tracking-wider mb-2">Specialties</p>
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">{t.categories.title}</h2>
+            <p className="text-sm font-semibold text-rose-500 uppercase tracking-wider mb-2">
+              Specialties
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">
+              {t.categories.title}
+            </h2>
           </div>
-          <Link to="/artists" className="hidden sm:inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium text-sm transition-colors group">
-            {t.common.viewAll} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <Link
+            to="/artists"
+            className="hidden sm:inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium text-sm transition-colors group"
+          >
+            {t.common.viewAll}{" "}
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
@@ -35,14 +43,24 @@ export default function CategoriesSection({
               style={{ animationDelay: `${i * 0.05}s` }}
             >
               <div className="absolute inset-0">
-                <ImageWithFallback src={cat.image} alt={cat.name} className="w-full h-full object-cover opacity-30 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700" />
+                <ImageWithFallback
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-full h-full object-cover opacity-30 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700"
+                />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
               <div className="relative p-5 flex items-start gap-3 min-h-[130px]">
-                <span className="text-2xl group-hover:scale-125 transition-transform duration-300 drop-shadow-lg">{cat.icon}</span>
+                <span className="text-2xl group-hover:scale-125 transition-transform duration-300 drop-shadow-lg">
+                  {cat.icon}
+                </span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-white group-hover:text-rose-100 transition-colors mb-1 text-sm">{(t.categories as Record<string, any>)[cat.id] ?? cat.name}</h3>
-                  <span className="text-xs text-rose-300 dark:text-rose-400 font-medium">{cat.count} artists</span>
+                  <h3 className="font-semibold text-white group-hover:text-rose-100 transition-colors mb-1 text-sm">
+                    {(t.categories as Record<string, any>)[cat.id] ?? cat.name}
+                  </h3>
+                  <span className="text-xs text-rose-300 dark:text-rose-400 font-medium">
+                    {cat.count} artists
+                  </span>
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-rose-300 group-hover:translate-x-1 transition-all shrink-0 mt-0.5" />
               </div>
@@ -51,7 +69,10 @@ export default function CategoriesSection({
         </div>
 
         <div className="sm:hidden mt-6 text-center">
-          <Link to="/artists" className="inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-medium text-sm">
+          <Link
+            to="/artists"
+            className="inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-medium text-sm"
+          >
             {t.common.viewAll} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

@@ -27,7 +27,7 @@ function isBooked(artistId: string, date: string, hour: number): boolean {
 export function getAvailability(
   artistId: string,
   startDate: Date = new Date(),
-  days: number = 7
+  days: number = 7,
 ): DayAvailability[] {
   const result: DayAvailability[] = [];
 

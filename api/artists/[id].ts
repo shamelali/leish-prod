@@ -1,18 +1,22 @@
-import { Pool } from '@neondatabase/serverless';
+import { Pool } from "@neondatabase/serverless";
 
 export default async function handler(req: Request) {
-  if (req.method !== 'GET') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  if (req.method !== "GET") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+    });
   }
 
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const baseUrl = `https://${req.headers.get('host') || 'localhost'}`;
+  const baseUrl = `https://${req.headers.get("host") || "localhost"}`;
   const url = new URL(req.url, baseUrl);
-  const id = url.pathname.split('/').pop();
+  const id = url.pathname.split("/").pop();
 
   if (!id) {
     await pool.end();
-    return new Response(JSON.stringify({ error: 'Invalid artist ID' }), { status: 400 });
+    return new Response(JSON.stringify({ error: "Invalid artist ID" }), {
+      status: 400,
+    });
   }
 
   try {
@@ -28,22 +32,24 @@ export default async function handler(req: Request) {
       LEFT JOIN categories c ON c.id = ac."categoryId"
       WHERE artists.id = $1
       GROUP BY artists.id`,
-      [id]
+      [id],
     );
 
     if (artistResult.rows.length === 0) {
       await pool.end();
-      return new Response(JSON.stringify({ error: 'Artist not found' }), { status: 404 });
+      return new Response(JSON.stringify({ error: "Artist not found" }), {
+        status: 404,
+      });
     }
 
     const servicesResult = await pool.query(
       `SELECT * FROM services WHERE "artistId" = $1 ORDER BY price ASC`,
-      [id]
+      [id],
     );
 
     const reviewsResult = await pool.query(
       `SELECT * FROM reviews WHERE "artistId" = $1 ORDER BY "createdAt" DESC LIMIT 10`,
-      [id]
+      [id],
     );
 
     const similarResult = await pool.query(
@@ -55,30 +61,33 @@ export default async function handler(req: Request) {
       GROUP BY artists.id
       ORDER BY artists.rating DESC
       LIMIT 4`,
-      [id]
+      [id],
     );
 
     await pool.end();
 
-    return new Response(JSON.stringify({
-      artist: artistResult.rows[0],
-      services: servicesResult.rows,
-      reviews: reviewsResult.rows,
-      similar: similarResult.rows,
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        artist: artistResult.rows[0],
+        services: servicesResult.rows,
+        reviews: reviewsResult.rows,
+        similar: similarResult.rows,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (err) {
     await pool.end();
-    console.error('[Artist Detail] DB error:', err);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    console.error("[Artist Detail] DB error:", err);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 }
 
 export const config = {
-  regions: ['iad1'],
+  regions: ["iad1"],
 };

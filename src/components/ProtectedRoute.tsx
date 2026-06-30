@@ -1,9 +1,9 @@
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 interface Props {
   children: React.ReactNode;
-  allowedRoles?: Array<'client' | 'artist' | 'studio'>;
+  allowedRoles?: Array<"client" | "artist" | "studio">;
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: Props) {

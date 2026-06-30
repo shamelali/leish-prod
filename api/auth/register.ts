@@ -1,10 +1,10 @@
-import { Pool } from '@neondatabase/serverless';
+import { Pool } from "@neondatabase/serverless";
 
 export default async function handler(req: Request) {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 
@@ -15,10 +15,13 @@ export default async function handler(req: Request) {
 
     if (!id || !email) {
       await pool.end();
-      return new Response(JSON.stringify({ error: 'id and email are required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: "id and email are required" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     await pool.query(
@@ -29,20 +32,20 @@ export default async function handler(req: Request) {
          image = EXCLUDED.image,
          role = COALESCE(EXCLUDED.role, "user".role),
          updated_at = NOW()`,
-      [id, name || null, email, image || null, role || 'client']
+      [id, name || null, email, image || null, role || "client"],
     );
 
     await pool.end();
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
     await pool.end();
-    console.error('Register API error:', err);
-    return new Response(JSON.stringify({ error: 'Registration failed' }), {
+    console.error("Register API error:", err);
+    return new Response(JSON.stringify({ error: "Registration failed" }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 }

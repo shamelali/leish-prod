@@ -1,16 +1,25 @@
 export function bookingConfirmationTemplate(params: {
-  customerName: string
-  bookingId: string
-  serviceName: string
-  providerName: string
-  date: string
-  time: string
-  amount: number
-  paymentType: "full" | "deposit"
+  customerName: string;
+  bookingId: string;
+  serviceName: string;
+  providerName: string;
+  date: string;
+  time: string;
+  amount: number;
+  paymentType: "full" | "deposit";
 }) {
-  const { customerName, bookingId, serviceName, providerName, date, time, amount, paymentType } = params
+  const {
+    customerName,
+    bookingId,
+    serviceName,
+    providerName,
+    date,
+    time,
+    amount,
+    paymentType,
+  } = params;
 
-  const subject = `Booking Confirmed - ${bookingId}`
+  const subject = `Booking Confirmed - ${bookingId}`;
 
   const html = `
 <!DOCTYPE html>
@@ -77,7 +86,7 @@ export function bookingConfirmationTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 Booking Confirmed - ${bookingId}
@@ -99,17 +108,18 @@ View your bookings: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel
 If you need to reschedule or cancel, please contact us at hello@leish.my
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
 export function welcomeEmailTemplate(params: { name: string; role?: string }) {
-  const subject = params.role === "artist"
-    ? "Welcome to Leish! Artist Community"
-    : params.role === "studio"
-    ? "Your Studio Registration on Leish!"
-    : "Welcome to Leish!"
+  const subject =
+    params.role === "artist"
+      ? "Welcome to Leish! Artist Community"
+      : params.role === "studio"
+        ? "Your Studio Registration on Leish!"
+        : "Welcome to Leish!";
 
   const html = `
 <!DOCTYPE html>
@@ -132,11 +142,12 @@ export function welcomeEmailTemplate(params: { name: string; role?: string }) {
 
   <div class="content">
     <p>Hi ${params.name},</p>
-    ${params.role === "artist"
-      ? `<p>Thank you for joining Leish! As an artist, your profile is now live. Start receiving bookings!</p>`
-      : params.role === "studio"
-      ? `<p>Thank you for registering your studio on Leish! Your studio listing is being reviewed.</p>`
-      : `<p>Welcome to Leish! We're thrilled to have you join our community of beauty enthusiasts.</p>`
+    ${
+      params.role === "artist"
+        ? `<p>Thank you for joining Leish! As an artist, your profile is now live. Start receiving bookings!</p>`
+        : params.role === "studio"
+          ? `<p>Thank you for registering your studio on Leish! Your studio listing is being reviewed.</p>`
+          : `<p>Welcome to Leish! We're thrilled to have you join our community of beauty enthusiasts.</p>`
     }
     <p>Discover top makeup artists, book appointments, and find your perfect look.</p>
 
@@ -150,18 +161,19 @@ export function welcomeEmailTemplate(params: { name: string; role?: string }) {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 ${subject}
 
 Hi ${params.name},
 
-${params.role === "artist"
-  ? "Thank you for joining Leish! As an artist, your profile is now live. Start receiving bookings!"
-  : params.role === "studio"
-  ? "Thank you for registering your studio on Leish! Your studio listing is being reviewed."
-  : "Welcome to Leish! We're thrilled to have you join our community of beauty enthusiasts."
+${
+  params.role === "artist"
+    ? "Thank you for joining Leish! As an artist, your profile is now live. Start receiving bookings!"
+    : params.role === "studio"
+      ? "Thank you for registering your studio on Leish! Your studio listing is being reviewed."
+      : "Welcome to Leish! We're thrilled to have you join our community of beauty enthusiasts."
 }
 
 Discover top makeup artists, book appointments, and find your perfect look.
@@ -169,13 +181,16 @@ Discover top makeup artists, book appointments, and find your perfect look.
 Explore Artists: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel.app"}/artists
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
-export function shamelNotificationTemplate(params: { name: string; message: string }) {
-  const subject = `Message for Shamel`
+export function shamelNotificationTemplate(params: {
+  name: string;
+  message: string;
+}) {
+  const subject = `Message for Shamel`;
   const html = `
   <!DOCTYPE html>
   <html>
@@ -202,19 +217,19 @@ export function shamelNotificationTemplate(params: { name: string; message: stri
     </div>
   </body>
   </html>
-  `
-  const text = `Message for Shamel\n\nHi ${params.name},\n\n${params.message}\n\n&copy; 2026 Leish. All rights reserved.`
-  return { subject, html, text }
+  `;
+  const text = `Message for Shamel\n\nHi ${params.name},\n\n${params.message}\n\n&copy; 2026 Leish. All rights reserved.`;
+  return { subject, html, text };
 }
 
 export function paymentReceiptTemplate(params: {
-  customerName: string
-  bookingId: string
-  amount: number
-  paymentMethod: string
-  date: string
+  customerName: string;
+  bookingId: string;
+  amount: number;
+  paymentMethod: string;
+  date: string;
 }) {
-  const subject = `Payment Receipt - ${params.bookingId}`
+  const subject = `Payment Receipt - ${params.bookingId}`;
 
   const html = `
 <!DOCTYPE html>
@@ -256,7 +271,7 @@ export function paymentReceiptTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 Payment Receipt - ${params.bookingId}
@@ -271,18 +286,18 @@ Booking Reference: ${params.bookingId}
 Payment Method: ${params.paymentMethod}
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
 export function notificationEmailTemplate(params: {
-  name: string
-  title: string
-  body: string
-  type: string
+  name: string;
+  title: string;
+  body: string;
+  type: string;
 }) {
-  const subject = params.title
+  const subject = params.title;
 
   const html = `
 <!DOCTYPE html>
@@ -316,7 +331,7 @@ export function notificationEmailTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 ${params.title}
@@ -328,21 +343,21 @@ ${params.body}
 View in your account: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel.app"}/account
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
 export function bookingReminderTemplate(params: {
-  customerName: string
-  bookingId: string
-  serviceName: string
-  providerName: string
-  date: string
-  time: string
-  location?: string
+  customerName: string;
+  bookingId: string;
+  serviceName: string;
+  providerName: string;
+  date: string;
+  time: string;
+  location?: string;
 }) {
-  const subject = `Reminder: Your appointment tomorrow - ${params.bookingId}`
+  const subject = `Reminder: Your appointment tomorrow - ${params.bookingId}`;
 
   const html = `
 <!DOCTYPE html>
@@ -392,12 +407,16 @@ export function bookingReminderTemplate(params: {
         <span>Time:</span>
         <strong>${params.time}</strong>
       </div>
-      ${params.location ? `
+      ${
+        params.location
+          ? `
       <div class="detail-row">
         <span>Location:</span>
         <strong>${params.location}</strong>
       </div>
-      ` : ''}
+      `
+          : ""
+      }
     </div>
 
     <p style="text-align: center;">
@@ -414,7 +433,7 @@ export function bookingReminderTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 Appointment Reminder - ${params.bookingId}
@@ -429,26 +448,26 @@ BOOKING DETAILS:
 - Provider: ${params.providerName}
 - Date: ${params.date}
 - Time: ${params.time}
-${params.location ? `- Location: ${params.location}` : ''}
+${params.location ? `- Location: ${params.location}` : ""}
 
 View your booking: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel.app"}/bookings
 
 Need to reschedule? Please contact us at least 24 hours in advance at hello@leish.my
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
 export function bookingExpiredTemplate(params: {
-  customerName: string
-  bookingId: string
-  providerName: string
-  amount: number
-  createdAt: string
+  customerName: string;
+  bookingId: string;
+  providerName: string;
+  amount: number;
+  createdAt: string;
 }) {
-  const subject = `Your Booking Has Expired - ${params.bookingId}`
+  const subject = `Your Booking Has Expired - ${params.bookingId}`;
 
   const html = `
 <!DOCTYPE html>
@@ -499,7 +518,7 @@ export function bookingExpiredTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 Booking Expired - ${params.bookingId}
@@ -518,15 +537,13 @@ Browse Artists: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel.app
 Contact us at hello@leish.my if you have questions.
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
-export function bookingAutoCanceledTemplate(params: {
-  bookingId: string
-}) {
-  const subject = `Booking Auto-Canceled - ${params.bookingId}`
+export function bookingAutoCanceledTemplate(params: { bookingId: string }) {
+  const subject = `Booking Auto-Canceled - ${params.bookingId}`;
 
   const html = `
 <!DOCTYPE html>
@@ -560,7 +577,7 @@ export function bookingAutoCanceledTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 Booking Auto-Canceled - ${params.bookingId}
@@ -574,21 +591,26 @@ Browse Artists: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel.app
 Contact us at hello@leish.my if you have questions.
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
 export function loyaltyPointsEarnedTemplate(params: {
-  customerName: string
-  bookingId: string
-  pointsEarned: number
-  currentBalance: number
-  tier: string
+  customerName: string;
+  bookingId: string;
+  pointsEarned: number;
+  currentBalance: number;
+  tier: string;
 }) {
-  const tierEmoji: Record<string, string> = { bronze: "\u{1F949}", silver: "\u{1F948}", gold: "\u{1F947}", platinum: "\u{1F48E}" }
-  const emoji = tierEmoji[params.tier] || "\u{1F3C6}"
-  const subject = `${emoji} You earned ${params.pointsEarned} points!`
+  const tierEmoji: Record<string, string> = {
+    bronze: "\u{1F949}",
+    silver: "\u{1F948}",
+    gold: "\u{1F947}",
+    platinum: "\u{1F48E}",
+  };
+  const emoji = tierEmoji[params.tier] || "\u{1F3C6}";
+  const subject = `${emoji} You earned ${params.pointsEarned} points!`;
 
   const html = `
 <!DOCTYPE html>
@@ -627,7 +649,7 @@ export function loyaltyPointsEarnedTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 Points Earned - ${params.bookingId}
@@ -642,20 +664,20 @@ Tier: ${params.tier.charAt(0).toUpperCase() + params.tier.slice(1)} Member
 Keep booking to earn more points and unlock exclusive benefits!
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
 export function providerNewBookingTemplate(params: {
-  providerName: string
-  customerName: string
-  bookingId: string
-  serviceName: string
-  date: string
-  time: string
+  providerName: string;
+  customerName: string;
+  bookingId: string;
+  serviceName: string;
+  date: string;
+  time: string;
 }) {
-  const subject = `New Booking Received - ${params.bookingId}`
+  const subject = `New Booking Received - ${params.bookingId}`;
 
   const html = `
 <!DOCTYPE html>
@@ -708,7 +730,7 @@ export function providerNewBookingTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 New Booking Received - ${params.bookingId}
@@ -726,17 +748,17 @@ BOOKING DETAILS:
 View Booking: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel.app"}/dashboard/artist
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
 export function subscriptionCreatedTemplate(params: {
-  customerName: string
-  planName: string
-  amount: number
+  customerName: string;
+  planName: string;
+  amount: number;
 }) {
-  const subject = `Pro Subscription Activated - ${params.planName}`
+  const subject = `Pro Subscription Activated - ${params.planName}`;
 
   const html = `
 <!DOCTYPE html>
@@ -776,7 +798,7 @@ export function subscriptionCreatedTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 Pro Subscription Activated - ${params.planName}
@@ -795,17 +817,17 @@ View Account: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel.app"}
 Contact us at hello@leish.my if you have questions.
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
 export function subscriptionCanceledTemplate(params: {
-  customerName: string
-  planName: string
-  cancelDate: string
+  customerName: string;
+  planName: string;
+  cancelDate: string;
 }) {
-  const subject = `Pro Subscription Canceled`
+  const subject = `Pro Subscription Canceled`;
 
   const html = `
 <!DOCTYPE html>
@@ -839,7 +861,7 @@ export function subscriptionCanceledTemplate(params: {
   </div>
 </body>
 </html>
-  `
+  `;
 
   const text = `
 Subscription Canceled
@@ -855,7 +877,7 @@ Resubscribe: ${process.env.NEXT_PUBLIC_URL || "https://leish-clone.vercel.app"}/
 Contact us at hello@leish.my if you have questions.
 
 &copy; 2026 Leish. All rights reserved.
-  `
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }

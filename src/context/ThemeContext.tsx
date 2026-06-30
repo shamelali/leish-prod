@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 type Theme = "light" | "dark";
 
@@ -28,10 +34,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (!mounted) return;
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
-    try { localStorage.setItem("leish_theme", theme); } catch {}
+    try {
+      localStorage.setItem("leish_theme", theme);
+    } catch {}
   }, [theme, mounted]);
 
-  const toggle = () => setThemeState((prev) => (prev === "light" ? "dark" : "light"));
+  const toggle = () =>
+    setThemeState((prev) => (prev === "light" ? "dark" : "light"));
   const setTheme = (t: Theme) => setThemeState(t);
 
   // Prevent flash by not rendering until mounted
@@ -49,6 +58,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme() {
   const ctx = useContext(ThemeContext);
   // During SSR or before mount, return defaults instead of throwing
-  if (!ctx) return { theme: "dark" as Theme, toggle: () => {}, setTheme: (_t: Theme) => {} };
+  if (!ctx)
+    return {
+      theme: "dark" as Theme,
+      toggle: () => {},
+      setTheme: (_t: Theme) => {},
+    };
   return ctx;
 }

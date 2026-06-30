@@ -17,12 +17,15 @@ export default function AccessibilityMenu() {
       if (prefs.fontSize) setFontSize(prefs.fontSize);
       if (prefs.highContrast) setHighContrast(prefs.highContrast);
       if (prefs.reducedMotion) setReducedMotion(prefs.reducedMotion);
-    } catch { /* localStorage unavailable */ }
+    } catch {
+      /* localStorage unavailable */
+    }
   }, []);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -31,7 +34,12 @@ export default function AccessibilityMenu() {
   useEffect(() => {
     // Apply preferences
     const root = document.documentElement;
-    root.classList.remove("text-size-large", "text-size-xlarge", "high-contrast", "reduced-motion");
+    root.classList.remove(
+      "text-size-large",
+      "text-size-xlarge",
+      "high-contrast",
+      "reduced-motion",
+    );
 
     if (fontSize === "large") root.classList.add("text-size-large");
     if (fontSize === "xlarge") root.classList.add("text-size-xlarge");
@@ -40,8 +48,13 @@ export default function AccessibilityMenu() {
 
     // Save
     try {
-      localStorage.setItem("leish-a11y", JSON.stringify({ fontSize, highContrast, reducedMotion }));
-    } catch { /* localStorage unavailable */ }
+      localStorage.setItem(
+        "leish-a11y",
+        JSON.stringify({ fontSize, highContrast, reducedMotion }),
+      );
+    } catch {
+      /* localStorage unavailable */
+    }
   }, [fontSize, highContrast, reducedMotion]);
 
   const reset = () => {
@@ -63,8 +76,15 @@ export default function AccessibilityMenu() {
       {open && (
         <div className="fixed bottom-20 right-16 w-72 bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-neutral-800 z-50 animate-scale-in overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-neutral-800">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm flex items-center gap-2"><Eye className="w-4 h-4 text-rose-500" /> Accessibility</h3>
-            <button onClick={() => setOpen(false)} className="p-1 text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm flex items-center gap-2">
+              <Eye className="w-4 h-4 text-rose-500" /> Accessibility
+            </h3>
+            <button
+              onClick={() => setOpen(false)}
+              className="p-1 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
           <div className="p-4 space-y-4">
@@ -77,7 +97,11 @@ export default function AccessibilityMenu() {
                 {[
                   { value: "normal" as FontSize, label: "A", size: "text-xs" },
                   { value: "large" as FontSize, label: "A", size: "text-sm" },
-                  { value: "xlarge" as FontSize, label: "A", size: "text-base" },
+                  {
+                    value: "xlarge" as FontSize,
+                    label: "A",
+                    size: "text-base",
+                  },
                 ].map((opt) => (
                   <button
                     key={opt.value}
@@ -95,9 +119,15 @@ export default function AccessibilityMenu() {
               onClick={() => setHighContrast(!highContrast)}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all ${highContrast ? "bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800" : "bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300"}`}
             >
-              <span className="flex items-center gap-2"><Contrast className="w-4 h-4" /> High Contrast</span>
-              <span className={`w-8 h-4 rounded-full relative transition-colors ${highContrast ? "bg-rose-500" : "bg-gray-300 dark:bg-neutral-600"}`}>
-                <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${highContrast ? "left-4" : "left-0.5"}`} />
+              <span className="flex items-center gap-2">
+                <Contrast className="w-4 h-4" /> High Contrast
+              </span>
+              <span
+                className={`w-8 h-4 rounded-full relative transition-colors ${highContrast ? "bg-rose-500" : "bg-gray-300 dark:bg-neutral-600"}`}
+              >
+                <span
+                  className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${highContrast ? "left-4" : "left-0.5"}`}
+                />
               </span>
             </button>
 
@@ -106,14 +136,23 @@ export default function AccessibilityMenu() {
               onClick={() => setReducedMotion(!reducedMotion)}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all ${reducedMotion ? "bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800" : "bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300"}`}
             >
-              <span className="flex items-center gap-2"><RotateCcw className="w-4 h-4" /> Reduce Motion</span>
-              <span className={`w-8 h-4 rounded-full relative transition-colors ${reducedMotion ? "bg-rose-500" : "bg-gray-300 dark:bg-neutral-600"}`}>
-                <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${reducedMotion ? "left-4" : "left-0.5"}`} />
+              <span className="flex items-center gap-2">
+                <RotateCcw className="w-4 h-4" /> Reduce Motion
+              </span>
+              <span
+                className={`w-8 h-4 rounded-full relative transition-colors ${reducedMotion ? "bg-rose-500" : "bg-gray-300 dark:bg-neutral-600"}`}
+              >
+                <span
+                  className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${reducedMotion ? "left-4" : "left-0.5"}`}
+                />
               </span>
             </button>
 
             {/* Reset */}
-            <button onClick={reset} className="w-full py-2 text-xs font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <button
+              onClick={reset}
+              className="w-full py-2 text-xs font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
               Reset to defaults
             </button>
           </div>

@@ -9,7 +9,12 @@ interface ReviewFormProps {
   onSubmitted?: () => void;
 }
 
-export default function ReviewForm({ artistId, artistName, services, onSubmitted }: ReviewFormProps) {
+export default function ReviewForm({
+  artistId,
+  artistName,
+  services,
+  onSubmitted,
+}: ReviewFormProps) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [text, setText] = useState("");
@@ -24,8 +29,12 @@ export default function ReviewForm({ artistId, artistName, services, onSubmitted
         <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
           <Star className="w-6 h-6 text-green-600 dark:text-green-400 fill-green-600 dark:fill-green-400" />
         </div>
-        <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Thank you for your review!</h4>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Your feedback helps other clients find great artists.</p>
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+          Thank you for your review!
+        </h4>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Your feedback helps other clients find great artists.
+        </p>
       </div>
     );
   }
@@ -67,10 +76,15 @@ export default function ReviewForm({ artistId, artistName, services, onSubmitted
   const ratingLabels = ["", "Poor", "Fair", "Good", "Very Good", "Excellent"];
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-gray-100 dark:border-neutral-800 shadow-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-gray-100 dark:border-neutral-800 shadow-sm"
+    >
       <div className="flex items-center gap-2 mb-4">
         <MessageSquare className="w-5 h-5 text-rose-500" />
-        <h3 className="font-bold text-gray-900 dark:text-white">Write a Review</h3>
+        <h3 className="font-bold text-gray-900 dark:text-white">
+          Write a Review
+        </h3>
       </div>
 
       {/* Star Rating */}
@@ -121,7 +135,9 @@ export default function ReviewForm({ artistId, artistName, services, onSubmitted
           >
             <option value="">Select a service...</option>
             {services.map((s) => (
-              <option key={s.id} value={s.name}>{s.name}</option>
+              <option key={s.id} value={s.name}>
+                {s.name}
+              </option>
             ))}
           </select>
         </div>
@@ -141,7 +157,9 @@ export default function ReviewForm({ artistId, artistName, services, onSubmitted
         />
         <div className="flex justify-between mt-1">
           <p className="text-xs text-gray-400">
-            {text.length < 10 ? `${10 - text.length} more characters needed` : "✓ Minimum reached"}
+            {text.length < 10
+              ? `${10 - text.length} more characters needed`
+              : "✓ Minimum reached"}
           </p>
           <p className="text-xs text-gray-400">{text.length}/500</p>
         </div>

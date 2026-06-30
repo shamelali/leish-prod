@@ -1,5 +1,5 @@
-export { sendEmail } from "./brevo"
-export type { EmailPayload } from "./brevo"
+export { sendEmail } from "./brevo";
+export type { EmailPayload } from "./brevo";
 export {
   bookingConfirmationTemplate,
   bookingReminderTemplate,
@@ -13,4 +13,4 @@ export {
   subscriptionCanceledTemplate,
   notificationEmailTemplate,
   shamelNotificationTemplate,
-} from "./templates"
+} from "./templates";
