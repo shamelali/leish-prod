@@ -26,7 +26,7 @@ export default async function handler(req: Request) {
           });
         }
 
-        const bookingsResult = await pool.query(
+const bookingsResult = await pool.query(
           `SELECT b.id, b.date, b.time, b.status, b.amount,
                   a.name as "artistName", a.image as "artistImage",
                   s.name as "serviceName",
@@ -48,7 +48,6 @@ export default async function handler(req: Request) {
           [userId],
         );
 
-        await pool.end();
         return new Response(
           JSON.stringify({
             bookings: bookingsResult.rows,
@@ -71,16 +70,15 @@ export default async function handler(req: Request) {
           });
         }
 
-        if (req.method === "GET") {
+if (req.method === "GET") {
           const favoritesResult = await pool.query(
             `SELECT f.*, a.name, a.image, a.location, a.rating, a.price
-            FROM favorites f
-            JOIN artists a ON a.id = f."artistId"
-            WHERE f."userId" = $1
-            ORDER BY f."createdAt" DESC`,
+             FROM favorites f
+             JOIN artists a ON a.id = f."artistId"
+             WHERE f."userId" = $1
+             ORDER BY f."createdAt" DESC`,
             [userId],
           );
-          await pool.end();
           return new Response(
             JSON.stringify({ favorites: favoritesResult.rows }),
             {
@@ -97,7 +95,6 @@ export default async function handler(req: Request) {
             `INSERT INTO favorites ("userId", "artistId") VALUES ($1, $2) ON CONFLICT DO NOTHING`,
             [userId, artistId],
           );
-          await pool.end();
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -111,7 +108,6 @@ export default async function handler(req: Request) {
             `DELETE FROM favorites WHERE "userId" = $1 AND "artistId" = $2`,
             [userId, artistId],
           );
-          await pool.end();
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -140,10 +136,10 @@ export default async function handler(req: Request) {
           );
         }
 
-        const reviewResult = await pool.query(
+const reviewResult = await pool.query(
           `INSERT INTO reviews ("userId", "artistId", rating, text, author, service)
-          VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING *`,
+           VALUES ($1, $2, $3, $4, $5, $6)
+           RETURNING *`,
           [userId, artistId, rating, text, author, service],
         );
 
@@ -155,7 +151,6 @@ export default async function handler(req: Request) {
           [artistId],
         );
 
-        await pool.end();
         return new Response(JSON.stringify({ review: reviewResult.rows[0] }), {
           status: 201,
           headers: { "Content-Type": "application/json" },
@@ -183,45 +178,42 @@ export default async function handler(req: Request) {
           );
         }
 
-        const currentResult = await pool.query(
-          `SELECT * FROM bookings WHERE id = $1`,
-          [bookingId],
-        );
-        const current = currentResult.rows[0];
-
-        if (!current) {
-          await pool.end();
-          return new Response(JSON.stringify({ error: "Booking not found" }), {
-            status: 404,
-          });
-        }
-
-        const cancellable = ["pending", "confirmed", "paid_deposit"];
-        if (!cancellable.includes(current.status)) {
-          await pool.end();
-          return new Response(
-            JSON.stringify({
-              error: `Cannot cancel booking with status '${current.status}'`,
-            }),
-            { status: 400 },
+const currentResult = await pool.query(
+            `SELECT * FROM bookings WHERE id = $1`,
+            [bookingId],
           );
-        }
+          const current = currentResult.rows[0];
 
-        const bookingResult = await pool.query(
-          `UPDATE bookings SET status = 'cancelled', "updatedAt" = NOW()
-          WHERE id = $1
-          RETURNING *`,
-          [bookingId],
-        );
+          if (!current) {
+            return new Response(JSON.stringify({ error: "Booking not found" }), {
+              status: 404,
+            });
+          }
 
-        await pool.end();
-        return new Response(
-          JSON.stringify({ booking: bookingResult.rows[0] }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          },
-        );
+          const cancellable = ["pending", "confirmed", "paid_deposit"];
+          if (!cancellable.includes(current.status)) {
+            return new Response(
+              JSON.stringify({
+                error: `Cannot cancel booking with status '${current.status}'`,
+              }),
+              { status: 400 },
+            );
+          }
+
+          const bookingResult = await pool.query(
+            `UPDATE bookings SET status = 'cancelled', "updatedAt" = NOW()
+            WHERE id = $1
+            RETURNING *`,
+            [bookingId],
+          );
+
+          return new Response(
+            JSON.stringify({ booking: bookingResult.rows[0] }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
       }
 
       case "confirm-booking": {
@@ -239,24 +231,22 @@ export default async function handler(req: Request) {
             status: 400,
           });
         }
-        const confirmResult = await pool.query(
-          `UPDATE bookings SET status = 'confirmed', "updatedAt" = NOW()
-           WHERE id = $1 AND status = 'pending'
-           RETURNING *`,
-          [confirmBookingId],
-        );
-        if (!confirmResult.rows[0]) {
-          await pool.end();
-          return new Response(
-            JSON.stringify({ error: "Booking not found or not pending" }),
-            { status: 400 },
+const confirmResult = await pool.query(
+            `UPDATE bookings SET status = 'confirmed', "updatedAt" = NOW()
+            WHERE id = $1 AND status = 'pending'
+            RETURNING *`,
+            [confirmBookingId],
           );
-        }
-        await pool.end();
-        return new Response(
-          JSON.stringify({ booking: confirmResult.rows[0] }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
+          if (!confirmResult.rows[0]) {
+            return new Response(
+              JSON.stringify({ error: "Booking not found or not pending" }),
+              { status: 400 },
+            );
+          }
+          return new Response(
+            JSON.stringify({ booking: confirmResult.rows[0] }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
       }
 
       case "reject-booking": {
@@ -269,25 +259,22 @@ export default async function handler(req: Request) {
         const rejectBody = await req.json();
         const rejectBookingId = rejectBody.bookingId;
         if (!rejectBookingId) {
-          await pool.end();
           return new Response(JSON.stringify({ error: "bookingId required" }), {
             status: 400,
           });
         }
         const rejectResult = await pool.query(
-          `UPDATE bookings SET status = 'cancelled', "updatedAt" = NOW()
+          `UPDATE bookings SET status = 'rejected', "updatedAt" = NOW()
            WHERE id = $1 AND status = 'pending'
            RETURNING *`,
           [rejectBookingId],
         );
         if (!rejectResult.rows[0]) {
-          await pool.end();
           return new Response(
             JSON.stringify({ error: "Booking not found or not pending" }),
             { status: 400 },
           );
         }
-        await pool.end();
         return new Response(
           JSON.stringify({ booking: rejectResult.rows[0] }),
           { status: 200, headers: { "Content-Type": "application/json" } },
@@ -305,58 +292,53 @@ export default async function handler(req: Request) {
         const { email, name, role } = await req.json();
 
         if (!email || !name || !role) {
-          await pool.end();
-          return new Response(
-            JSON.stringify({ error: "email, name, and role required" }),
-            { status: 400 },
-          );
-        }
+            return new Response(
+              JSON.stringify({ error: "email, name, and role required" }),
+              { status: 400 },
+            );
+          }
 
-        const validRoles = ["client", "artist", "studio"];
-        if (!validRoles.includes(role)) {
-          await pool.end();
-          return new Response(
-            JSON.stringify({
-              error: "role must be one of: client, artist, studio",
-            }),
-            { status: 400 },
-          );
-        }
-
-        try {
-          const { sendWelcomeEmail } = await import("../src/lib/email/welcome");
-          const result = await sendWelcomeEmail({ email, name, role });
-
-          await pool.end();
-
-          if (!result.success) {
+          const validRoles = ["client", "artist", "studio"];
+          if (!validRoles.includes(role)) {
             return new Response(
               JSON.stringify({
-                success: false,
-                error: "Failed to send welcome email",
+                error: "role must be one of: client, artist, studio",
               }),
+              { status: 400 },
+            );
+          }
+
+          try {
+            const { sendWelcomeEmail } = await import("../src/lib/email/welcome");
+            const result = await sendWelcomeEmail({ email, name, role });
+
+            if (!result.success) {
+              return new Response(
+                JSON.stringify({
+                  success: false,
+                  error: "Failed to send welcome email",
+                }),
+                {
+                  status: 500,
+                  headers: { "Content-Type": "application/json" },
+                },
+              );
+            }
+
+            return new Response(JSON.stringify({ success: true }), {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          } catch (err) {
+            console.error("Welcome email failed:", err);
+            return new Response(
+              JSON.stringify({ success: false, error: "Welcome email failed" }),
               {
                 status: 500,
                 headers: { "Content-Type": "application/json" },
               },
             );
           }
-
-          return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        } catch (err) {
-          console.error("Welcome email failed:", err);
-          await pool.end();
-          return new Response(
-            JSON.stringify({ success: false, error: "Welcome email failed" }),
-            {
-              status: 500,
-              headers: { "Content-Type": "application/json" },
-            },
-          );
-        }
       }
 
       case "notifications": {
@@ -376,7 +358,6 @@ export default async function handler(req: Request) {
              ORDER BY "createdAt" DESC`,
             [userId],
           );
-          await pool.end();
           return new Response(
             JSON.stringify({ notifications: notifResult.rows }),
             {
@@ -391,7 +372,6 @@ export default async function handler(req: Request) {
           const { action, notificationId } = body;
           if (action === "mark-read") {
             if (!notificationId) {
-              await pool.end();
               return new Response(
                 JSON.stringify({ error: "notificationId required" }),
                 { status: 400 },
@@ -408,7 +388,6 @@ export default async function handler(req: Request) {
             );
           } else if (action === "delete") {
             if (!notificationId) {
-              await pool.end();
               return new Response(
                 JSON.stringify({ error: "notificationId required" }),
                 { status: 400 },
@@ -423,12 +402,10 @@ export default async function handler(req: Request) {
               userId,
             ]);
           } else {
-            await pool.end();
             return new Response(JSON.stringify({ error: "Invalid action" }), {
               status: 400,
             });
           }
-          await pool.end();
           return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
