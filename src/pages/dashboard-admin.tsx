@@ -130,7 +130,9 @@ export default function DashboardAdmin() {
           else if (t === "payments") setPayments(data.payments || []);
         }
       }
-    } catch {}
+    } catch (err) {
+      console.error("Admin fetch failed:", err);
+    }
     setLoading(false);
   };
 
@@ -146,7 +148,7 @@ export default function DashboardAdmin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ artistId, verified }),
       });
-      fetchData("artists");
+      await fetchData("artists");
     } finally {
       setActionLoading("");
     }
@@ -161,7 +163,7 @@ export default function DashboardAdmin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ artistId }),
       });
-      fetchData("artists");
+      await fetchData("artists");
     } finally {
       setActionLoading("");
     }

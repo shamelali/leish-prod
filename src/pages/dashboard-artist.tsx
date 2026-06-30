@@ -132,9 +132,7 @@ export default function DashboardArtist() {
       body: JSON.stringify({ bookingId }),
     });
     setBookings((prev: any[]) =>
-      prev.map((b) =>
-        b.id === bookingId ? { ...b, status: "confirmed" } : b,
-      ),
+      prev.map((b) => (b.id === bookingId ? { ...b, status: "confirmed" } : b)),
     );
   };
 
@@ -145,9 +143,7 @@ export default function DashboardArtist() {
       body: JSON.stringify({ bookingId }),
     });
     setBookings((prev: any[]) =>
-      prev.map((b) =>
-        b.id === bookingId ? { ...b, status: "cancelled" } : b,
-      ),
+      prev.map((b) => (b.id === bookingId ? { ...b, status: "cancelled" } : b)),
     );
   };
 

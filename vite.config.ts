@@ -6,11 +6,11 @@ import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  
+
   const plugins = [
     react(),
     tailwindcss({
-      config: "./tailwind.config.js"
+      config: "./tailwind.config.js",
     }),
   ];
 
@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
         filename: "stats.html",
         gzipSize: true,
         brotliSize: true,
-      })
+      }),
     );
   }
 

@@ -1,9 +1,23 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X, ArrowRight, Star, MapPin } from "lucide-react";
-import { artists, categories } from "../data/artists";
 import ImageWithFallback from "./ImageWithFallback";
 import { getDictionary, type Locale } from "../lib/i18n";
+
+interface ArtistResult {
+  id: string;
+  name: string;
+  image: string;
+  location: string;
+  rating: string;
+}
+
+interface CategoryResult {
+  id: number;
+  name: string;
+  slug: string;
+  icon: string;
+}
 
 export default function SearchModal({
   locale = "en",
@@ -15,8 +29,12 @@ export default function SearchModal({
   const t = dict ?? getDictionary(locale as Locale);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [artists, setArtists] = useState<ArtistResult[]>([]);
+  const [allCategories, setAllCategories] = useState<CategoryResult[]>([]);
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,34 +55,57 @@ export default function SearchModal({
     if (!open) setQuery("");
   }, [open]);
 
-  const results = query.trim()
-    ? artists
-        .filter(
-          (a) =>
-            a.name.toLowerCase().includes(query.toLowerCase()) ||
-            a.location.toLowerCase().includes(query.toLowerCase()) ||
-            a.categories.some((c) =>
-              c.toLowerCase().includes(query.toLowerCase()),
-            ),
-        )
-        .slice(0, 5)
-    : [];
+  useEffect(() => {
+    fetch("/api/artists?limit=1")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.categories) setAllCategories(data.categories);
+      })
+      .catch(() => {});
+  }, []);
+
+  const fetchResults = useCallback(async (q: string) => {
+    if (!q.trim()) {
+      setArtists([]);
+      return;
+    }
+    setLoading(true);
+    try {
+      const r = await fetch(
+        `/api/artists?limit=5&search=${encodeURIComponent(q)}`,
+      );
+      const data = await r.json();
+      setArtists(data.artists || []);
+    } catch {
+      console.error("Search fetch failed");
+      setArtists([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchResults(query), 200);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query, fetchResults]);
 
   const categoryResults = query.trim()
-    ? categories
+    ? allCategories
         .filter(
           (c) =>
             c.name.toLowerCase().includes(query.toLowerCase()) ||
-            c.id.toLowerCase().includes(query.toLowerCase()),
+            c.slug.toLowerCase().includes(query.toLowerCase()),
         )
         .slice(0, 3)
     : [];
 
-  const hasResults = results.length > 0 || categoryResults.length > 0;
+  const hasResults = artists.length > 0 || categoryResults.length > 0;
 
   return (
     <>
-      {/* Trigger button - hidden on mobile, shown in navbar area */}
       <button
         onClick={() => setOpen(true)}
         className="hidden lg:flex items-center gap-2 px-4 py-2 text-sm text-gray-400 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl hover:border-rose-200 dark:hover:border-rose-800 transition-all min-w-[200px]"
@@ -76,7 +117,6 @@ export default function SearchModal({
         </kbd>
       </button>
 
-      {/* Mobile trigger */}
       <button
         onClick={() => setOpen(true)}
         className="lg:hidden p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-all"
@@ -85,7 +125,6 @@ export default function SearchModal({
         <Search className="w-5 h-5" />
       </button>
 
-      {/* Modal */}
       {open && (
         <div className="fixed inset-0 z-[70] flex items-start justify-center pt-[15vh]">
           <div
@@ -93,7 +132,6 @@ export default function SearchModal({
             onClick={() => setOpen(false)}
           />
           <div className="relative w-full max-w-xl mx-4 bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-neutral-700 overflow-hidden animate-scale-in">
-            {/* Search input */}
             <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 dark:border-neutral-800">
               <Search className="w-5 h-5 text-gray-400 shrink-0" />
               <input
@@ -117,7 +155,6 @@ export default function SearchModal({
               </kbd>
             </div>
 
-            {/* Results */}
             <div className="max-h-[400px] overflow-y-auto">
               {query.trim() === "" ? (
                 <div className="p-8 text-center">
@@ -126,12 +163,12 @@ export default function SearchModal({
                     {t.search.placeholder}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                    {categories.slice(0, 5).map((cat) => (
+                    {allCategories.slice(0, 5).map((cat) => (
                       <button
                         key={cat.id}
                         onClick={() => {
                           setOpen(false);
-                          navigate(`/artists?category=${cat.id}`);
+                          navigate(`/artists?category=${cat.slug}`);
                         }}
                         className="px-3 py-1.5 text-xs font-medium bg-gray-50 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                       >
@@ -140,7 +177,7 @@ export default function SearchModal({
                     ))}
                   </div>
                 </div>
-              ) : !hasResults ? (
+              ) : !hasResults && !loading ? (
                 <div className="p-8 text-center">
                   <p className="text-sm text-gray-400 dark:text-gray-500">
                     {t.search.noResults} &ldquo;{query}&rdquo;
@@ -158,28 +195,25 @@ export default function SearchModal({
                           key={cat.id}
                           onClick={() => {
                             setOpen(false);
-                            navigate(`/artists?category=${cat.id}`);
+                            navigate(`/artists?category=${cat.slug}`);
                           }}
                           className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left"
                         >
                           <span className="text-lg">{cat.icon}</span>
                           <div className="flex-1">
                             <span className="font-medium">{cat.name}</span>
-                            <span className="text-xs text-gray-400 ml-2">
-                              {cat.count} artists
-                            </span>
                           </div>
                           <ArrowRight className="w-3.5 h-3.5 text-gray-300 dark:text-neutral-600" />
                         </button>
                       ))}
                     </>
                   )}
-                  {results.length > 0 && (
+                  {artists.length > 0 && (
                     <>
                       <p className="px-5 py-2 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-1">
                         {t.search.artists}
                       </p>
-                      {results.map((artist) => (
+                      {artists.map((artist) => (
                         <button
                           key={artist.id}
                           onClick={() => {
@@ -212,19 +246,21 @@ export default function SearchModal({
                       ))}
                     </>
                   )}
-                  <div className="px-5 py-3 border-t border-gray-50 dark:border-neutral-800">
-                    <button
-                      onClick={() => {
-                        setOpen(false);
-                        navigate(
-                          `/artists?category=&search=${encodeURIComponent(query)}`,
-                        );
-                      }}
-                      className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium flex items-center gap-1"
-                    >
-                      {t.common.viewAll} <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
+                  {query.trim() && (
+                    <div className="px-5 py-3 border-t border-gray-50 dark:border-neutral-800">
+                      <button
+                        onClick={() => {
+                          setOpen(false);
+                          navigate(
+                            `/artists?category=&search=${encodeURIComponent(query)}`,
+                          );
+                        }}
+                        className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium flex items-center gap-1"
+                      >
+                        {t.common.viewAll} <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

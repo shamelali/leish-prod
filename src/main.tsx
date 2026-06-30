@@ -13,7 +13,7 @@ createRoot(document.getElementById("root")!).render(
         authClient={authClient}
         redirectTo="/"
         social={{
-          providers: ["google", "facebook", "github", "apple"],
+          providers: ["google", "github"],
         }}
       >
         <App />

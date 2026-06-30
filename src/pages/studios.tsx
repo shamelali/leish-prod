@@ -34,8 +34,8 @@ export default function Studios() {
           setStudios(data.studios);
         }
         setTotalPages(data.pagination.totalPages);
-      } catch {
-        // ignore
+      } catch (err) {
+        console.error("Failed to fetch studios:", err);
       } finally {
         setLoading(false);
         setLoadingMore(false);

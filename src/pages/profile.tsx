@@ -33,7 +33,9 @@ export default function Profile() {
           const data = await res.json();
           setBookings(data.bookings || []);
         }
-      } catch {}
+      } catch (err) {
+        console.error("Failed to fetch bookings:", err);
+      }
       setBookingsLoading(false);
     };
     fetchBookings();
@@ -64,9 +66,7 @@ export default function Profile() {
       body: JSON.stringify({ bookingId }),
     });
     setBookings((prev) =>
-      prev.map((b) =>
-        b.id === bookingId ? { ...b, status: "cancelled" } : b,
-      ),
+      prev.map((b) => (b.id === bookingId ? { ...b, status: "cancelled" } : b)),
     );
   };
 
@@ -119,11 +119,29 @@ export default function Profile() {
             </div>
             <div className="space-y-4">
               {[
-                { icon: User, label: "Name", value: form.name, key: "name" as const },
-                { icon: Mail, label: "Email", value: form.email, key: "email" as const },
-                { icon: Phone, label: "Phone", value: form.phone, key: "phone" as const },
+                {
+                  icon: User,
+                  label: "Name",
+                  value: form.name,
+                  key: "name" as const,
+                },
+                {
+                  icon: Mail,
+                  label: "Email",
+                  value: form.email,
+                  key: "email" as const,
+                },
+                {
+                  icon: Phone,
+                  label: "Phone",
+                  value: form.phone,
+                  key: "phone" as const,
+                },
               ].map(({ icon: Icon, label, value, key }) => (
-                <div key={key} className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-neutral-800 rounded-xl">
+                <div
+                  key={key}
+                  className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-neutral-800 rounded-xl"
+                >
                   <Icon className="w-5 h-5 text-gray-400" />
                   <div className="flex-1">
                     <p className="text-xs text-gray-400">{label}</p>
@@ -131,11 +149,15 @@ export default function Profile() {
                       <input
                         type="text"
                         value={value}
-                        onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                        onChange={(e) =>
+                          setForm({ ...form, [key]: e.target.value })
+                        }
                         className="w-full bg-transparent text-gray-900 dark:text-white font-medium focus:outline-none"
                       />
                     ) : (
-                      <p className="text-gray-900 dark:text-white font-medium">{value}</p>
+                      <p className="text-gray-900 dark:text-white font-medium">
+                        {value}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -145,7 +167,11 @@ export default function Profile() {
               <button
                 onClick={() => {
                   setEditing(false);
-                  setForm({ name: user.name, email: user.email, phone: user.phone });
+                  setForm({
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                  });
                 }}
                 className="mt-3 text-sm text-gray-400 hover:text-gray-600 transition-colors"
               >
@@ -165,7 +191,10 @@ export default function Profile() {
             ) : (
               <div className="space-y-3">
                 {bookings.map((b) => (
-                  <div key={b.id} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-neutral-800 rounded-xl">
+                  <div
+                    key={b.id}
+                    className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-neutral-800 rounded-xl"
+                  >
                     <div className="w-12 h-12 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
                       {(b.artistName || "?").charAt(0)}
                     </div>
@@ -173,7 +202,9 @@ export default function Profile() {
                       <p className="font-semibold text-sm text-gray-900 dark:text-white">
                         {b.artistName || "Artist"}
                       </p>
-                      <p className="text-xs text-gray-400">{b.serviceName || b.serviceName}</p>
+                      <p className="text-xs text-gray-400">
+                        {b.serviceName || b.serviceName}
+                      </p>
                       <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
@@ -186,15 +217,18 @@ export default function Profile() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        b.status === "confirmed" || b.status === "paid_deposit"
-                          ? "bg-green-50 dark:bg-green-950/50 text-green-600 dark:text-green-400"
-                          : b.status === "completed"
-                            ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400"
-                            : b.status === "cancelled"
-                              ? "bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400"
-                              : "bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400"
-                      }`}>
+                      <span
+                        className={`text-xs font-medium px-2 py-1 rounded-full ${
+                          b.status === "confirmed" ||
+                          b.status === "paid_deposit"
+                            ? "bg-green-50 dark:bg-green-950/50 text-green-600 dark:text-green-400"
+                            : b.status === "completed"
+                              ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400"
+                              : b.status === "cancelled"
+                                ? "bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400"
+                                : "bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400"
+                        }`}
+                      >
                         {b.status}
                       </span>
                       {(b.status === "confirmed" || b.status === "pending") && (

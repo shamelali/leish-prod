@@ -53,8 +53,8 @@ export default function Artists() {
         }
         setCategories(data.categories);
         setTotalPages(data.pagination.totalPages);
-      } catch {
-        // ignore
+      } catch (err) {
+        console.error("Failed to fetch artists:", err);
       } finally {
         setLoading(false);
         setLoadingMore(false);

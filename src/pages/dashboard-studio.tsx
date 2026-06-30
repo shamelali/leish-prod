@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { BarChart3, Users, DollarSign, Star, TrendingUp, Calendar, Clock, Wallet } from "lucide-react";
+import {
+  BarChart3,
+  Users,
+  DollarSign,
+  Star,
+  TrendingUp,
+  Calendar,
+  Clock,
+  Wallet,
+} from "lucide-react";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../context/AuthContext";
 
@@ -32,14 +41,18 @@ export default function DashboardStudio() {
     if (!user?.id) return;
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/studios?action=dashboard&userId=${user.id}`);
+        const res = await fetch(
+          `/api/studios?action=dashboard&userId=${user.id}`,
+        );
         if (res.ok) {
           const data = await res.json();
           setStats(data.stats);
           setRecentBookings(data.recentBookings || []);
           setStudioName(data.studio?.name || "Studio Dashboard");
         }
-      } catch {}
+      } catch (err) {
+        console.error("Failed to load studio dashboard:", err);
+      }
       setLoading(false);
     };
     fetchData();
@@ -77,19 +90,50 @@ export default function DashboardStudio() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { icon: Users, label: "Artists", value: stats.artists, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-950/30" },
-          { icon: BarChart3, label: "Bookings", value: stats.bookings, color: "text-green-500", bg: "bg-green-50 dark:bg-green-950/30" },
-          { icon: DollarSign, label: "Revenue", value: `MYR ${stats.revenue.toLocaleString()}`, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/30" },
-          { icon: Star, label: "Rating", value: stats.rating, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-950/30" },
+          {
+            icon: Users,
+            label: "Artists",
+            value: stats.artists,
+            color: "text-blue-500",
+            bg: "bg-blue-50 dark:bg-blue-950/30",
+          },
+          {
+            icon: BarChart3,
+            label: "Bookings",
+            value: stats.bookings,
+            color: "text-green-500",
+            bg: "bg-green-50 dark:bg-green-950/30",
+          },
+          {
+            icon: DollarSign,
+            label: "Revenue",
+            value: `MYR ${stats.revenue.toLocaleString()}`,
+            color: "text-amber-500",
+            bg: "bg-amber-50 dark:bg-amber-950/30",
+          },
+          {
+            icon: Star,
+            label: "Rating",
+            value: stats.rating,
+            color: "text-rose-500",
+            bg: "bg-rose-50 dark:bg-rose-950/30",
+          },
         ].map(({ icon: Icon, label, value, color, bg }) => (
-          <div key={label} className={`p-6 ${bg} rounded-2xl border border-gray-100 dark:border-neutral-800`}>
+          <div
+            key={label}
+            className={`p-6 ${bg} rounded-2xl border border-gray-100 dark:border-neutral-800`}
+          >
             <div className="flex items-center gap-3 mb-3">
               <div className={`p-2 rounded-lg ${bg}`}>
                 <Icon className={`w-5 h-5 ${color}`} />
               </div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">{label}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {label}
+              </span>
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {value}
+            </p>
           </div>
         ))}
       </div>
@@ -98,9 +142,13 @@ export default function DashboardStudio() {
         <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-2xl border border-amber-100 dark:border-amber-900/50 mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Wallet className="w-5 h-5 text-amber-500" />
-            <span className="text-sm font-medium text-amber-700 dark:text-amber-300">Pending Balance</span>
+            <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+              Pending Balance
+            </span>
           </div>
-          <p className="text-lg font-bold text-amber-800 dark:text-amber-200">MYR {stats.pendingBalance.toLocaleString()}</p>
+          <p className="text-lg font-bold text-amber-800 dark:text-amber-200">
+            MYR {stats.pendingBalance.toLocaleString()}
+          </p>
         </div>
       )}
 
@@ -113,7 +161,10 @@ export default function DashboardStudio() {
         ) : (
           <div className="space-y-3">
             {recentBookings.map((b) => (
-              <div key={b.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-neutral-800 rounded-xl">
+              <div
+                key={b.id}
+                className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-neutral-800 rounded-xl"
+              >
                 <div className="w-2 h-2 rounded-full bg-rose-500" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -126,12 +177,17 @@ export default function DashboardStudio() {
                     {b.time || "—"}
                   </p>
                 </div>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  b.status === "confirmed" ? "bg-green-50 text-green-600 dark:bg-green-950/30"
-                  : b.status === "completed" ? "bg-blue-50 text-blue-600 dark:bg-blue-950/30"
-                  : b.status === "cancelled" ? "bg-red-50 text-red-600 dark:bg-red-950/30"
-                  : "bg-amber-50 text-amber-600 dark:bg-amber-950/30"
-                }`}>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    b.status === "confirmed"
+                      ? "bg-green-50 text-green-600 dark:bg-green-950/30"
+                      : b.status === "completed"
+                        ? "bg-blue-50 text-blue-600 dark:bg-blue-950/30"
+                        : b.status === "cancelled"
+                          ? "bg-red-50 text-red-600 dark:bg-red-950/30"
+                          : "bg-amber-50 text-amber-600 dark:bg-amber-950/30"
+                  }`}
+                >
                   {b.status}
                 </span>
               </div>

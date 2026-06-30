@@ -67,16 +67,26 @@ export default async function handler(req: Request) {
 
         let released = 0;
         for (const payment of heldPaymentsResult.rows) {
-          await pool.query(
-            `INSERT INTO payouts ("userId", amount, status, "paymentId")
-            VALUES ($1, $2, 'released', $3)`,
-            [payment.userId, payment.amount, payment.id],
-          );
-          await pool.query(
-            `UPDATE payments SET status = 'released', "updatedAt" = NOW() WHERE id = $1`,
-            [payment.id],
-          );
-          released++;
+          const client = await pool.connect();
+          try {
+            await client.query("BEGIN");
+            await client.query(
+              `INSERT INTO payouts ("userId", amount, status, "paymentId")
+               VALUES ($1, $2, 'released', $3)`,
+              [payment.userId, payment.amount, payment.id],
+            );
+            await client.query(
+              `UPDATE payments SET status = 'released', "updatedAt" = NOW() WHERE id = $1`,
+              [payment.id],
+            );
+            await client.query("COMMIT");
+            released++;
+          } catch (err) {
+            await client.query("ROLLBACK");
+            console.error("Failed to release payment:", payment.id, err);
+          } finally {
+            client.release();
+          }
         }
 
         await pool.end();
