@@ -74,6 +74,7 @@ export const categories = pgTable('categories', {
 export const artists = pgTable('artists', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 255 }),
   email: varchar('email', { length: 255 }),
   image: text('image'),
   phone: varchar('phone', { length: 50 }),
@@ -104,6 +105,7 @@ export const artistCategories = pgTable('artist_categories', {
 export const studios = pgTable('studios', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 255 }),
   email: varchar('email', { length: 255 }),
   image: text('image'),
   phone: varchar('phone', { length: 50 }),
@@ -113,6 +115,7 @@ export const studios = pgTable('studios', {
   reviewCount: integer('review_count').default(0),
   description: text('description'),
   price: decimal('price', { precision: 10, scale: 2 }).default('0'),
+  featured: boolean('featured').default(false),
   userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),

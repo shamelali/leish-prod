@@ -1,16 +1,18 @@
 import { Pool } from '@neondatabase/serverless';
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: Request) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
   }
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
-  const category = req.query.category;
-  const search = req.query.search;
-  const sort = req.query.sort || 'rating';
-  const page = parseInt(req.query.page || '1');
-  const limit = parseInt(req.query.limit || '6');
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const baseUrl = `https://${req.headers.get('host') || 'localhost'}`;
+  const url = new URL(req.url, baseUrl);
+  const category = url.searchParams.get('category');
+  const search = url.searchParams.get('search');
+  const sort = url.searchParams.get('sort') || 'rating';
+  const page = parseInt(url.searchParams.get('page') || '1');
+  const limit = parseInt(url.searchParams.get('limit') || '6');
 
   try {
     const conditions: string[] = [];
@@ -68,14 +70,24 @@ export default async function handler(req: any, res: any) {
 
     await pool.end();
 
-    return res.status(200).json({
+    return new Response(JSON.stringify({
       artists: artistsResult.rows,
       categories: allCatsResult.rows,
       pagination: { page, limit, total, totalPages },
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
     await pool.end();
     console.error('[Artists] DB error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
+
+export const config = {
+  regions: ['iad1'],
+};

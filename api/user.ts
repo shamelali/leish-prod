@@ -157,30 +157,17 @@ export default async function handler(req: Request) {
           return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
         }
 
-        const { email, name, role, userId } = await req.json();
+        const { email, name, role } = await req.json();
 
-        if (!email || !name || !role || !userId) {
+        if (!email || !name || !role) {
           await pool.end();
-          return new Response(JSON.stringify({ error: 'email, name, role, and userId required' }), { status: 400 });
+          return new Response(JSON.stringify({ error: 'email, name, and role required' }), { status: 400 });
         }
 
         const validRoles = ['client', 'artist', 'studio'];
         if (!validRoles.includes(role)) {
           await pool.end();
           return new Response(JSON.stringify({ error: 'role must be one of: client, artist, studio' }), { status: 400 });
-        }
-
-        const userResult = await pool.query(`SELECT email FROM users WHERE id = $1`, [userId]);
-        const user = userResult.rows[0];
-
-        if (!user) {
-          await pool.end();
-          return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
-        }
-
-        if (user.email !== email) {
-          await pool.end();
-          return new Response(JSON.stringify({ error: 'Email address does not match authenticated user' }), { status: 403 });
         }
 
         try {

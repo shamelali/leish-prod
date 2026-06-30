@@ -17,7 +17,11 @@ export default async function handler(req: Request) {
       }
       case 'studios': {
         const result = await pool.query(
-          `SELECT id, name, slug, location, area, rating, "reviewCount", "artistsCount", featured, available, "createdAt" FROM studios ORDER BY "createdAt" DESC LIMIT 50`
+          `SELECT s.id, s.name, s.slug, s.location, s.area, s.rating, s."reviewCount", s.featured, s.available, s."createdAt",
+                  (SELECT COUNT(*) FROM artists a WHERE a."studioId" = s.id)::int AS "artistsCount"
+           FROM studios s
+           ORDER BY s."createdAt" DESC
+           LIMIT 50`
         );
         await pool.end();
         return json({ studios: result.rows });

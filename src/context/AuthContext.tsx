@@ -61,33 +61,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const PROFILE_KEY = "leish_user_profile";
 
-const sampleBookings: Booking[] = [
-  {
-    id: "b1",
-    artistId: "aiko-nakamura",
-    artistName: "Aiko Nakamura",
-    artistImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-    service: "Bridal Full Glam",
-    date: "2026-07-15",
-    time: "09:00",
-    price: 450,
-    status: "confirmed",
-    createdAt: "2026-06-20T10:00:00Z",
-  },
-  {
-    id: "b2",
-    artistId: "mei-lin",
-    artistName: "Mei Lin",
-    artistImage: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-    service: "Event Glam",
-    date: "2026-06-28",
-    time: "14:00",
-    price: 300,
-    status: "completed",
-    createdAt: "2026-06-15T08:00:00Z",
-  },
-];
-
 function loadProfile(): Partial<User> | null {
   try {
     const stored = localStorage.getItem(PROFILE_KEY);
@@ -201,8 +174,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     if (error) return { success: false, error: error.message || "Registration failed." };
 
+    const session = await authClient.getSession();
+    const neonUserId = session?.data?.user?.id;
+
     const profile: Partial<User> = {
-      id: data.email.replace(/[^a-z0-9]/g, "_"),
+      id: neonUserId || data.email.replace(/[^a-z0-9]/g, "_"),
       name: data.name,
       email: data.email,
       phone: data.phone,
@@ -216,6 +192,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       bookings: [],
     };
     saveProfile(profile);
+
+    if (neonUserId) {
+      try {
+        await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: neonUserId, name: data.name, email: data.email, role: data.role }),
+        });
+      } catch (err) {
+        console.error('Profile sync failed:', err);
+      }
+    }
 
     setUser(buildUser({ user: { id: profile.id || '', name: profile.name, email: profile.email } }, profile));
 

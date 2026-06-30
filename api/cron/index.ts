@@ -22,20 +22,17 @@ export default async function handler(req: Request) {
       case 'cleanup': {
         const results: { cleaned: number; message: string }[] = [];
 
-        const slotsResult = await pool.query(
-          `DELETE FROM availability_slots
-           WHERE is_booked = false
-             AND "date" < NOW() - INTERVAL '7 days'
-           RETURNING id`
-        );
-        results.push({ cleaned: slotsResult.rowCount || 0, message: 'Expired availability slots' });
-
-        const logsResult = await pool.query(
-          `DELETE FROM admin_audit_log
-           WHERE created_at < NOW() - INTERVAL '90 days'
-           RETURNING id`
-        );
-        results.push({ cleaned: logsResult.rowCount || 0, message: 'Old audit logs' });
+        try {
+          const slotsResult = await pool.query(
+            `DELETE FROM availability_slots
+             WHERE is_booked = false
+               AND "date" < NOW() - INTERVAL '7 days'
+             RETURNING id`
+          );
+          results.push({ cleaned: slotsResult.rowCount || 0, message: 'Expired availability slots' });
+        } catch {
+          results.push({ cleaned: 0, message: 'Expired availability slots (table may not exist)' });
+        }
 
         await pool.end();
         return new Response(JSON.stringify({ success: true, results }), {

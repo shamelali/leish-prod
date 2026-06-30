@@ -24,7 +24,7 @@ export default function Navbar({
   const { user, logout } = useAuth();
   const { theme, toggle } = useTheme();
   const { count: favCount } = useFavorites();
-  const { unread: notifUnread, addNotification } = useNotifications();
+  const { unread: _notifUnread, addNotification } = useNotifications();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -168,7 +168,7 @@ export default function Navbar({
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all">
+                <Link to="/auth/login" className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-all">
                   {t.nav.login}
                 </Link>
                 <Link
@@ -243,7 +243,7 @@ export default function Navbar({
                 </>
               ) : (
                 <div className="space-y-2">
-                  <Link to="/login" onClick={() => setOpen(false)} className="block text-center px-5 py-3 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200">{t.nav.login}</Link>
+                  <Link to="/auth/login" onClick={() => setOpen(false)} className="block text-center px-5 py-3 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-neutral-700 hover:border-rose-200">{t.nav.login}</Link>
                   <Link to="/register" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-semibold rounded-xl shadow-lg shadow-rose-200/50 dark:shadow-rose-900/30">
                     {t.nav.signup}
                   </Link>
